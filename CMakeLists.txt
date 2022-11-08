@@ -17,7 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ${cooperative_perception_EXPORT_COMPILE_COMMAN
 
 # Language standard is required for all project targets
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD 11) # C17 available starting in CMake 3.21
 
 include(dependencies.cmake)
 
