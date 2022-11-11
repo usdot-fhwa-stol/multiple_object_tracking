@@ -3,6 +3,9 @@
 # cmake-file-api files generated in the project build directory
 **/.cmake/api
 
+# Ninja build files not covered by GitHub Ninja.gitignore reference
+*.ninja
+
 
 # Covers Visual Studio Code (VS Code)
 # Reference: https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
@@ -68,3 +71,10 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+
+
+# Covers Ninja
+# Reference: https://github.com/github/gitignore/blob/main/Global/Ninja.gitignore
+
+.ninja_deps
+.ninja_log
