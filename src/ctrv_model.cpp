@@ -1,4 +1,3 @@
-#include <chrono>
 #include <cmath>
 #include "cooperative_perception/ctrv_model.hpp"
 #include "cooperative_perception/utils.hpp"
