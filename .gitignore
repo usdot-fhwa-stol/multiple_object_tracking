@@ -1,5 +1,8 @@
 # Custom additions
 
+# some build files are not easily distinguished, so let's ignore the whole directory
+build
+
 # cmake-file-api files generated in the project build directory
 **/.cmake/api
 
