@@ -2,6 +2,7 @@
 #include <units.h>
 #include "cooperative_perception/ctrv_model.hpp"
 #include "cooperative_perception/utils.hpp"
+#include "cooperative_perception/units.hpp"
 
 namespace cooperative_perception
 {
@@ -32,6 +33,29 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
 
   return CtrvState{ state.position_x + delta_pos_x, state.position_y + delta_pos_y, state.velocity + delta_vel,
                     state.yaw + delta_yaw, state.yaw_rate + delta_yaw_rate };
+}
+
+auto nextState(const CtrvState& state, units::time::second_t time_step,
+               units::acceleration::meters_per_second_squared_t linear_accel_noise,
+               units::angular_acceleration::radian_per_second_squared_t angular_accel_noise) -> CtrvState
+{
+  auto next_state{ nextState(state, time_step) };
+
+  const units::length::meter_t delta_x{ 1.0 / 2.0 * linear_accel_noise * units::math::cos(state.yaw) *
+                                        units::math::pow<2>(time_step) };
+  const units::length::meter_t delta_y{ 1.0 / 2.0 * linear_accel_noise * units::math::sin(state.yaw) *
+                                        units::math::pow<2>(time_step) };
+  const units::velocity::meters_per_second_t delta_velocity{ linear_accel_noise * time_step };
+  const units::angle::radian_t delta_yaw{ 1.0 / 2.0 * angular_accel_noise * units::math::pow<2>(time_step) };
+  const units::angular_velocity::radians_per_second_t delta_yaw_rate{ angular_accel_noise * time_step };
+
+  next_state.position_x += delta_x;
+  next_state.position_y += delta_y;
+  next_state.velocity += delta_velocity;
+  next_state.yaw += delta_yaw;
+  next_state.yaw_rate += delta_yaw_rate;
+
+  return next_state;
 }
 
 }  // namespace cooperative_perception
