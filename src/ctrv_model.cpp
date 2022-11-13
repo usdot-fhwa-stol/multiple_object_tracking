@@ -1,40 +1,37 @@
 #include <cmath>
+#include <units.h>
 #include "cooperative_perception/ctrv_model.hpp"
 #include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
 {
 
-auto nextState(const CtrvState& state, float time_step) -> CtrvState
+auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvState
 {
-  const auto pos_x{ state[0] };
-  const auto pos_y{ state[1] };
-  const auto vel{ state[2] };
-  const auto yaw{ state[3] };
-  const auto yaw_rate{ state[4] };
+  units::length::meter_t delta_pos_x;
+  units::length::meter_t delta_pos_y;
 
-  auto delta_pos_x{ 0.0F };
-  auto delta_pos_y{ 0.0F };
-
-  if (utils::almostEqual(yaw_rate, 0.0))
+  if (utils::almostEqual(units::unit_cast<double>(state.yaw_rate), 0.0))
   {
-    delta_pos_x = vel * std::cos(yaw) * time_step;
-    delta_pos_y = vel * std::sin(yaw) * time_step;
+    delta_pos_x = state.velocity * units::math::cos(state.yaw) * time_step;
+    delta_pos_y = state.velocity * units::math::sin(state.yaw) * time_step;
   }
   else
   {
-    delta_pos_x = vel / yaw_rate * (std::sin(yaw + yaw_rate * time_step) - std::sin(yaw));
-    delta_pos_y = vel / yaw_rate * (-std::cos(yaw + yaw_rate * time_step) + std::cos(yaw));
+    delta_pos_x = state.velocity / state.yaw_rate * units::angle::radian_t(1) *
+                  (units::math::sin(state.yaw + state.yaw_rate * time_step) - units::math::sin(state.yaw));
+    delta_pos_y = state.velocity / state.yaw_rate * units::angle::radian_t(1) *
+                  (-units::math::cos(state.yaw + state.yaw_rate * time_step) + units::math::cos(state.yaw));
   }
 
-  const auto delta_vel{ 0 };
-  const auto delta_yaw{ yaw_rate * time_step };
-  const auto delta_yaw_rate{ 0 };
+  using namespace units::literals;
 
-  CtrvState next_state;
-  next_state << pos_x + delta_pos_x, pos_y + delta_pos_y, vel + delta_vel, yaw + delta_yaw, yaw_rate + delta_yaw_rate;
+  const auto delta_vel{ 0_m / 1_s };
+  const units::angle::radian_t delta_yaw{ state.yaw_rate * time_step };
+  const auto delta_yaw_rate{ 0_rad / 1_s };
 
-  return next_state;
+  return CtrvState{ state.position_x + delta_pos_x, state.position_y + delta_pos_y, state.velocity + delta_vel,
+                    state.yaw + delta_yaw, state.yaw_rate + delta_yaw_rate };
 }
 
 }  // namespace cooperative_perception

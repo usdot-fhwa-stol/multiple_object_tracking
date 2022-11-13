@@ -12,4 +12,5 @@ target_include_directories(cooperative_perception_coreLibrary
 target_link_libraries(cooperative_perception_coreLibrary
   PUBLIC
     Eigen3::Eigen
+    units::units
 )
