@@ -14,8 +14,8 @@ auto nextState(const CtrvState& state, float time_step) -> CtrvState
   const auto yaw{ state[3] };
   const auto yaw_rate{ state[4] };
 
-  auto delta_pos_x{ 0.0 };
-  auto delta_pos_y{ 0.0 };
+  auto delta_pos_x{ 0.0F };
+  auto delta_pos_y{ 0.0F };
 
   if (utils::almostEqual(yaw_rate, 0.0))
   {
