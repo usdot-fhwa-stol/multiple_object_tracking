@@ -1,7 +1,6 @@
 #ifndef COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
 
-#include <Eigen/Dense>
 #include <units.h>
 #include "cooperative_perception/units.hpp"
 
