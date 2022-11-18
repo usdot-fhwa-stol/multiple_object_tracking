@@ -1,0 +1,22 @@
+{
+    "name": "Ubuntu",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+    "remoteUser": "root",
+    "containerUser": "root",
+    // Uncomment for hosts that do not use SELinux (e.g., Debian and Ubuntu)
+    "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace",
+    // Uncomment for hosts that use SELinux (e.g., RHEL and Fedora)
+    // "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,Z",
+    "workspaceFolder": "/workspace"
+}
