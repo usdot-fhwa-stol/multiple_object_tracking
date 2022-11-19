@@ -1,0 +1,21 @@
+{
+    "cSpell.words": [
+        "cpptools"
+    ],
+    "files.associations": {
+        "core": "cpp"
+    },
+    "editor.formatOnSave": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "[cpp]": {
+        "editor.rulers": [
+            80,
+            120
+        ]
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true,
+}
