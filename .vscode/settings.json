@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
-        "cpptools"
+        "cpptools",
+        "Ctrv"
     ],
     "files.associations": {
         "core": "cpp"
