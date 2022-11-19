@@ -13,10 +13,10 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install units library
-RUN git clone --depth 1 --branch v2.3.3 https://github.com/nholthaus/units.git /tmp/units
-    && cd /tmp/units
-    && cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF
-    && cmake --build build
-    && cmake --install build
-    && cd /
+RUN git clone --depth 1 --branch v2.3.3 https://github.com/nholthaus/units.git /tmp/units \
+    && cd /tmp/units \
+    && cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF \
+    && cmake --build build \
+    && cmake --install build \
+    && cd / \
     && rm -rf /tmp/units
