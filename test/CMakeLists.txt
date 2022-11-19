@@ -1,5 +1,6 @@
 add_executable(test_cooperative_perceptionExecutable
   test_ctrv_model.cpp
+  test_detected_object.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable
