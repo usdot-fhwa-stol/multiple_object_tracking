@@ -25,7 +25,7 @@ Generating sigma points
 
 Sigma points represents a sampling over the object state's distribution. We could sample the distribution (*i.e.*,
 generate sigma points) using one of many methods. We need to generate at least :math:`n + 1` points, where :math:`n` is
-the number of state variables. Generating :math:`2n + 1` point is common.
+the number of state variables. Generating :math:`2n + 1` points is a common heuristic.
 
 Our library generates :math:`2n + 1` points using the following formula (alternative formulas exist too):
 
@@ -37,7 +37,7 @@ Our library generates :math:`2n + 1` points using the following formula (alterna
         s_{i} &= \boldsymbol{x}_{k} - \sqrt{n \boldsymbol{P}_{k, [i - n]}} \quad \text{for } i = n, \dots, 2n + 1 \\
     \end{align}
 
-Notation :math:`\boldsymbol{x}_{k}` and :math:`\boldsymbol{P}_{k}` represents the object's state vector
+Notation :math:`\boldsymbol{x}_{k}` and :math:`\boldsymbol{P}_{k}` represents the object's mean state vector
 :math:`\boldsymbol{x}` and covariance matrix :math:`\boldsymbol{P}`, respectively, at time step :math:`k`. Notation
 :math:`[i]` represents :math:`\boldsymbol{P}`\'s :math:`i^\text{th}` column. We collect each sigma point into a set
 :math:`\mathcal{S} \triangleq \{s_{0}, s_{1}, \dots, s_{2n + 1}\}`.
