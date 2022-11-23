@@ -9,6 +9,7 @@ RUN apt update \
         gcc \
         gdb \
         libgtest-dev \
+        libboost-container-dev \
         make \
     && rm -rf /var/lib/apt/lists/*
 
