@@ -6,6 +6,15 @@
 namespace cooperative_perception::utils
 {
 
+template <typename... Base>
+struct Visitor : Base...
+{
+  using Base::operator()...;
+};
+
+template <typename... T>
+Visitor(T&&... t) -> Visitor<T...>;
+
 /** Check if two floating point numbers are equal
  *
  * The two numbers are considered equal if their relative distance is within an epsilon interval.
