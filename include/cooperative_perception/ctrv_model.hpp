@@ -1,6 +1,7 @@
 #ifndef COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
 
+#include <Eigen/Dense>
 #include <units.h>
 #include "cooperative_perception/units.hpp"
 
@@ -15,6 +16,8 @@ struct CtrvState
   units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
 };
+
+using CtrvStateCovariance = Eigen::Matrix<float, 5, 5>;
 
 /** Calculate next CTRV state based on current state and time step
  *

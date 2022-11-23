@@ -5,6 +5,8 @@
 #include <boost/container/static_vector.hpp>
 #include <units.h>
 
+#include "cooperative_perception/ctrv_model.hpp"
+
 namespace cooperative_perception
 {
 
@@ -16,7 +18,9 @@ struct DetectedObject
   CovarianceType covariance;
 };
 
-using DetectedObjectType = std::variant<>;
+using VehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
+
+using DetectedObjectType = std::variant<VehicleObject>;
 
 using DetectedObjectList = boost::container::static_vector<DetectedObjectType, 200>;
 
