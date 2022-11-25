@@ -61,6 +61,12 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
 
 using CtrvStateCovariance = Eigen::Matrix<float, 5, 5>;
 
+struct CtrvProcessNoise
+{
+  units::acceleration::meters_per_second_squared_t linear_acceleration;
+  units::angular_acceleration::radian_per_second_squared_t angular_acceleration;
+};
+
 /** Calculate next CTRV state based on current state and time step
  *
  * @param[in] state Current CTRV state
@@ -69,9 +75,7 @@ using CtrvStateCovariance = Eigen::Matrix<float, 5, 5>;
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvState;
 
-auto nextState(const CtrvState& state, units::time::second_t time_step,
-               units::acceleration::meters_per_second_squared_t linear_accel_noise,
-               units::angular_acceleration::radian_per_second_squared_t angular_accel_noise) -> CtrvState;
+auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
 namespace utils
 {

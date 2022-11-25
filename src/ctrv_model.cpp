@@ -34,19 +34,17 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
                     state.yaw + delta_yaw, state.yaw_rate + delta_yaw_rate };
 }
 
-auto nextState(const CtrvState& state, units::time::second_t time_step,
-               units::acceleration::meters_per_second_squared_t linear_accel_noise,
-               units::angular_acceleration::radian_per_second_squared_t angular_accel_noise) -> CtrvState
+auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState
 {
   auto next_state{ nextState(state, time_step) };
 
-  const units::length::meter_t delta_x{ 1.0 / 2.0 * linear_accel_noise * units::math::cos(state.yaw) *
+  const units::length::meter_t delta_x{ 1.0 / 2.0 * noise.linear_acceleration * units::math::cos(state.yaw) *
                                         units::math::pow<2>(time_step) };
-  const units::length::meter_t delta_y{ 1.0 / 2.0 * linear_accel_noise * units::math::sin(state.yaw) *
+  const units::length::meter_t delta_y{ 1.0 / 2.0 * noise.linear_acceleration * units::math::sin(state.yaw) *
                                         units::math::pow<2>(time_step) };
-  const units::velocity::meters_per_second_t delta_velocity{ linear_accel_noise * time_step };
-  const units::angle::radian_t delta_yaw{ 1.0 / 2.0 * angular_accel_noise * units::math::pow<2>(time_step) };
-  const units::angular_velocity::radians_per_second_t delta_yaw_rate{ angular_accel_noise * time_step };
+  const units::velocity::meters_per_second_t delta_velocity{ noise.linear_acceleration * time_step };
+  const units::angle::radian_t delta_yaw{ 1.0 / 2.0 * noise.angular_acceleration * units::math::pow<2>(time_step) };
+  const units::angular_velocity::radians_per_second_t delta_yaw_rate{ noise.angular_acceleration * time_step };
 
   next_state.position_x += delta_x;
   next_state.position_y += delta_y;

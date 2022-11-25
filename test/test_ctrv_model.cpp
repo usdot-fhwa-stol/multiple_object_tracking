@@ -52,7 +52,8 @@ TEST(TestCtrvModel, NextStateStochastic)
   using namespace units::literals;
 
   constexpr cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 1_rad_per_s };
-  const auto next_state{ cp::nextState(state, 0.5_s, 1_mps_sq, 1_rad_per_s_sq) };
+  constexpr cp::CtrvProcessNoise noise{ 1_mps_sq, 1_rad_per_s_sq };
+  const auto next_state{ cp::nextState(state, 0.5_s, noise) };
   constexpr cp::CtrvState expected_state{ 0.604425539_m, 0.122417438_m, 1.5_mps, 0.625_rad, 1.5_rad_per_s };
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(next_state, 9), expected_state));
