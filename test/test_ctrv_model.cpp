@@ -3,12 +3,6 @@
 #include <cooperative_perception/units.hpp>
 #include <units.h>
 
-namespace
-{
-constexpr auto kAbsoluteTolerance{ 1e-8 };
-
-}  // namespace
-
 namespace cp = cooperative_perception;
 
 /**
@@ -18,14 +12,11 @@ TEST(TestCtrvModel, NextStatePureRotation)
 {
   using namespace units::literals;
 
-  const cp::CtrvState state{ 0_m, 0_m, 0_mps, 0_rad, 1_rad_per_s };
+  constexpr cp::CtrvState state{ 0_m, 0_m, 0_mps, 0_rad, 1_rad_per_s };
   const auto next_state{ cp::nextState(state, 0.5_s) };
+  constexpr cp::CtrvState expected_state{ 0_m, 0_m, 0_mps, 0.5_rad, 1_rad_per_s };
 
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_x), 0, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_y), 0, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.velocity), 0, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw), 0.5, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw_rate), 1, kAbsoluteTolerance);
+  EXPECT_TRUE(cp::utils::almostEqual(next_state, expected_state));
 }
 
 /**
@@ -35,14 +26,11 @@ TEST(TestCtrvModel, NextStatePureTranslation)
 {
   using namespace units::literals;
 
-  const cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 0_rad_per_s };
+  constexpr cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 0_rad_per_s };
   const auto next_state{ cp::nextState(state, 0.5_s) };
+  constexpr cp::CtrvState expected_state{ 0.5_m, 0_m, 1_mps, 0_rad, 0_rad_per_s };
 
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_x), 0.5, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_y), 0, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.velocity), 1, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw), 0, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw_rate), 0, kAbsoluteTolerance);
+  EXPECT_TRUE(cp::utils::almostEqual(next_state, expected_state));
 }
 
 /**
@@ -52,28 +40,22 @@ TEST(TestCtrvModel, NextStateRotationAndTranslation)
 {
   using namespace units::literals;
 
-  const cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 1_rad_per_s };
+  constexpr cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 1_rad_per_s };
   const auto next_state{ cp::nextState(state, 0.5_s) };
+  constexpr cp::CtrvState expected_state{ 0.479425539_m, 0.122417438_m, 1_mps, 0.5_rad, 1_rad_per_s };
 
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_x), 0.479425539, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_y), 0.122417438, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.velocity), 1, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw), 0.5, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw_rate), 1, kAbsoluteTolerance);
+  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlaces(next_state, 9), expected_state));
 }
 
 TEST(TestCtrvModel, NextStateStochastic)
 {
   using namespace units::literals;
 
-  const cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 1_rad_per_s };
+  constexpr cp::CtrvState state{ 0_m, 0_m, 1_mps, 0_rad, 1_rad_per_s };
   const auto next_state{ cp::nextState(state, 0.5_s, 1_mps_sq, 1_rad_per_s_sq) };
+  constexpr cp::CtrvState expected_state{ 0.604425539_m, 0.122417438_m, 1.5_mps, 0.625_rad, 1.5_rad_per_s };
 
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_x), 0.604425539, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.position_y), 0.122417438, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.velocity), 1.5, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw), 0.625, kAbsoluteTolerance);
-  EXPECT_NEAR(units::unit_cast<double>(next_state.yaw_rate), 1.5, kAbsoluteTolerance);
+  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlaces(next_state, 9), expected_state));
 }
 
 TEST(TestCtrvModel, Equality)
