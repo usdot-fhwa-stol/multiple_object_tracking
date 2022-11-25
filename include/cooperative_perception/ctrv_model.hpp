@@ -59,8 +59,6 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
-std::size_t hash_value(const CtrvState& state);
-
 using CtrvStateCovariance = Eigen::Matrix<float, 5, 5>;
 
 /** Calculate next CTRV state based on current state and time step
@@ -111,5 +109,24 @@ inline auto roundToDecimalPlaces(const CtrvState& state, std::size_t decimal_pla
 }  // namespace utils
 
 }  // namespace cooperative_perception
+
+namespace std
+{
+template <>
+struct hash<cooperative_perception::CtrvState>
+{
+  std::size_t operator()(const cooperative_perception::CtrvState& state) const
+  {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
+    boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
+    boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
+
+    return seed;
+  }
+};
+}  // namespace std
 
 #endif  // COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP

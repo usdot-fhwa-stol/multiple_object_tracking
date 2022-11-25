@@ -18,7 +18,7 @@ TEST(TestUnscentedTransform, CreateSigmaPoints)
 
   const auto sigma_points{ cp::sampleStateDistribution(state, covariance, 11, 3 - 5) };
 
-  const std::unordered_set<cp::CtrvState, boost::hash<cp::CtrvState>> expected_sigma_points{
+  const std::unordered_set<cp::CtrvState> expected_sigma_points{
     cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, 0.5015_rad, 0.3528_rad_per_s },
     cp::CtrvState{ 5.85768_m, 1.34566_m, 2.28414_mps, 0.44339_rad, 0.299973_rad_per_s },
     cp::CtrvState{ 5.7441_m, 1.52806_m, 2.24557_mps, 0.631886_rad, 0.462123_rad_per_s },

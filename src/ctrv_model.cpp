@@ -6,7 +6,6 @@
 
 namespace cooperative_perception
 {
-
 auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvState
 {
   using namespace units::literals;
@@ -56,18 +55,6 @@ auto nextState(const CtrvState& state, units::time::second_t time_step,
   next_state.yaw_rate += delta_yaw_rate;
 
   return next_state;
-}
-
-std::size_t hash_value(const CtrvState& state)
-{
-  std::size_t seed = 0;
-  boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
-  boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
-  boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
-  boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
-  boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
-
-  return seed;
 }
 
 }  // namespace cooperative_perception
