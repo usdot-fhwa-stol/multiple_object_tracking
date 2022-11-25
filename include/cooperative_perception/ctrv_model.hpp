@@ -93,9 +93,9 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs) -> bool
          std::abs(dist_yaw) <= kUlpTol && std::abs(dist_yaw_rate) <= kUlpTol;
 }
 
-inline auto roundToDecimalPlaces(const CtrvState& state, std::size_t decimal_places) -> CtrvState
+inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_place) -> CtrvState
 {
-  const auto multiplier{ std::pow(10, decimal_places) };
+  const auto multiplier{ std::pow(10, decimal_place) };
 
   CtrvState rounded_state{ units::math::round(state.position_x * multiplier) / multiplier,
                            units::math::round(state.position_y * multiplier) / multiplier,

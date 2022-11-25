@@ -33,11 +33,11 @@ TEST(TestUnscentedTransform, CreateSigmaPoints)
   };
 
   const auto is_expected = [&expected_sigma_points](const auto& point) {
-    const auto result = std::find_if(
-        std::cbegin(expected_sigma_points), std::cend(expected_sigma_points), [&point](const auto& expected_point) {
-          return cp::utils::almostEqual(cp::utils::roundToDecimalPlaces(point, 5),
-                                        cp::utils::roundToDecimalPlaces(expected_point, 5));
-        });
+    const auto result = std::find_if(std::cbegin(expected_sigma_points), std::cend(expected_sigma_points),
+                                     [&point](const auto& expected_point) {
+                                       return cp::utils::almostEqual(cp::utils::roundToDecimalPlace(point, 5),
+                                                                     cp::utils::roundToDecimalPlace(expected_point, 5));
+                                     });
 
     return result != std::cend(expected_sigma_points);
   };
