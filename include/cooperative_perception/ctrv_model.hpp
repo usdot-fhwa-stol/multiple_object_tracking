@@ -17,29 +17,29 @@ struct CtrvState
   units::velocity::meters_per_second_t velocity;
   units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
-
-  CtrvState& operator+=(const CtrvState& rhs)
-  {
-    position_x += rhs.position_x;
-    position_y += rhs.position_y;
-    velocity += rhs.velocity;
-    yaw += rhs.yaw;
-    yaw_rate += rhs.yaw_rate;
-
-    return *this;
-  }
-
-  CtrvState& operator-=(const CtrvState& rhs)
-  {
-    position_x -= rhs.position_x;
-    position_y -= rhs.position_y;
-    velocity -= rhs.velocity;
-    yaw -= rhs.yaw;
-    yaw_rate -= rhs.yaw_rate;
-
-    return *this;
-  }
 };
+
+inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
+{
+  lhs.position_x += rhs.position_x;
+  lhs.position_y += rhs.position_y;
+  lhs.velocity += rhs.velocity;
+  lhs.yaw += rhs.yaw;
+  lhs.yaw_rate += rhs.yaw_rate;
+
+  return lhs;
+}
+
+inline auto operator-=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
+{
+  lhs.position_x -= rhs.position_x;
+  lhs.position_y -= rhs.position_y;
+  lhs.velocity -= rhs.velocity;
+  lhs.yaw -= rhs.yaw;
+  lhs.yaw_rate -= rhs.yaw_rate;
+
+  return lhs;
+}
 
 inline auto operator==(const CtrvState& lhs, const CtrvState& rhs) -> bool
 {
