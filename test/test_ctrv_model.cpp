@@ -5,7 +5,6 @@
 
 namespace
 {
-
 constexpr auto kAbsoluteTolerance{ 1e-8 };
 
 }  // namespace
@@ -73,4 +72,18 @@ TEST(TestCtrvModel, NextStateStochastic)
   EXPECT_NEAR(units::unit_cast<double>(next_state.velocity), 1.5, kAbsoluteTolerance);
   EXPECT_NEAR(units::unit_cast<double>(next_state.yaw), 0.625, kAbsoluteTolerance);
   EXPECT_NEAR(units::unit_cast<double>(next_state.yaw_rate), 1.5, kAbsoluteTolerance);
+}
+
+TEST(TestCtrvModel, Equality)
+{
+  using namespace units::literals;
+
+  constexpr cooperative_perception::CtrvState state1{ 1.23_m, 2.435_m, 5544_mps, 34656.6543_rad, 595633.555_rad_per_s };
+  constexpr cooperative_perception::CtrvState state2{ 1.2_m, 20.45_m, 4_mps, 34656.65435_rad, 5953.55_rad_per_s };
+  constexpr cooperative_perception::CtrvState state3{ 1_m, 2_m, 4_mps, 3_rad, 1.000000000000000000000000001_rad_per_s };
+  constexpr cooperative_perception::CtrvState state4{ 1_m, 2_m, 4_mps, 3_rad, 1_rad_per_s };
+
+  EXPECT_TRUE(cooperative_perception::utils::almostEqual(state1, state1));
+  EXPECT_FALSE(cooperative_perception::utils::almostEqual(state1, state2));
+  EXPECT_TRUE(cooperative_perception::utils::almostEqual(state3, state4));
 }
