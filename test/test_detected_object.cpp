@@ -7,9 +7,11 @@ struct CtrvCovariance
 {
 };
 
+namespace cp = cooperative_perception;
+
 TEST(TestDetectedObject, CtrvObjectDefaultConstruction)
 {
-  auto object = cooperative_perception::DetectedObject<cooperative_perception::CtrvState, CtrvCovariance>{};
+  auto object = cp::DetectedObject<cp::CtrvState, CtrvCovariance>{};
 
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.timestamp), 0.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_x), 0.0);
@@ -24,9 +26,9 @@ TEST(TestDetectedObject, CtrvObjectCustomConstruction)
   using namespace units::literals;
 
   // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-  auto object = cooperative_perception::DetectedObject<cooperative_perception::CtrvState, CtrvCovariance>{
-    units::time::second_t{ 1 }, cooperative_perception::CtrvState{ 1_m, 2_m, 3_mps, 4_rad, 5_rad_per_s }
-  };
+  auto object =
+      cp::DetectedObject<cp::CtrvState, CtrvCovariance>{ units::time::second_t{ 1 },
+                                                         cp::CtrvState{ 1_m, 2_m, 3_mps, 4_rad, 5_rad_per_s } };
   // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.timestamp), 1.0);
