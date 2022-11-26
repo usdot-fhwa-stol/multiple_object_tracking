@@ -1,6 +1,5 @@
 add_library(cooperative_perception_coreLibrary
   ctrv_model.cpp
-  unscented_transform.cpp
 )
 
 add_library(cooperative_perception::cooperative_perception ALIAS cooperative_perception_coreLibrary)

@@ -7,8 +7,23 @@
 
 namespace cooperative_perception
 {
-auto sampleStateDistribution(const CtrvState& state, const CtrvStateCovariance covariance, std::size_t num_points,
-                             float lambda) -> std::unordered_set<CtrvState>;
+template <typename State, typename StateCovariance>
+auto sampleStateDistribution(const State& state, const StateCovariance covariance, std::size_t num_points, float lambda)
+    -> std::unordered_set<State>
+{
+  std::unordered_set<State> sigma_pts{ state };
+  const StateCovariance covariance_sqrt{ covariance.llt().matrixL() };
+  for (const auto& column : covariance_sqrt.colwise())
+  {
+    const auto result{ std::sqrt(covariance.rows() + lambda) * column };
+    const auto result_state{ State::fromEigenVector(result) };
+
+    sigma_pts.insert(state + result_state);
+    sigma_pts.insert(state - result_state);
+  }
+
+  return sigma_pts;
+}
 
 }  // namespace cooperative_perception
 
