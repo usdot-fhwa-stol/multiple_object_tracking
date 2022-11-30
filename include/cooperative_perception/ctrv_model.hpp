@@ -18,7 +18,9 @@ struct CtrvState
   units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
 
-  static inline auto fromEigenVector(const Eigen::Vector<float, 5>& vec) noexcept -> CtrvState
+  static constexpr auto kNumVars{ 5 };
+
+  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtrvState
   {
     return CtrvState{ .position_x{ units::length::meter_t{ vec(0) } },
                       .position_y{ units::length::meter_t{ vec(1) } },
@@ -74,7 +76,49 @@ struct CtrvProcessNoise
 {
   units::acceleration::meters_per_second_squared_t linear_acceleration;
   units::angular_acceleration::radian_per_second_squared_t angular_acceleration;
+
+  static constexpr auto kNumVars{ 2 };
+
+  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtrvProcessNoise
+  {
+    return CtrvProcessNoise{ .linear_acceleration{ units::acceleration::meters_per_second_squared_t{ vec(0) } },
+                             .angular_acceleration{
+                                 units::angular_acceleration::radian_per_second_squared_t{ vec(1) } } };
+  }
 };
+
+inline auto operator+=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise&
+{
+  lhs.linear_acceleration += rhs.linear_acceleration;
+  lhs.angular_acceleration += rhs.angular_acceleration;
+
+  return lhs;
+}
+
+inline auto operator-=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise&
+{
+  lhs.linear_acceleration -= rhs.linear_acceleration;
+  lhs.angular_acceleration -= rhs.angular_acceleration;
+
+  return lhs;
+}
+
+inline auto operator==(const CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> bool
+{
+  return lhs.linear_acceleration == rhs.linear_acceleration && lhs.angular_acceleration == rhs.angular_acceleration;
+}
+
+inline auto operator+(CtrvProcessNoise lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise
+{
+  lhs += rhs;
+  return lhs;
+}
+
+inline auto operator-(CtrvProcessNoise lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise
+{
+  lhs -= rhs;
+  return lhs;
+}
 
 /** Calculate next CTRV state based on current state and time step
  *
@@ -88,9 +132,8 @@ auto nextState(const CtrvState& state, units::time::second_t time_step, const Ct
 
 namespace utils
 {
-inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs) -> bool
+inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t ulp_tol = 4) -> bool
 {
-  static constexpr auto kUlpTol{ 4U };
   const auto dist_x{ boost::math::float_distance(units::unit_cast<double>(lhs.position_x),
                                                  units::unit_cast<double>(rhs.position_x)) };
   const auto dist_y{ boost::math::float_distance(units::unit_cast<double>(lhs.position_y),
@@ -102,8 +145,8 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs) -> bool
   const auto dist_yaw_rate{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw_rate),
                                                         units::unit_cast<double>(rhs.yaw_rate)) };
 
-  return std::abs(dist_x) <= kUlpTol && std::abs(dist_y) <= kUlpTol && std::abs(dist_vel) <= kUlpTol &&
-         std::abs(dist_yaw) <= kUlpTol && std::abs(dist_yaw_rate) <= kUlpTol;
+  return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol && std::abs(dist_vel) <= ulp_tol &&
+         std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol;
 }
 
 inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_place) -> CtrvState
@@ -117,6 +160,24 @@ inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_plac
                            units::math::round(state.yaw_rate * multiplier) / multiplier };
 
   return rounded_state;
+}
+
+inline auto almostEqual(const CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs, std::size_t ulp_tol = 4) -> bool
+{
+  const auto dist_lin_accel{ boost::math::float_distance(units::unit_cast<double>(lhs.linear_acceleration),
+                                                         units::unit_cast<double>(rhs.linear_acceleration)) };
+  const auto dist_ang_accel{ boost::math::float_distance(units::unit_cast<double>(lhs.angular_acceleration),
+                                                         units::unit_cast<double>(rhs.angular_acceleration)) };
+
+  return std::abs(dist_lin_accel) <= ulp_tol && std::abs(dist_ang_accel) <= ulp_tol;
+}
+
+inline auto roundToDecimalPlace(const CtrvProcessNoise& noise, std::size_t decimal_place) -> CtrvProcessNoise
+{
+  const auto multiplier{ std::pow(10, decimal_place) };
+
+  return CtrvProcessNoise{ units::math::round(noise.linear_acceleration * multiplier) / multiplier,
+                           units::math::round(noise.angular_acceleration * multiplier) / multiplier };
 }
 
 }  // namespace utils
@@ -136,6 +197,19 @@ struct hash<cooperative_perception::CtrvState>
     boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
     boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
     boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
+
+    return seed;
+  }
+};
+
+template <>
+struct hash<cooperative_perception::CtrvProcessNoise>
+{
+  std::size_t operator()(const cooperative_perception::CtrvProcessNoise& process_noise) const
+  {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, units::unit_cast<double>(process_noise.linear_acceleration));
+    boost::hash_combine(seed, units::unit_cast<double>(process_noise.angular_acceleration));
 
     return seed;
   }
