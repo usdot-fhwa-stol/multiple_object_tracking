@@ -37,7 +37,8 @@ using VehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
 
 using DetectedObjectType = std::variant<VehicleObject>;
 
-using DetectedObjectList = boost::container::static_vector<DetectedObjectType, 200>;
+inline constexpr auto kMaxDetectedObjects{ 200U };
+using DetectedObjectList = boost::container::static_vector<DetectedObjectType, kMaxDetectedObjects>;
 
 }  // namespace cooperative_perception
 

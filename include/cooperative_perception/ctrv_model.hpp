@@ -86,7 +86,7 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
-using CtrvStateCovariance = Eigen::Matrix<float, 5, 5>;
+using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
 
 struct CtrvProcessNoise
 {
