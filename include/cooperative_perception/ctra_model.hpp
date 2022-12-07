@@ -17,6 +17,12 @@ struct CtraState
   units::acceleration::meters_per_second_squared_t acceleration;
 };
 
+/** Calculate next CTRA state based on current state and time step
+ *
+ * @param[in] state Current CTRA state
+ * @param[in] time_step Propagation time duration
+ * @return CTRA state at end of time step
+ */
 auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraState;
 
 }  // namespace cooperative_perception
