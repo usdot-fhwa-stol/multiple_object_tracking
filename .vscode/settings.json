@@ -3,9 +3,6 @@
         "cpptools",
         "Ctrv"
     ],
-    "files.associations": {
-        "core": "cpp"
-    },
     "editor.formatOnSave": true,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
@@ -19,4 +16,7 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
     "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true,
+    "C_Cpp.clang_format_path": "/usr/bin/clang-format",
+    "C_Cpp.codeAnalysis.clangTidy.path": "/usr/bing/clang-tidy",
+    "C_Cpp.autoAddFileAssociations": false
 }
