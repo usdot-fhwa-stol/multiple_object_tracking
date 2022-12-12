@@ -33,9 +33,9 @@ struct DetectedObject
   CovarianceType covariance;
 };
 
-using VehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
+using CtrvVehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
 
-using DetectedObjectType = std::variant<VehicleObject>;
+using DetectedObjectType = std::variant<CtrvVehicleObject>;
 
 inline constexpr auto kMaxDetectedObjects{ 200U };
 using DetectedObjectList = boost::container::static_vector<DetectedObjectType, kMaxDetectedObjects>;

@@ -24,7 +24,7 @@
 namespace cooperative_perception
 {
 template <typename State, typename StateCovariance>
-auto sampleStateDistribution(const State& state, const StateCovariance covariance, std::size_t num_points, float lambda)
+auto sampleStateDistribution(const State& state, const StateCovariance covariance, float lambda)
     -> std::unordered_set<State>
 {
   std::unordered_set<State> sigma_pts{ state };
