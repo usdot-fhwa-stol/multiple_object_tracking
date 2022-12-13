@@ -33,7 +33,7 @@ TEST(TestUnscentedTransform, CreateSigmaPoints)
                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
 
-  const auto sigma_points{ cp::sampleStateDistribution(state, covariance, 11, 3 - 5) };
+  const auto sigma_points{ cp::sampleStateDistribution(state, covariance) };
 
   const std::unordered_set<cp::CtrvState> expected_sigma_points{
     cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, 0.5015_rad, 0.3528_rad_per_s },
@@ -79,7 +79,7 @@ TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)
                                                { 0, 0, 0, 0, 0, 0.04, 0 },
                                                { 0, 0, 0, 0, 0, 0, 0.04 } };
 
-  const auto sigma_points{ cp::sampleStateDistribution(state, covariance, 15, 3 - 7) };
+  const auto sigma_points{ cp::sampleStateDistribution(state, covariance) };
 
   const std::unordered_set<CtrvAugmentedState> expected_sigma_points{
     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, 0.5015_rad, 0.3528_rad_per_s },
