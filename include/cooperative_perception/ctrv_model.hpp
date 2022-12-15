@@ -44,6 +44,13 @@ struct CtrvState
                       .yaw{ units::angle::radian_t{ vec(3) } },
                       .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } } };
   }
+
+  static inline auto toEigenVector(const CtrvState& ctrv_state) noexcept -> Eigen::Vector<float, kNumVars>
+  {
+    return Eigen::Vector<float, kNumVars>{ ctrv_state.position_x.to<float>(), ctrv_state.position_y.to<float>(),
+                                           ctrv_state.velocity.to<float>(), ctrv_state.yaw.to<float>(),
+                                           ctrv_state.yaw_rate.to<float>() };
+  }
 };
 
 inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
