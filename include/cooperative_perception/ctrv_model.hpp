@@ -47,9 +47,11 @@ struct CtrvState
 
   static inline auto toEigenVector(const CtrvState& ctrv_state) noexcept -> Eigen::Vector<float, kNumVars>
   {
-    return Eigen::Vector<float, kNumVars>{ ctrv_state.position_x.to<float>(), ctrv_state.position_y.to<float>(),
-                                           ctrv_state.velocity.to<float>(), ctrv_state.yaw.to<float>(),
-                                           ctrv_state.yaw_rate.to<float>() };
+    return Eigen::Vector<float, kNumVars>{ units::unit_cast<float>(ctrv_state.position_x),
+                                           units::unit_cast<float>(ctrv_state.position_y),
+                                           units::unit_cast<float>(ctrv_state.velocity),
+                                           units::unit_cast<float>(ctrv_state.yaw),
+                                           units::unit_cast<float>(ctrv_state.yaw_rate) };
   }
 };
 
