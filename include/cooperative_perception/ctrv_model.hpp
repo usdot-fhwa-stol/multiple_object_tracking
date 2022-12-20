@@ -95,13 +95,25 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
-inline auto operator*(float lhs, const CtrvState& rhs) -> CtrvState
+inline auto operator*=(CtrvState& lhs, float rhs) -> CtrvState&
 {
-  return CtrvState{ .position_x{ lhs * rhs.position_x },
-                    .position_y{ lhs * rhs.position_y },
-                    .velocity{ lhs * rhs.velocity },
-                    .yaw{ lhs * rhs.yaw },
-                    .yaw_rate{ lhs * rhs.yaw_rate } };
+  lhs.position_x *= rhs;
+  lhs.position_y *= rhs;
+  lhs.velocity *= rhs;
+  lhs.yaw *= rhs;
+  lhs.yaw_rate *= rhs;
+
+  return lhs;
+}
+
+inline auto operator*(CtrvState lhs, float rhs) -> CtrvState
+{
+  return lhs *= rhs;
+}
+
+inline auto operator*(float lhs, CtrvState rhs) -> CtrvState
+{
+  return rhs *= lhs;
 }
 
 using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
@@ -181,6 +193,13 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t 
 
   return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol && std::abs(dist_vel) <= ulp_tol &&
          std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol;
+}
+
+inline auto almostEqual(const CtrvStateCovariance& lhs, const CtrvStateCovariance& rhs, std::size_t ulp_tol = 4) -> bool
+{
+  bool is_almost_equal{ false };
+
+  return is_almost_equal;
 }
 
 inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_place) -> CtrvState
