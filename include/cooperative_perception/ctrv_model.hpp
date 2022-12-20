@@ -55,7 +55,7 @@ struct CtrvState
   }
 };
 
-inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
+constexpr inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
 {
   lhs.position_x += rhs.position_x;
   lhs.position_y += rhs.position_y;
@@ -66,7 +66,7 @@ inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
   return lhs;
 }
 
-inline auto operator-=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
+constexpr inline auto operator-=(CtrvState& lhs, const CtrvState& rhs) noexcept -> CtrvState&
 {
   lhs.position_x -= rhs.position_x;
   lhs.position_y -= rhs.position_y;
@@ -77,25 +77,25 @@ inline auto operator-=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
   return lhs;
 }
 
-inline auto operator==(const CtrvState& lhs, const CtrvState& rhs) -> bool
+constexpr inline auto operator==(const CtrvState& lhs, const CtrvState& rhs) noexcept -> bool
 {
   return lhs.position_x == rhs.position_x && lhs.position_y == rhs.position_y && lhs.velocity == rhs.velocity &&
          lhs.yaw == rhs.yaw && lhs.yaw_rate == rhs.yaw_rate;
 }
 
-inline auto operator+(CtrvState lhs, const CtrvState& rhs) -> CtrvState
+constexpr inline auto operator+(CtrvState lhs, const CtrvState& rhs) noexcept -> CtrvState
 {
   lhs += rhs;
   return lhs;
 }
 
-inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
+constexpr inline auto operator-(CtrvState lhs, const CtrvState& rhs) noexcept -> CtrvState
 {
   lhs -= rhs;
   return lhs;
 }
 
-inline auto operator*=(CtrvState& lhs, float rhs) -> CtrvState&
+constexpr inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
 {
   lhs.position_x *= rhs;
   lhs.position_y *= rhs;
@@ -106,12 +106,12 @@ inline auto operator*=(CtrvState& lhs, float rhs) -> CtrvState&
   return lhs;
 }
 
-inline auto operator*(CtrvState lhs, float rhs) -> CtrvState
+constexpr inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
 {
   return lhs *= rhs;
 }
 
-inline auto operator*(float lhs, CtrvState rhs) -> CtrvState
+constexpr inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
 {
   return rhs *= lhs;
 }
@@ -133,7 +133,7 @@ struct CtrvProcessNoise
   }
 };
 
-inline auto operator+=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise&
+constexpr inline auto operator+=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) noexcept -> CtrvProcessNoise&
 {
   lhs.linear_acceleration += rhs.linear_acceleration;
   lhs.angular_acceleration += rhs.angular_acceleration;
@@ -141,7 +141,7 @@ inline auto operator+=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> Ct
   return lhs;
 }
 
-inline auto operator-=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise&
+constexpr inline auto operator-=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) noexcept -> CtrvProcessNoise&
 {
   lhs.linear_acceleration -= rhs.linear_acceleration;
   lhs.angular_acceleration -= rhs.angular_acceleration;
@@ -149,18 +149,18 @@ inline auto operator-=(CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> Ct
   return lhs;
 }
 
-inline auto operator==(const CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) -> bool
+constexpr inline auto operator==(const CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs) noexcept -> bool
 {
   return lhs.linear_acceleration == rhs.linear_acceleration && lhs.angular_acceleration == rhs.angular_acceleration;
 }
 
-inline auto operator+(CtrvProcessNoise lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise
+constexpr inline auto operator+(CtrvProcessNoise lhs, const CtrvProcessNoise& rhs) noexcept -> CtrvProcessNoise
 {
   lhs += rhs;
   return lhs;
 }
 
-inline auto operator-(CtrvProcessNoise lhs, const CtrvProcessNoise& rhs) -> CtrvProcessNoise
+constexpr inline auto operator-(CtrvProcessNoise lhs, const CtrvProcessNoise& rhs) noexcept -> CtrvProcessNoise
 {
   lhs -= rhs;
   return lhs;
@@ -195,11 +195,11 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t 
          std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol;
 }
 
-inline auto almostEqual(const CtrvStateCovariance& lhs, const CtrvStateCovariance& rhs, std::size_t ulp_tol = 4) -> bool
+inline auto almostEqual(const CtrvStateCovariance& lhs, const CtrvStateCovariance& rhs) -> bool
 {
-  bool is_almost_equal{ false };
+  constexpr auto kEpsilon{ 1e-5 };
 
-  return is_almost_equal;
+  return lhs.isApprox(rhs, kEpsilon);
 }
 
 inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_place) -> CtrvState

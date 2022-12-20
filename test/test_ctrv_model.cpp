@@ -88,3 +88,30 @@ TEST(TestCtrvModel, Equality)
   EXPECT_FALSE(cp::utils::almostEqual(state1, state2));
   EXPECT_TRUE(cp::utils::almostEqual(state3, state4));
 }
+
+TEST(TestCtrvModel, CovarEquality)
+{
+  using namespace units::literals;
+
+  const cp::CtrvStateCovariance covar1{ { 1.0, 0.0, 0.0, 0.0, 0.0 },
+                                        { 0.0, 1.0, 0.0, 0.0, 0.0 },
+                                        { 0.0, 0.0, 1.0, 0.0, 0.0 },
+                                        { 0.0, 0.0, 0.0, 1.0, 0.0 },
+                                        { 0.0, 0.0, 0.0, 0.0, 1.0 } };
+
+  const cp::CtrvStateCovariance covar2{ { 0.5, 0.0, 0.0, 0.0, 1.0 },
+                                        { 0.0, 0.5, 0.0, 0.0, 0.0 },
+                                        { 0.0, 0.0, 0.5, 0.0, 0.0 },
+                                        { 0.0, 0.0, 0.0, 0.5, 0.0 },
+                                        { 1.0, 0.0, 0.0, 0.0, 0.5 } };
+
+  const cp::CtrvStateCovariance covar3{ { 0.5, 0.0, 0.0, 0.0, -1.0 },
+                                        { 0.0, 0.5, 0.0, 0.0, 0.0 },
+                                        { 0.0, 0.0, 0.5, 0.0, 0.0 },
+                                        { 0.0, 0.0, 0.0, 0.5, 0.0 },
+                                        { -1.0, 0.0, 0.0, 0.0, 0.5 } };
+
+  EXPECT_TRUE(cp::utils::almostEqual(covar1, covar1));
+  EXPECT_TRUE(cp::utils::almostEqual((covar2 + covar3), covar1));
+  EXPECT_FALSE(cp::utils::almostEqual(covar3, covar1));
+}
