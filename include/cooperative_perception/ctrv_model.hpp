@@ -95,6 +95,15 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
+inline auto operator*(float lhs, const CtrvState& rhs) -> CtrvState
+{
+  return CtrvState{ .position_x{ lhs * rhs.position_x },
+                    .position_y{ lhs * rhs.position_y },
+                    .velocity{ lhs * rhs.velocity },
+                    .yaw{ lhs * rhs.yaw },
+                    .yaw_rate{ lhs * rhs.yaw_rate } };
+}
+
 using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
 
 struct CtrvProcessNoise
