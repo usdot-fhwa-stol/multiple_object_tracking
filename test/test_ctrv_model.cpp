@@ -91,8 +91,6 @@ TEST(TestCtrvModel, Equality)
 
 TEST(TestCtrvModel, CovarEquality)
 {
-  using namespace units::literals;
-
   const cp::CtrvStateCovariance covar1{ { 1.0, 0.0, 0.0, 0.0, 0.0 },
                                         { 0.0, 1.0, 0.0, 0.0, 0.0 },
                                         { 0.0, 0.0, 1.0, 0.0, 0.0 },

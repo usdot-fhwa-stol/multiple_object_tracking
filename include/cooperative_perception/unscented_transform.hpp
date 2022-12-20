@@ -21,7 +21,7 @@
 #include <unordered_set>
 #include <tuple>
 #include <vector>
-#include <math.h>
+#include <units.h>
 #include "cooperative_perception/ctrv_model.hpp"
 
 namespace cooperative_perception
@@ -73,7 +73,7 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
    * for matrix arithmetic.
    */
   // Predicted state calculation
-  const auto pred_state{ w_0 * pred_state_0 };
+  auto pred_state{ w_0 * pred_state_0 };
   for (const auto& pred_sigma_point : pred_sigma_points)
   {
     pred_state += w_i * pred_sigma_point;
@@ -88,9 +88,9 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
   {
     auto state_diff = pred_sigma_point - pred_state;
     // If needed, fix yaw angle as it ranges 0 -> 2PI
-    if (state_diff.yaw % (2 * M_PI) > M_PI)
+    if (units::math::fmod(state_diff.yaw, units::angle::radian_t{ 2 * M_PI }) > units::angle::radian_t{ M_PI })
     {
-      state_diff.yaw -= 2 * M_PI;
+      state_diff.yaw -= units::angle::radian_t{ 2 * M_PI };
     }
     auto state_diff_vector{ State::toEigenVector(state_diff) };
     pred_covar += w_i * state_diff_vector * state_diff_vector.transpose();

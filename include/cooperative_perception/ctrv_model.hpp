@@ -55,7 +55,7 @@ struct CtrvState
   }
 };
 
-constexpr inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) -> CtrvState&
+constexpr inline auto operator+=(CtrvState& lhs, const CtrvState& rhs) noexcept -> CtrvState&
 {
   lhs.position_x += rhs.position_x;
   lhs.position_y += rhs.position_y;
