@@ -63,9 +63,9 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
   }
 
   // Compute the constants and weights for performing mean/covariance computations
-  const auto lambda{ 3 - State::kNumVars };
-  const auto w_0{ lambda / (lambda + State::kNumVars) };
-  const auto w_i{ lambda / (2 * (lambda + State::kNumVars)) };
+  const float lambda{ 3.0 - State::kNumVars };
+  const float w_0{ lambda / (lambda + State::kNumVars) };
+  const float w_i{ lambda / (2.0 * (lambda + State::kNumVars)) };
 
   /**
    * Compute the new mean and covariance using these sigma points.
@@ -80,10 +80,10 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
   }
 
   // Covariance calculation
-  const auto pred_state_vector_0{ State::toEigenVector(pred_state_0) };
-  const auto pred_state_vector{ State::toEigenVector(pred_state) };
-  auto pred_covar{ w_0 * (pred_state_vector_0 - pred_state_vector) *
-                   (pred_state_vector_0 - pred_state_vector).transpose() };
+  const Eigen::Vector<float, State::kNumVars> pred_state_vector_0{ State::toEigenVector(pred_state_0) };
+  const Eigen::Vector<float, State::kNumVars> pred_state_vector{ State::toEigenVector(pred_state) };
+  CtrvStateCovariance pred_covar{ w_0 * (pred_state_vector_0 - pred_state_vector) *
+                                  (pred_state_vector_0 - pred_state_vector).transpose() };
   for (const auto& pred_sigma_point : pred_sigma_points)
   {
     auto state_diff = pred_sigma_point - pred_state;
@@ -92,7 +92,7 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
     {
       state_diff.yaw -= units::angle::radian_t{ 2 * M_PI };
     }
-    auto state_diff_vector{ State::toEigenVector(state_diff) };
+    const Eigen::Vector<float, State::kNumVars> state_diff_vector{ State::toEigenVector(state_diff) };
     pred_covar += w_i * state_diff_vector * state_diff_vector.transpose();
   }
 
