@@ -139,4 +139,6 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransform)
                                         { 0.0, 0.0, 0.0, 0.0, 0.1 } };
 
   const auto transform_res{ cp::unscentedTransform(state1, covar1, 1.0_s) };
+  cp::CtrvState res_state{ std::get<0>(transform_res) };
+  cp::CtrvStateCovariance res_covar{ std::get<1>(transform_res) };
 };
