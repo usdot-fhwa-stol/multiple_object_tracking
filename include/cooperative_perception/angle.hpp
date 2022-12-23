@@ -18,6 +18,7 @@
 #define ANGLE_HPP
 
 #include <complex>
+#include <math.h>
 #include <units.h>
 
 /**
@@ -25,11 +26,25 @@
  */
 namespace cooperative_perception
 {
-template <typename Scalar>
 class Angle
 {
 private:
-  std::complex<Scalar> value;
+  std::complex<double> value_{};
+
+public:
+  Angle(units::angle::radian_t angle_val) noexcept : value_{ units::math::cos(angle_val), units::math::sin(angle_val) }
+  {
+  }
+
+  auto set_angle(units::angle::radian_t angle_val) noexcept -> void
+  {
+    value_ = std::complex<double>{ units::math::cos(angle_val), units::math::sin(angle_val) };
+  }
+
+  auto get_angle() const noexcept -> units::angle::radian_t
+  {
+    return units::angle::radian_t{ std::arg(value_) };
+  }
 };
 
 }  // namespace cooperative_perception

@@ -16,6 +16,9 @@
 
 #include <gtest/gtest.h>
 #include <cooperative_perception/angle.hpp>
+#include <units.h>
+
+using namespace units::literals;
 
 namespace cp = cooperative_perception;
 
@@ -24,4 +27,7 @@ namespace cp = cooperative_perception;
  */
 TEST(TestAngle, AngleAdditiveOperations)
 {
+  const auto pi = cp::Angle{ 3.1459_rad };
+  auto pi_2 = cp::Angle{ 1.5707_rad };
+  auto pi_4 = cp::Angle{ 0.7854_rad };
 }
