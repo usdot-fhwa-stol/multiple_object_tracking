@@ -25,9 +25,18 @@ namespace cp = cooperative_perception;
 /**
  * Test CTRV nextState function against pure rotation
  */
-TEST(TestAngle, AngleAdditiveOperations)
+TEST(TestAngle, AngleArithmeticOperations)
 {
-  const auto pi = cp::Angle{ 3.1459_rad };
-  auto pi_2 = cp::Angle{ 1.5707_rad };
-  auto pi_4 = cp::Angle{ 0.7854_rad };
+  // Define some known angles
+  const auto pi{ cp::Angle{ 3.141592654_rad } };
+  const auto pi_2{ cp::Angle{ 1.570796327_rad } };
+  const auto pi_4{ cp::Angle{ 0.785398163_rad } };
+  const auto pi_6{ cp::Angle{ 0.523598776_rad } };
+
+  // Perform additive and scalar operations
+  auto res1 = pi / 4.0;
+  auto res2 = pi_4 * 2.0;
+  auto res3 = pi + pi_2;
+  auto res4 = pi - pi_4;
+  auto res5 = pi * 2.2;
 }

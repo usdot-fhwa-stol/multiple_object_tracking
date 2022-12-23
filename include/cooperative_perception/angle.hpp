@@ -43,9 +43,70 @@ public:
 
   auto get_angle() const noexcept -> units::angle::radian_t
   {
-    return units::angle::radian_t{ std::arg(value_) };
+    auto phase_angle = std::arg(value_);
+    if (phase_angle < 0.0)
+    {
+      phase_angle += 2.0 * M_PI;
+    }
+    return units::angle::radian_t{ phase_angle };
+  }
+
+  friend auto operator+=(Angle& lhs, const Angle& rhs) noexcept -> Angle&
+  {
+    auto angle_sum = lhs.get_angle() + rhs.get_angle();
+    lhs.set_angle(angle_sum);
+    return lhs;
+  }
+
+  friend auto operator-=(Angle& lhs, const Angle& rhs) noexcept -> Angle&
+  {
+    auto angle_sub = lhs.get_angle() - rhs.get_angle();
+    lhs.set_angle(angle_sub);
+    return lhs;
   }
 };
+
+inline auto operator+(Angle lhs, const Angle& rhs) noexcept -> Angle
+{
+  lhs += rhs;
+  return lhs;
+}
+
+inline auto operator-(Angle lhs, const Angle& rhs) noexcept -> Angle
+{
+  lhs -= rhs;
+  return lhs;
+}
+
+inline auto operator*=(Angle& lhs, double rhs) noexcept -> Angle&
+{
+  lhs.set_angle(rhs * lhs.get_angle());
+  return lhs;
+}
+
+inline auto operator*(Angle lhs, double rhs) noexcept -> Angle
+{
+  lhs *= rhs;
+  return lhs;
+}
+
+inline auto operator*(double lhs, Angle rhs) noexcept -> Angle
+{
+  rhs *= lhs;
+  return rhs;
+}
+
+inline auto operator/=(Angle& lhs, double rhs) noexcept -> Angle&
+{
+  lhs.set_angle(lhs.get_angle() / rhs);
+  return lhs;
+}
+
+inline auto operator/(Angle lhs, double rhs) -> Angle
+{
+  lhs /= rhs;
+  return lhs;
+}
 
 }  // namespace cooperative_perception
 #endif  // ANGLE_HPP
