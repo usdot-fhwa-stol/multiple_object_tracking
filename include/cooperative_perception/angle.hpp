@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef ANGLE_HPP
-#define ANGLE_HPP
+#ifndef COOPERATIVE_PERCEPTION_ANGLE_HPP
+#define COOPERATIVE_PERCEPTION_ANGLE_HPP
 
 #include <complex>
 #include <math.h>
 #include <units.h>
+#include <cooperative_perception/utils.hpp>
 
+namespace cooperative_perception
+{
 /**
  * @brief Angle type for representing and manipulating angles
  */
-namespace cooperative_perception
-{
 class Angle
 {
 private:
@@ -50,21 +51,21 @@ public:
     }
     return units::angle::radian_t{ phase_angle };
   }
-
-  friend auto operator+=(Angle& lhs, const Angle& rhs) noexcept -> Angle&
-  {
-    auto angle_sum = lhs.get_angle() + rhs.get_angle();
-    lhs.set_angle(angle_sum);
-    return lhs;
-  }
-
-  friend auto operator-=(Angle& lhs, const Angle& rhs) noexcept -> Angle&
-  {
-    auto angle_sub = lhs.get_angle() - rhs.get_angle();
-    lhs.set_angle(angle_sub);
-    return lhs;
-  }
 };
+
+inline auto operator+=(Angle& lhs, const Angle& rhs) noexcept -> Angle&
+{
+  auto angle_sum = lhs.get_angle() + rhs.get_angle();
+  lhs.set_angle(angle_sum);
+  return lhs;
+}
+
+inline auto operator-=(Angle& lhs, const Angle& rhs) noexcept -> Angle&
+{
+  auto angle_sub = lhs.get_angle() - rhs.get_angle();
+  lhs.set_angle(angle_sub);
+  return lhs;
+}
 
 inline auto operator+(Angle lhs, const Angle& rhs) noexcept -> Angle
 {
@@ -109,4 +110,4 @@ inline auto operator/(Angle lhs, double rhs) -> Angle
 }
 
 }  // namespace cooperative_perception
-#endif  // ANGLE_HPP
+#endif  // COOPERATIVE_PERCEPTION_ANGLE_HPP
