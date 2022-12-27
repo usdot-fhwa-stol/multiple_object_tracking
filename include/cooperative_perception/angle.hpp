@@ -109,5 +109,11 @@ inline auto operator/(Angle lhs, double rhs) -> Angle
   return lhs;
 }
 
+inline auto operator==(Angle lhs, Angle rhs) -> bool
+{
+  return cooperative_perception::utils::almostEqual(units::unit_cast<double>(lhs.get_angle()),
+                                                    units::unit_cast<double>(rhs.get_angle()));
+}
+
 }  // namespace cooperative_perception
 #endif  // COOPERATIVE_PERCEPTION_ANGLE_HPP

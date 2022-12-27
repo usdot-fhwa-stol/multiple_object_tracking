@@ -46,3 +46,13 @@ TEST(TestAngle, AngleArithmeticOperations)
   EXPECT_TRUE(cp::utils::almostEqual(units::unit_cast<double>(res4.get_angle()), 3 * M_PI_4));
   EXPECT_TRUE(cp::utils::almostEqual(units::unit_cast<double>(res5.get_angle()), 0.2 * M_PI));
 }
+
+TEST(TestAngle, AngleBooleanOperations)
+{
+  const auto pi{ cp::Angle{ 3.141592654_rad } };
+  const auto pi_2{ cp::Angle{ 1.570796327_rad } };
+
+  EXPECT_FALSE(pi == pi_2);
+  EXPECT_TRUE(pi == pi);
+  EXPECT_TRUE(pi_2 == pi - pi_2);
+}
