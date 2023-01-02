@@ -18,9 +18,8 @@
 #define COOPERATIVE_PERCEPTION_ANGLE_HPP
 
 #include <complex>
-#include <math.h>
 #include <units.h>
-#include <cooperative_perception/utils.hpp>
+#include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
 {
@@ -39,7 +38,8 @@ public:
 
   auto set_angle(units::angle::radian_t angle_val) noexcept -> void
   {
-    value_ = std::complex<double>{ units::math::cos(angle_val), units::math::sin(angle_val) };
+    value_.real(units::math::cos(angle_val));
+    value_.imag(units::math::sin(angle_val));
   }
 
   auto get_angle() const noexcept -> units::angle::radian_t
@@ -50,6 +50,11 @@ public:
       phase_angle += 2.0 * M_PI;
     }
     return units::angle::radian_t{ phase_angle };
+  }
+
+  friend auto operator==(const Angle& lhs, const Angle& rhs) -> bool
+  {
+    return lhs.value_ == rhs.value_;
   }
 };
 
@@ -109,11 +114,13 @@ inline auto operator/(Angle lhs, double rhs) -> Angle
   return lhs;
 }
 
-inline auto operator==(Angle lhs, Angle rhs) -> bool
+namespace utils
 {
-  return cooperative_perception::utils::almostEqual(units::unit_cast<double>(lhs.get_angle()),
-                                                    units::unit_cast<double>(rhs.get_angle()));
+auto almostEqual(const Angle& lhs, const Angle& rhs) -> bool
+{
+  return lhs.get_angle() == rhs.get_angle();
 }
+}  // namespace utils
 
 }  // namespace cooperative_perception
 #endif  // COOPERATIVE_PERCEPTION_ANGLE_HPP
