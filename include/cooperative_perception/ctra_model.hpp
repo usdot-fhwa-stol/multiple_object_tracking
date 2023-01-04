@@ -23,6 +23,9 @@
 #include <units.h>
 #include "cooperative_perception/units.hpp"
 
+/**
+ * @brief State vector for the constant turn-rate and acceleration (CTRA) motion model
+ */
 namespace cooperative_perception
 {
 struct CtraState
@@ -34,8 +37,17 @@ struct CtraState
   units::angular_velocity::radians_per_second_t yaw_rate;
   units::acceleration::meters_per_second_squared_t acceleration;
 
+   /**
+   * @brief Number of elements in CTRA state vector
+   */
   static constexpr auto kNumVars{ 6 };
 
+  /**
+   * @brief Convert an Eigen::Vector into a CtraState
+   *
+   * @param[in] vec Vector being converted
+   * @return CtraState instance
+   */
   static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtraState
   {
     return CtraState{ .position_x{ units::length::meter_t{ vec(0) } },
@@ -47,6 +59,15 @@ struct CtraState
   }
 };
 
+/**
+ * @brief Add-assignment operator overload
+ *
+ * Adds two CtraState variables together and stores the result in the left-hand side operand.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the add-assignment expression
+ * @param[in] rhs Right-hand side (rhs) of the add-assignment expression
+ * @return Modified left-hand side operand
+ */
 inline auto operator+=(CtraState& lhs, const CtraState& rhs) -> CtraState&
 {
   lhs.position_x += rhs.position_x;
@@ -59,6 +80,15 @@ inline auto operator+=(CtraState& lhs, const CtraState& rhs) -> CtraState&
   return lhs;
 }
 
+/**
+ * @brief Subtract-assignment operator overload
+ *
+ * Subtracts two CtraState variables together and stores the result in the left-hand side operand.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the subtract-assignment expression
+ * @param[in] rhs Right-hand side (rhs) of the subtract-assignment expression
+ * @return Modified left-hand side operand
+ */
 inline auto operator-=(CtraState& lhs, const CtraState& rhs) -> CtraState&
 {
   lhs.position_x -= rhs.position_x;
@@ -71,18 +101,46 @@ inline auto operator-=(CtraState& lhs, const CtraState& rhs) -> CtraState&
   return lhs;
 }
 
+/**
+ * @brief Compare true equality between two CtraStates
+ *
+ * This function was added to support unordered containers. It should not be used in general computations for the same
+ * reasons that floating point values cannot be equated exactly.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the equality expression
+ * @param[in] rhs Right-hand side (rhs) of the equality expression
+ * @return True if CtraStates are exactly equal, false otherwise
+ */
 inline auto operator==(const CtraState& lhs, const CtraState& rhs) -> bool
 {
   return lhs.position_x == rhs.position_x && lhs.position_y == rhs.position_y && lhs.velocity == rhs.velocity &&
          lhs.yaw == rhs.yaw && lhs.yaw_rate == rhs.yaw_rate && lhs.acceleration == rhs.acceleration;
 }
 
+/**
+ * @brief Addition operator overload
+ *
+ * Adds two CtraState variables together and returns the result in a new CtraState.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the addition expression
+ * @param[in] rhs Right-hand side (rhs) of the addition expression
+ * @return Operation result
+ */
 inline auto operator+(CtraState lhs, const CtraState& rhs) -> CtraState
 {
   lhs += rhs;
   return lhs;
 }
 
+/**
+ * @brief Subtraction operator overload
+ *
+ * Subtracts two CtraState variables together and returns the result in a new CtraState.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the subtraction expression
+ * @param[in] rhs Right-hand side (rhs) of the subtraction expression
+ * @return Operation result
+ */
 inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
 {
   lhs -= rhs;
