@@ -29,6 +29,18 @@ struct CtraState
   units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
   units::acceleration::meters_per_second_squared_t acceleration;
+
+  static constexpr auto kNumVars{ 6 };
+
+  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtrvState
+  {
+    return CtrvState{ .position_x{ units::length::meter_t{ vec(0) } },
+                      .position_y{ units::length::meter_t{ vec(1) } },
+                      .velocity{ units::velocity::meters_per_second_t{ vec(2) } },
+                      .yaw{ units::angle::radian_t{ vec(3) } },
+                      .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } },
+                      .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5)} } };
+  }
 };
 
 /** Calculate next CTRA state based on current state and time step
