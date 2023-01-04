@@ -19,6 +19,7 @@
 
 #include <complex>
 #include <units.h>
+#include <boost/math/constants/constants.hpp>
 #include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
@@ -47,7 +48,7 @@ public:
     auto phase_angle = std::arg(value_);
     if (phase_angle < 0.0)
     {
-      phase_angle += 2.0 * M_PI;
+      phase_angle += 2.0 * boost::math::double_constants::pi;
     }
     return units::angle::radian_t{ phase_angle };
   }
