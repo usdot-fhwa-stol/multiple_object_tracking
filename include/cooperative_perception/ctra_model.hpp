@@ -16,6 +16,10 @@
 #ifndef COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 
+#include <boost/container_hash/hash.hpp>
+#include <boost/math/special_functions/next.hpp>
+#include <functional>
+#include <Eigen/Dense>
 #include <units.h>
 #include "cooperative_perception/units.hpp"
 
@@ -32,9 +36,9 @@ struct CtraState
 
   static constexpr auto kNumVars{ 6 };
 
-  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtrvState
+  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtraState
   {
-    return CtrvState{ .position_x{ units::length::meter_t{ vec(0) } },
+    return CtraState{ .position_x{ units::length::meter_t{ vec(0) } },
                       .position_y{ units::length::meter_t{ vec(1) } },
                       .velocity{ units::velocity::meters_per_second_t{ vec(2) } },
                       .yaw{ units::angle::radian_t{ vec(3) } },
@@ -42,6 +46,48 @@ struct CtraState
                       .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5)} } };
   }
 };
+
+inline auto operator+=(CtraState& lhs, const CtraState& rhs) -> CtraState&
+{
+  lhs.position_x += rhs.position_x;
+  lhs.position_y += rhs.position_y;
+  lhs.velocity += rhs.velocity;
+  lhs.yaw += rhs.yaw;
+  lhs.yaw_rate += rhs.yaw_rate;
+  lhs.acceleration += rhs.acceleration;
+
+  return lhs;
+}
+
+inline auto operator-=(CtraState& lhs, const CtraState& rhs) -> CtraState&
+{
+  lhs.position_x -= rhs.position_x;
+  lhs.position_y -= rhs.position_y;
+  lhs.velocity -= rhs.velocity;
+  lhs.yaw -= rhs.yaw;
+  lhs.yaw_rate -= rhs.yaw_rate;
+  lhs.acceleration -= rhs.acceleration;
+
+  return lhs;
+}
+
+inline auto operator==(const CtraState& lhs, const CtraState& rhs) -> bool
+{
+  return lhs.position_x == rhs.position_x && lhs.position_y == rhs.position_y && lhs.velocity == rhs.velocity &&
+         lhs.yaw == rhs.yaw && lhs.yaw_rate == rhs.yaw_rate && lhs.acceleration == rhs.acceleration;
+}
+
+inline auto operator+(CtraState lhs, const CtraState& rhs) -> CtraState
+{
+  lhs += rhs;
+  return lhs;
+}
+
+inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
+{
+  lhs -= rhs;
+  return lhs;
+}
 
 /** Calculate next CTRA state based on current state and time step
  *
