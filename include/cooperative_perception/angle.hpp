@@ -26,6 +26,10 @@ namespace cooperative_perception
 {
 /**
  * @brief Angle type for representing and manipulating angles
+ *
+ * The angle class is designed to support circular mean for use in probabilistic sampling as part of the UKF prediction
+ * step. https://en.wikipedia.org/wiki/Circular_mean To support the 0,2pi range required by circular mean the classes
+ * stores the angle in the complex plane. https://en.wikipedia.org/wiki/Polar_coordinate_system#Complex_numbers
  */
 class Angle
 {
@@ -119,6 +123,9 @@ namespace utils
 {
 auto almostEqual(const Angle& lhs, const Angle& rhs) -> bool
 {
+  // Despite its appearance, this operation checks for almost-equality. The get_angle() function returns a
+  // units::angle::radian_t type. The operator==(...) overload checks for almost-equality. See
+  // https://github.com/nholthaus/units/issues/118 for a discussion.
   return lhs.get_angle() == rhs.get_angle();
 }
 }  // namespace utils
