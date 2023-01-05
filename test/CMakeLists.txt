@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+
 add_executable(test_cooperative_perceptionExecutable
   test_angle.cpp
   test_ctrv_model.cpp

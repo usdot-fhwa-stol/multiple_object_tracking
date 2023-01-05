@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #ifndef COOPERATIVE_PERCEPTION_UNITS_HPP
 #define COOPERATIVE_PERCEPTION_UNITS_HPP
 

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #include <gtest/gtest.h>
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/units.hpp>
