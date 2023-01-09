@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #ifndef COOPERATIVE_PERCEPTION_DETECTED_OBJECT_HPP
 #define COOPERATIVE_PERCEPTION_DETECTED_OBJECT_HPP
 
@@ -25,6 +29,12 @@
 
 namespace cooperative_perception
 {
+/**
+ * @brief Detected object
+ *
+ * @tparam StateType State vector type for object's motion model
+ * @tparam CovarianceType Covariance matrix type for object's motion model
+ */
 template <typename StateType, typename CovarianceType>
 struct DetectedObject
 {
@@ -33,11 +43,30 @@ struct DetectedObject
   CovarianceType covariance;
 };
 
+/**
+ * @brief DetectedObject specialization for a vehicle using the CTRV motion model
+ */
 using VehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
 
+/**
+ * @brief Aggregation of all DetectedObject specializations
+ *
+ * This type contains all the DetectedObject types supported by the library. It can be used to refer
+ * generically to any DetectedObject and allows all DetectedObject types to be stored in the same container.
+ */
 using DetectedObjectType = std::variant<VehicleObject>;
 
+/**
+ * @brief Maximum number of DetectedObjects that can be stored at a time
+ *
+ * To help ensure the system executes in a timely manner, the number of concurrent DetectedObjects that are being
+ * tracked is limited.
+ */
 inline constexpr auto kMaxDetectedObjects{ 200U };
+
+/**
+ * @brief Container for DetectedObject variables
+ */
 using DetectedObjectList = boost::container::static_vector<DetectedObjectType, kMaxDetectedObjects>;
 
 }  // namespace cooperative_perception
