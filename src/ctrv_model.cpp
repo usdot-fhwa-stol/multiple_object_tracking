@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #include <cmath>
 #include <units.h>
 #include "cooperative_perception/ctrv_model.hpp"
@@ -32,6 +36,8 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
 
   if (utils::almostEqual(units::unit_cast<double>(state.yaw_rate), 0.0))
   {
+    // Yaw rate of zero (no turning) is a special case. The general case is invalid because it divides by the raw rate.
+    // You can't divide by zero.
     next_state.position_x += state.velocity * units::math::cos(state.yaw) * time_step;
     next_state.position_y += state.velocity * units::math::sin(state.yaw) * time_step;
   }

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #ifndef COOPERATIVE_PERCEPTION_UTILS_HPP
 #define COOPERATIVE_PERCEPTION_UTILS_HPP
 
@@ -21,13 +25,23 @@
 
 namespace cooperative_perception::utils
 {
-
+/**
+ * @brief Generic visitor class
+ *
+ * This is a utility class to make it easier to build visitors with lambdas.
+ */
 template <typename... Base>
 struct Visitor : Base...
 {
+  /**
+   * @brief Bring base class' operator overloads into this scope
+   */
   using Base::operator()...;
 };
 
+/**
+ * @brief Type deduction hint for the Visitor constructor
+ */
 template <typename... T>
 Visitor(T&&... t) -> Visitor<T...>;
 

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #ifndef COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 #define COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 
@@ -26,11 +30,23 @@
 
 namespace cooperative_perception
 {
+/**
+ * @brief Generate sample points from a state's distribution
+ *
+ * @tparam State State vector type of state distribution being sampled
+ * @tparam StateCovariance Covariance matrix type of state distribution being sampled
+ *
+ * @param[in] state Mean state vector of state distribution
+ * @param[in] covariance Covariance matrix of state distribution
+ * @param[in] num_points Number of points to sample
+ * @param[in] lambda A tuning parameter affecting how the points are sampled
+ * @return Set of sampled points
+ */
 template <typename State, typename StateCovariance>
-auto sampleStateDistribution(const State& state, const StateCovariance covariance) -> std::unordered_set<State>
+auto sampleStateDistribution(const State& state, const StateCovariance covariance, std::size_t num_points, float lambda)
+    -> std::unordered_set<State>
 {
-  std::unordered_set<State> sigma_pts{};
-  const auto lambda{ 3 - State::kNumVars };
+  std::unordered_set<State> sigma_pts{ state };
   const StateCovariance covariance_sqrt{ covariance.llt().matrixL() };
   for (const auto& column : covariance_sqrt.colwise())
   {

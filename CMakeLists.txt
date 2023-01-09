@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+
 cmake_minimum_required(VERSION 3.16)
 project(cooperative_perception_core)
 enable_testing()
