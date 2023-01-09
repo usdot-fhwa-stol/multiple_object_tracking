@@ -43,10 +43,10 @@ namespace cooperative_perception
  * @return Set of sampled points
  */
 template <typename State, typename StateCovariance>
-auto sampleStateDistribution(const State& state, const StateCovariance covariance, std::size_t num_points, float lambda)
-    -> std::unordered_set<State>
+auto sampleStateDistribution(const State& state, const StateCovariance covariance) -> std::unordered_set<State>
 {
-  std::unordered_set<State> sigma_pts{ state };
+  std::unordered_set<State> sigma_pts{};
+  const auto lambda{ 3 - State::kNumVars };
   const StateCovariance covariance_sqrt{ covariance.llt().matrixL() };
   for (const auto& column : covariance_sqrt.colwise())
   {

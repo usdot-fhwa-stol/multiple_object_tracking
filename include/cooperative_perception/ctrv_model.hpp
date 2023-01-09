@@ -40,7 +40,6 @@ struct CtrvState
   units::velocity::meters_per_second_t velocity;
   units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
-
   /**
    * @brief Number of elements in CTRV state vector
    */
@@ -59,6 +58,21 @@ struct CtrvState
                       .velocity{ units::velocity::meters_per_second_t{ vec(2) } },
                       .yaw{ units::angle::radian_t{ vec(3) } },
                       .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } } };
+  }
+
+  /**
+   * @brief Convert a CtrvState into an Eigen::Vector
+   *
+   * @param[in] ctrv_state CtrvState to be converted
+   * @return CtrvState instance
+   */
+  static inline auto toEigenVector(const CtrvState& ctrv_state) noexcept -> Eigen::Vector<float, kNumVars>
+  {
+    return Eigen::Vector<float, kNumVars>{ units::unit_cast<float>(ctrv_state.position_x),
+                                           units::unit_cast<float>(ctrv_state.position_y),
+                                           units::unit_cast<float>(ctrv_state.velocity),
+                                           units::unit_cast<float>(ctrv_state.yaw),
+                                           units::unit_cast<float>(ctrv_state.yaw_rate) };
   }
 };
 
@@ -147,6 +161,29 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   lhs -= rhs;
   return lhs;
 }
+
+constexpr inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
+{
+  lhs.position_x *= rhs;
+  lhs.position_y *= rhs;
+  lhs.velocity *= rhs;
+  lhs.yaw *= rhs;
+  lhs.yaw_rate *= rhs;
+
+  return lhs;
+}
+
+constexpr inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
+{
+  return lhs *= rhs;
+}
+
+constexpr inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
+{
+  return rhs *= lhs;
+}
+
+using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
 
 /**
  * @brief Covariance matrix for the CTRV motion model
