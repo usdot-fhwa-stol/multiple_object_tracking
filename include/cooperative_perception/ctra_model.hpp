@@ -147,6 +147,117 @@ inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
   return lhs;
 }
 
+/**
+ * @brief Covariance matrix for the CTRA motion model
+ */
+using CtraStateCovariance = Eigen::Matrix<float, CtraState::kNumVars, CtraState::kNumVars>;
+
+/**
+ * @brief Process noise vector for the CTRA motion model
+ */
+struct CtraProcessNoise
+{
+  units::acceleration::meters_per_second_squared_t linear_acceleration;
+  units::angular_acceleration::radian_per_second_squared_t angular_acceleration;
+
+  /**
+   * @brief Number of elements in the process noise state vector
+   */
+  static constexpr auto kNumVars{ 2 };
+
+  /**
+   * @brief Convert an Eigen::Vector into a CtraProcessNoise
+   *
+   * @param[in] vec Vector being converted
+   * @return CtraProcessNoise instance
+   */
+  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtraProcessNoise
+  {
+    return CtraProcessNoise{ .linear_acceleration{ units::acceleration::meters_per_second_squared_t{ vec(0) } },
+                             .angular_acceleration{
+                                 units::angular_acceleration::radian_per_second_squared_t{ vec(1) } } };
+  }
+};
+
+/**
+ * @brief Add-assignment operator overload
+ *
+ * Adds two CtraProcessNoise variables together and stores the result in the left-hand side operand.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the add-assignment expression
+ * @param[in] rhs Right-hand side (rhs) of the add-assignment expression
+ * @return Modified left-hand side operand
+ */
+inline auto operator+=(CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise&
+{
+  lhs.linear_acceleration += rhs.linear_acceleration;
+  lhs.angular_acceleration += rhs.angular_acceleration;
+
+  return lhs;
+}
+
+/**
+ * @brief Subtract-assignment operator overload
+ *
+ * Subtracts two CtraProcessNoise variables together and stores the result in the left-hand side operand.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the subtract-assignment expression
+ * @param[in] rhs Right-hand side (rhs) of the subtract-assignment expression
+ * @return Modified left-hand side operand
+ */
+inline auto operator-=(CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise&
+{
+  lhs.linear_acceleration -= rhs.linear_acceleration;
+  lhs.angular_acceleration -= rhs.angular_acceleration;
+
+  return lhs;
+}
+
+/**
+ * @brief Compare true equality between two CtraProcessNoises
+ *
+ * This function was added to support unordered containers. It should not be used in general computations for the same
+ * reasons that floating point values cannot be equated exactly.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the equality expression
+ * @param[in] rhs Right-hand side (rhs) of the equality expression
+ * @return True if CtraProcessNoise are exactly equal, false otherwise
+ */
+inline auto operator==(const CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> bool
+{
+  return lhs.linear_acceleration == rhs.linear_acceleration && lhs.angular_acceleration == rhs.angular_acceleration;
+}
+
+/**
+ * @brief Addition operator overload
+ *
+ * Adds two CtraProcessNoise variables together and returns the result in a new CtraProcessNoise.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the addition expression
+ * @param[in] rhs Right-hand side (rhs) of the addition expression
+ * @return Operation result
+ */
+inline auto operator+(CtraProcessNoise lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise
+{
+  lhs += rhs;
+  return lhs;
+}
+
+/**
+ * @brief Subtraction operator overload
+ *
+ * Subtracts two CtraProcessNoise variables together and returns the result in a new CtraProcessNoise.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the subtraction expression
+ * @param[in] rhs Right-hand side (rhs) of the subtraction expression
+ * @return Operation result
+ */
+inline auto operator-(CtraProcessNoise lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise
+{
+  lhs -= rhs;
+  return lhs;
+}
+
 /** Calculate next CTRA state based on current state and time step
  *
  * @param[in] state Current CTRA state
@@ -155,6 +266,161 @@ inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
  */
 auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraState;
 
+/** Calculate next CTRA state based on current state, time step, and process noise
+ *
+ * @param[in] state Current CTRA state
+ * @param[in] time_step Propagation time duration
+ * @param[in] linear_accel_noise Linear acceleration process noise
+ * @param[in] angular_accel_noise Angular acceleration process noise
+ */
+auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState;
+
+namespace utils
+{
+/**
+ * @brief Compares the almost-equality of two CtraStates
+ *
+ * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
+ * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
+ * @param[in] ulp_tol Units of least precision (ULP) tolerance.
+ *            Distance between integer representation of each vector element must be less than this.
+ * @return True if CtraState are almost-equal, false otherwise
+ */
+inline auto almostEqual(const CtraState& lhs, const CtraState& rhs, std::size_t ulp_tol = 4) -> bool
+{
+  const auto dist_x{ boost::math::float_distance(units::unit_cast<double>(lhs.position_x),
+                                                 units::unit_cast<double>(rhs.position_x)) };
+  const auto dist_y{ boost::math::float_distance(units::unit_cast<double>(lhs.position_y),
+                                                 units::unit_cast<double>(rhs.position_y)) };
+  const auto dist_vel{ boost::math::float_distance(units::unit_cast<double>(lhs.velocity),
+                                                   units::unit_cast<double>(rhs.velocity)) };
+  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw),
+                                                   units::unit_cast<double>(rhs.yaw)) };
+  const auto dist_yaw_rate{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw_rate),
+                                                        units::unit_cast<double>(rhs.yaw_rate)) };
+  const auto dist_acceleration{ boost::math::float_distance(units::unit_cast<double>(lhs.acceleration),
+  units::unit_cast<double>(rhs.acceleration)) };
+
+  return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol && std::abs(dist_vel) <= ulp_tol &&
+         std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol &&
+         std::abs(dist_acceleration) <= ulp_tol;
+}
+
+/**
+ * @brief Rounds CtraState vector elements to the nearest decimal place
+ *
+ * @param[in] state CtraState being rounded
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
+ * @return Rounded CtraState
+ */
+inline auto roundToDecimalPlace(const CtraState& state, std::size_t decimal_place) -> CtraState
+{
+  const auto multiplier{ std::pow(10, decimal_place) };
+
+  CtraState rounded_state{ units::math::round(state.position_x * multiplier) / multiplier,
+                           units::math::round(state.position_y * multiplier) / multiplier,
+                           units::math::round(state.velocity * multiplier) / multiplier,
+                           units::math::round(state.yaw * multiplier) / multiplier,
+                           units::math::round(state.yaw_rate * multiplier) / multiplier,
+                           units::math::round(state.acceleration * multiplier) / multiplier };
+
+  return rounded_state;
+}
+
+/**
+ * @brief Compares the almost-equality of two CtraProcessNoises
+ *
+ * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
+ * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
+ * @param[in] ulp_tol Units of least precision (ULP) tolerance.
+ *            Distance between integer representation of each vector element must be less than this.
+ * @return True if CtraProcessNoise are almost-equal, false otherwise
+ */
+inline auto almostEqual(const CtraProcessNoise& lhs, const CtraProcessNoise& rhs, std::size_t ulp_tol = 4) -> bool
+{
+  const auto dist_lin_accel{ boost::math::float_distance(units::unit_cast<double>(lhs.linear_acceleration),
+                                                         units::unit_cast<double>(rhs.linear_acceleration)) };
+  const auto dist_ang_accel{ boost::math::float_distance(units::unit_cast<double>(lhs.angular_acceleration),
+                                                         units::unit_cast<double>(rhs.angular_acceleration)) };
+
+  return std::abs(dist_lin_accel) <= ulp_tol && std::abs(dist_ang_accel) <= ulp_tol;
+}
+
+/**
+ * @brief Rounds CtraProcessNoise vector elements to the nearest decimal place
+ *
+ * @param[in] state CtraProcessNoise being rounded
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
+ * @return Rounded CtraProcessNoise
+ */
+inline auto roundToDecimalPlace(const CtraProcessNoise& noise, std::size_t decimal_place) -> CtraProcessNoise
+{
+  const auto multiplier{ std::pow(10, decimal_place) };
+
+  return CtraProcessNoise{ units::math::round(noise.linear_acceleration * multiplier) / multiplier,
+                           units::math::round(noise.angular_acceleration * multiplier) / multiplier };
+}
+
+}  // namespace utils
+
 }  // namespace cooperative_perception
+
+namespace std
+{
+/**
+ * @brief std::hash specialization for CtraState
+ *
+ * This specialization is necessary to use CtraState in unordered containers (e.g., std::unordered_set)
+ */
+template <>
+struct hash<cooperative_perception::CtraState>
+{
+  /**
+   * @brief Call operator overload
+   *
+   * Computes the has of CtraState when called
+   *
+   * @param[in] state CtraState being hashed
+   * @return hash corresponding to the CtraState
+   */
+  std::size_t operator()(const cooperative_perception::CtraState& state) const
+  {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
+    boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
+    boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
+    boost::hash_combine(seed, units::unit_cast<double>(state.acceleration));
+    return seed;
+  }
+};
+
+/**
+ * @brief std::hash specialization for CtraProcessNoise
+ *
+ * This specialization is necessary to use CtraProcessNoise in unordered containers (e.g., std::unordered_set)
+ */
+template <>
+struct hash<cooperative_perception::CtraProcessNoise>
+{
+  /**
+   * @brief Call operator overload
+   *
+   * Computes the has of CtraProcessNoise when called
+   *
+   * @param[in] state CtraProcessNoise being hashed
+   * @return hash corresponding to the CtraProcessNoise
+   */
+  std::size_t operator()(const cooperative_perception::CtraProcessNoise& process_noise) const
+  {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, units::unit_cast<double>(process_noise.linear_acceleration));
+    boost::hash_combine(seed, units::unit_cast<double>(process_noise.angular_acceleration));
+
+    return seed;
+  }
+};
+}  // namespace std
 
 #endif  // COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP

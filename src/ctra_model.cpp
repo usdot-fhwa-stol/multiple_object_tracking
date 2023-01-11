@@ -51,4 +51,20 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
                     state.acceleration };
 }
 
+auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState
+{
+  auto next_state{ nextState(state, time_step) };
+  const auto time_step_sq{ units::math::pow<2>(time_step) };
+  constexpr auto one_half{ 1.0 / 2.0 };
+
+  next_state.position_x += one_half * noise.linear_acceleration * units::math::cos(state.yaw) * time_step_sq;
+  next_state.position_y += one_half * noise.linear_acceleration * units::math::sin(state.yaw) * time_step_sq;
+  next_state.velocity += noise.linear_acceleration * time_step;
+  next_state.yaw += one_half * noise.angular_acceleration * time_step_sq;
+  next_state.yaw_rate += noise.angular_acceleration * time_step;
+  next_state.acceleration += noise.linear_acceleration * time_step;
+
+  return next_state;
+}
+
 }  // namespace cooperative_perception
