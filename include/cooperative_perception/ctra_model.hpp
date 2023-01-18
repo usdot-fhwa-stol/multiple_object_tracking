@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #ifndef COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 
@@ -21,6 +26,7 @@
 #include <functional>
 #include <Eigen/Dense>
 #include <units.h>
+#include "cooperative_perception/angle.hpp"
 #include "cooperative_perception/units.hpp"
 
 /**
@@ -33,7 +39,7 @@ struct CtraState
   units::length::meter_t position_x;
   units::length::meter_t position_y;
   units::velocity::meters_per_second_t velocity;
-  units::angle::radian_t yaw;
+  Angle yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
   units::acceleration::meters_per_second_squared_t acceleration;
 
