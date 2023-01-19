@@ -1,3 +1,23 @@
+/*
+ * Copyright 2022 Leidos
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #include <gtest/gtest.h>
 #include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/units.hpp>
@@ -28,7 +48,7 @@ TEST(TestCtraModel, NextStatePureTranslation)
 
   constexpr cp::CtraState state{ 0_m, 0_m, 1_mps, 0_rad, 0_rad_per_s, 1_mps_sq };
   const auto next_state{ cp::nextState(state, 0.5_s) };
-  constexpr cp::CtraState expected_state{ 0.5_m, 0_m, 2_mps, 0_rad, 0_rad_per_s, 1_mps_sq };
+  constexpr cp::CtraState expected_state{ 0.5_m, 0_m, 1.5_mps, 0_rad, 0_rad_per_s, 1_mps_sq };
 
   EXPECT_TRUE(cp::utils::almostEqual(next_state, expected_state));
 }
@@ -42,7 +62,9 @@ TEST(TestCtraModel, NextStateRotationAndTranslation)
 
   constexpr cp::CtraState state{ 0_m, 0_m, 1_mps, 0_rad, 1_rad_per_s, 1_mps_sq };
   const auto next_state{ cp::nextState(state, 0.5_s) };
-  constexpr cp::CtraState expected_state{ 0.065056359_m, 0.5_m, 2_mps, 0.5_rad, 1_rad_per_s, 1_mps_sq };
+  constexpr cp::CtraState expected_state{
+    0.5967208697966773_m, 0.16305169576864387_m, 1.5_mps, 0.5_rad, 1_rad_per_s, 1_mps_sq
+  };
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(next_state, 9), expected_state));
 }
