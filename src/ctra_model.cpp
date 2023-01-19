@@ -13,9 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ */
+
 #include <cmath>
 #include <units.h>
 #include "cooperative_perception/ctra_model.hpp"
+
 #include "cooperative_perception/utils.hpp"
 #include "cooperative_perception/units.hpp"
 
