@@ -40,10 +40,11 @@ struct CtraState
   units::length::meter_t position_y;
   units::velocity::meters_per_second_t velocity;
   Angle yaw;
+  // units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
   units::acceleration::meters_per_second_squared_t acceleration;
 
-   /**
+  /**
    * @brief Number of elements in CTRA state vector
    */
   static constexpr auto kNumVars{ 6 };
@@ -61,7 +62,7 @@ struct CtraState
                       .velocity{ units::velocity::meters_per_second_t{ vec(2) } },
                       .yaw{ units::angle::radian_t{ vec(3) } },
                       .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } },
-                      .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5)} } };
+                      .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5) } } };
   }
 };
 
@@ -300,16 +301,15 @@ inline auto almostEqual(const CtraState& lhs, const CtraState& rhs, std::size_t 
                                                  units::unit_cast<double>(rhs.position_y)) };
   const auto dist_vel{ boost::math::float_distance(units::unit_cast<double>(lhs.velocity),
                                                    units::unit_cast<double>(rhs.velocity)) };
-  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw),
-                                                   units::unit_cast<double>(rhs.yaw)) };
+  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw.get_angle()),
+                                                   units::unit_cast<double>(rhs.yaw.get_angle())) };
   const auto dist_yaw_rate{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw_rate),
                                                         units::unit_cast<double>(rhs.yaw_rate)) };
   const auto dist_acceleration{ boost::math::float_distance(units::unit_cast<double>(lhs.acceleration),
-  units::unit_cast<double>(rhs.acceleration)) };
+                                                            units::unit_cast<double>(rhs.acceleration)) };
 
   return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol && std::abs(dist_vel) <= ulp_tol &&
-         std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol &&
-         std::abs(dist_acceleration) <= ulp_tol;
+         std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol && std::abs(dist_acceleration) <= ulp_tol;
 }
 
 /**
@@ -326,7 +326,7 @@ inline auto roundToDecimalPlace(const CtraState& state, std::size_t decimal_plac
   CtraState rounded_state{ units::math::round(state.position_x * multiplier) / multiplier,
                            units::math::round(state.position_y * multiplier) / multiplier,
                            units::math::round(state.velocity * multiplier) / multiplier,
-                           units::math::round(state.yaw * multiplier) / multiplier,
+                           units::math::round(state.yaw.get_angle() * multiplier) / multiplier,
                            units::math::round(state.yaw_rate * multiplier) / multiplier,
                            units::math::round(state.acceleration * multiplier) / multiplier };
 
@@ -395,7 +395,7 @@ struct hash<cooperative_perception::CtraState>
     boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
     boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
     boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
-    boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw.get_angle()));
     boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
     boost::hash_combine(seed, units::unit_cast<double>(state.acceleration));
     return seed;
