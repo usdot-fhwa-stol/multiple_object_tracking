@@ -40,7 +40,6 @@ struct CtraState
   units::length::meter_t position_y;
   units::velocity::meters_per_second_t velocity;
   Angle yaw;
-  // units::angle::radian_t yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
   units::acceleration::meters_per_second_squared_t acceleration;
 
