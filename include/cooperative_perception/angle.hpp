@@ -125,7 +125,7 @@ inline auto operator/(Angle lhs, double rhs) -> Angle
 
 namespace utils
 {
-auto almostEqual(const Angle& lhs, const Angle& rhs) -> bool
+inline auto almostEqual(const Angle& lhs, const Angle& rhs) -> bool
 {
   // Despite its appearance, this operation checks for almost-equality. The get_angle() function returns a
   // units::angle::radian_t type. The operator==(...) overload checks for almost-equality. See
