@@ -26,6 +26,7 @@
 #include <functional>
 #include <Eigen/Dense>
 #include <units.h>
+#include "cooperative_perception/angle.hpp"
 #include "cooperative_perception/units.hpp"
 
 /**
@@ -38,7 +39,7 @@ struct CtrvState
   units::length::meter_t position_x;
   units::length::meter_t position_y;
   units::velocity::meters_per_second_t velocity;
-  units::angle::radian_t yaw;
+  Angle yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
   /**
    * @brief Number of elements in CTRV state vector
@@ -71,7 +72,7 @@ struct CtrvState
     return Eigen::Vector<float, kNumVars>{ units::unit_cast<float>(ctrv_state.position_x),
                                            units::unit_cast<float>(ctrv_state.position_y),
                                            units::unit_cast<float>(ctrv_state.velocity),
-                                           units::unit_cast<float>(ctrv_state.yaw),
+                                           units::unit_cast<float>(ctrv_state.yaw.get_angle()),
                                            units::unit_cast<float>(ctrv_state.yaw_rate) };
   }
 };
@@ -162,7 +163,7 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
-constexpr inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
+const inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
 {
   lhs.position_x *= rhs;
   lhs.position_y *= rhs;
@@ -173,12 +174,12 @@ constexpr inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvStat
   return lhs;
 }
 
-constexpr inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
+const inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
 {
   return lhs *= rhs;
 }
 
-constexpr inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
+const inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
 {
   return rhs *= lhs;
 }
@@ -332,8 +333,8 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t 
                                                  units::unit_cast<double>(rhs.position_y)) };
   const auto dist_vel{ boost::math::float_distance(units::unit_cast<double>(lhs.velocity),
                                                    units::unit_cast<double>(rhs.velocity)) };
-  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw),
-                                                   units::unit_cast<double>(rhs.yaw)) };
+  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw.get_angle()),
+                                                   units::unit_cast<double>(rhs.yaw.get_angle())) };
   const auto dist_yaw_rate{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw_rate),
                                                         units::unit_cast<double>(rhs.yaw_rate)) };
 
@@ -355,7 +356,7 @@ inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_plac
   CtrvState rounded_state{ units::math::round(state.position_x * multiplier) / multiplier,
                            units::math::round(state.position_y * multiplier) / multiplier,
                            units::math::round(state.velocity * multiplier) / multiplier,
-                           units::math::round(state.yaw * multiplier) / multiplier,
+                           units::math::round(state.yaw.get_angle() * multiplier) / multiplier,
                            units::math::round(state.yaw_rate * multiplier) / multiplier };
 
   return rounded_state;
@@ -423,7 +424,7 @@ struct hash<cooperative_perception::CtrvState>
     boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
     boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
     boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
-    boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw.get_angle()));
     boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
 
     return seed;

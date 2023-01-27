@@ -104,7 +104,8 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
   {
     auto state_diff = pred_sigma_point - pred_state;
     // If needed, fix yaw angle as it ranges 0 -> 2PI
-    if (units::math::fmod(state_diff.yaw, units::angle::radian_t{ 2 * M_PI }) > units::angle::radian_t{ M_PI })
+    if (units::math::fmod(state_diff.yaw.get_angle(), units::angle::radian_t{ 2 * M_PI }) >
+        units::angle::radian_t{ M_PI })
     {
       state_diff.yaw -= units::angle::radian_t{ 2 * M_PI };
     }

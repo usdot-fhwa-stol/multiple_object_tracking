@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 #include <cooperative_perception/detected_object.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
+#include <cooperative_perception/angle.hpp>
 #include <units.h>
 
 struct CtrvCovariance
@@ -31,13 +32,17 @@ namespace cp = cooperative_perception;
 
 TEST(TestDetectedObject, CtrvObjectDefaultConstruction)
 {
-  auto object = cp::DetectedObject<cp::CtrvState, CtrvCovariance>{};
+  using namespace units::literals;
+
+  auto object = cp::DetectedObject<cp::CtrvState, CtrvCovariance>{
+    units::time::second_t{ 0 }, cp::CtrvState{ 0_m, 0_m, 0_mps, cp::Angle(0_rad), 0_rad_per_s }
+  };
 
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.timestamp), 0.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_x), 0.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_y), 0.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.velocity), 0.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw.get_angle()), 0.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw_rate), 0.0);
 }
 
@@ -55,6 +60,6 @@ TEST(TestDetectedObject, CtrvObjectCustomConstruction)
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_x), 1.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_y), 2.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.velocity), 3.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw), 4.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw.get_angle()), 4.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw_rate), 5.0);
 }
