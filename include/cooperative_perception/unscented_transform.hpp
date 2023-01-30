@@ -43,7 +43,7 @@ namespace cooperative_perception
  * @return Set of sampled points
  */
 template <typename State, typename StateCovariance>
-auto sampleStateDistribution(const State& state, const StateCovariance covariance) -> std::unordered_set<State>
+auto sampleStateDistribution(const State& state, const StateCovariance& covariance) -> std::unordered_set<State>
 {
   std::unordered_set<State> sigma_pts{};
   const auto lambda{ 3 - State::kNumVars };
@@ -61,7 +61,7 @@ auto sampleStateDistribution(const State& state, const StateCovariance covarianc
 }
 
 template <typename State, typename StateCovariance>
-auto unscentedTransform(const State& state, const StateCovariance covariance, units::time::second_t time_step)
+auto unscentedTransform(const State& state, const StateCovariance& covariance, units::time::second_t time_step)
     -> std::tuple<State, StateCovariance>
 {
   // Compute the sigma points based on the state vector and state covariance
@@ -113,7 +113,7 @@ auto unscentedTransform(const State& state, const StateCovariance covariance, un
     pred_covar += w_i * state_diff_vector * state_diff_vector.transpose();
   }
 
-  return std::make_tuple(pred_state, pred_covar);
+  return { pred_state, pred_covar };
 }
 
 }  // namespace cooperative_perception
