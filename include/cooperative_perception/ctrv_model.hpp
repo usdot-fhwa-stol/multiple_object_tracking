@@ -163,7 +163,7 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
-const inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
+inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
 {
   lhs.position_x *= rhs;
   lhs.position_y *= rhs;
@@ -174,12 +174,12 @@ const inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
   return lhs;
 }
 
-const inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
+inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
 {
   return lhs *= rhs;
 }
 
-const inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
+inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
 {
   return rhs *= lhs;
 }
