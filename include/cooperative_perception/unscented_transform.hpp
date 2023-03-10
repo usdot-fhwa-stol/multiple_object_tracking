@@ -50,7 +50,7 @@ auto generate_lambda(int n, double alpha, int kappa) -> float
 // TODO: Add lambda as a parameter
 // TODO: refactor to generate_sigma_points
 template <typename State, typename StateCovariance>
-auto sampleStateDistribution(const State& state, const StateCovariance& covariance) -> std::unordered_set<State>
+auto generateSigmaPoints(const State& state, const StateCovariance& covariance) -> std::unordered_set<State>
 {
   std::unordered_set<State> sigma_pts{};
   const auto lambda{ 3 - State::kNumVars };
@@ -72,7 +72,7 @@ auto unscentedTransform(const State& state, const StateCovariance& covariance, u
     -> std::tuple<State, StateCovariance>
 {
   // Compute the sigma points based on the state vector and state covariance
-  const auto sigma_points{ cooperative_perception::sampleStateDistribution(state, covariance) };
+  const auto sigma_points{ cooperative_perception::generateSigmaPoints(state, covariance) };
 
   // TODO: Consider better variable names since sigma_points are being propagated with nextState
   // Propagate state - this is sigma point 0
