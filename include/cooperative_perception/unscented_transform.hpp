@@ -31,7 +31,7 @@
 namespace cooperative_perception
 {
 // TODO: Create lambda function
-auto generate_lambda(int n, double alpha, int kappa) -> float
+auto generateLambda(int n, float alpha, float kappa) -> float
 {
   return pow(alpha, 2) * (n + kappa) - n;
 }
