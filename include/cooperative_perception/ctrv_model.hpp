@@ -314,6 +314,8 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
+void debugPrint(const CtrvState& state);
+
 namespace utils
 {
 /**

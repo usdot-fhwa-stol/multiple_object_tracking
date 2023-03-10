@@ -87,8 +87,8 @@ TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)
   const auto sigma_points{ cp::sampleStateDistribution(state, covariance) };
 
   const std::unordered_set<CtrvAugmentedState> expected_sigma_points{
-    // CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
-    //                     .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
+    CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
+                        .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
     CtrvAugmentedState{ .state{ 5.85768_m, 1.34566_m, 2.28414_mps, cp::Angle(0.44339_rad), 0.299973_rad_per_s },
                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
     CtrvAugmentedState{ .state{ 5.7441_m, 1.52806_m, 2.24557_mps, cp::Angle(0.631886_rad), 0.462123_rad_per_s },
@@ -135,14 +135,28 @@ TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)
 TEST(TestUnscentedTransform, ComputeUnscentedTransform)
 {
   using namespace units::literals;
-  const cp::CtrvState state1{ 0.0_m, 0.0_m, 1.0_mps, cp::Angle(0.52_rad), 0.17_rad_per_s };
-  const cp::CtrvStateCovariance covar1{ { 0.1, 0.0, 0.0, 0.0, 0.0 },
-                                        { 0.0, 0.1, 0.0, 0.0, 0.0 },
-                                        { 0.0, 0.0, 0.1, 0.0, 0.0 },
-                                        { 0.0, 0.0, 0.0, 0.1, 0.0 },
-                                        { 0.0, 0.0, 0.0, 0.0, 0.1 } };
+  const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
+  const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+                                            { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+                                            { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+                                            { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+                                            { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
 
-  const auto transform_res{ cp::unscentedTransform(state1, covar1, 1.0_s) };
-  cp::CtrvState res_state{ std::get<0>(transform_res) };
-  cp::CtrvStateCovariance res_covar{ std::get<1>(transform_res) };
+  const cp::CtrvState expected_state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
+  const cp::CtrvStateCovariance expected_covariance{ { 0.00215007, -0.00065006, 0.00150001, -0.00110002, -0.00100002 },
+                                                     { -0.00065006, 0.00385017, 0.00055008, 0.00355007, 0.00300007 },
+                                                     { 0.00150001, 0.00055008, 0.00269991, 0.00035007, 0.00040005 },
+                                                     { -0.00110002, 0.00355007, 0.00035007, 0.00489998, 0.00499999 },
+                                                     { -0.00100002, 0.00300007, 0.00040005, 0.00499999, 0.00614999 } };
+
+  const auto transform_res{ cp::unscentedTransform(state, covariance, 1.0_s) };
+  cp::CtrvState result_state{ std::get<0>(transform_res) };
+  cp::CtrvStateCovariance result_covariance{ std::get<1>(transform_res) };
+
+  EXPECT_TRUE(cp::utils::almostEqual(result_state, expected_state));
+  std::cout << "\nExpected values: \n";
+  debugPrint(expected_state);
+  std::cout << "\nResult values: \n";
+  debugPrint(result_state);
+  // EXPECT_TRUE(cp::utils::almostEqual(result_covariance, expected_covariance));
 };
