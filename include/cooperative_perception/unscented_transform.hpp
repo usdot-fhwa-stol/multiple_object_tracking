@@ -50,10 +50,10 @@ auto generate_lambda(int n, double alpha, int kappa) -> float
 // TODO: Add lambda as a parameter
 // TODO: refactor to generate_sigma_points
 template <typename State, typename StateCovariance>
-auto generateSigmaPoints(const State& state, const StateCovariance& covariance) -> std::unordered_set<State>
+auto generateSigmaPoints(const State& state, const StateCovariance& covariance, const float& lambda)
+    -> std::unordered_set<State>
 {
   std::unordered_set<State> sigma_pts{};
-  const auto lambda{ 3 - State::kNumVars };
   const StateCovariance covariance_sqrt{ covariance.llt().matrixL() };
   for (const auto& column : covariance_sqrt.colwise())
   {

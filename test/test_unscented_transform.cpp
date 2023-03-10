@@ -53,6 +53,31 @@ TEST(TestUnscentedTransform, CreateSigmaPoints)
     cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.407773_rad), 0.22143_rad_per_s },
     cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.286879_rad_per_s },
   };
+  // [5.90472378 1.33143932 2.31696311 0.41932039 0.27809126]
+  // [5.58347622 1.42856068 2.09283689 0.58367961 0.42750874]
+  // [5.7441     1.58938448 2.26241076 0.68589429 0.50740598]
+  // [5.7441     1.17061552 2.14738924 0.31710571 0.19819402]
+  // [5.7441     1.38       2.33348605 0.52331144 0.38608966]
+  // [5.7441     1.38       2.07631395 0.47968856 0.31951034]
+  // [5.7441     1.38       2.2049     0.63405006 0.53858573]
+  // [5.7441     1.38       2.2049     0.36894994 0.16701427]
+  // [5.7441     1.38       2.2049     0.5015     0.44602584]
+  // [5.7441     1.38       2.2049     0.5015     0.25957416]
+  // [5.7441     1.38       2.2049     0.5015     0.3528]
+  const std::unordered_set<cp::CtrvState> expected_sigma_points{
+    cp::CtrvState{ 5.90472378_m, 1.33143932_m, 2.31696311_mps, cp::Angle(0.41932039_rad), 0.27809126_rad_per_s },
+    cp::CtrvState{ 5.58347622_m, 1.42856068_m, 2.09283689_mps, cp::Angle(0.58367961_rad), 0.42750874_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.58938448_m, 2.26241076_mps, cp::Angle(0.68589429_rad), 0.50740598_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.17061552_m, 2.14738924_mps, cp::Angle(0.31710571_rad), 0.19819402_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.33348605_mps, cp::Angle(0.52331144_rad), 0.38608966_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.07631395_mps, cp::Angle(0.47968856_rad), 0.31951034_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.63405006_rad), 0.53858573_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.36894994_rad), 0.16701427_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.44602584_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.25957416_rad_per_s },
+    cp::CtrvState{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s }
+
+  };
 
   const auto is_expected = [&expected_sigma_points](const auto& point) {
     const auto result = std::find_if(std::cbegin(expected_sigma_points), std::cend(expected_sigma_points),
