@@ -80,47 +80,44 @@ TEST(TestUnscentedTransform, CreateSigmaPoints)
 //                                   .process_noise = cp::CtrvProcessNoise{ 0_mps_sq, 0_rad_per_s_sq } };
 
 //   // TODO: call new lambda function
-//   const Eigen::Matrix<float, 7, 7> covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0, 0 },
-//                                                { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0, 0 },
-//                                                { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, 0, 0 },
-//                                                { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0, 0 },
-//                                                { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0, 0 },
-//                                                { 0, 0, 0, 0, 0, 0.04, 0 },
-//                                                { 0, 0, 0, 0, 0, 0, 0.04 } };
+//   const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+//                                             { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+//                                             { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+//                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+//                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
 
-//   const auto sigma_points{ cp::generateSigmaPoints(state, covariance) };
+//   const auto alpha{ 1.0 };
+//   const auto kappa{ 1.0 };
+//   const auto lambda{ cp::generateLambda(state.kNumVars, alpha, kappa) };
+//   const auto sigma_points{ cp::generateSigmaPoints(state.state, covariance, lambda) };
 
 //   const std::unordered_set<CtrvAugmentedState> expected_sigma_points{
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
+//     CtrvAugmentedState{
+//         .state{ 5.90472378_m, 1.33143932_m, 2.31696311_mps, cp::Angle(0.41932039_rad), 0.27809126_rad_per_s },
+//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
+//     CtrvAugmentedState{
+//         .state{ 5.58347622_m, 1.42856068_m, 2.09283689_mps, cp::Angle(0.58367961_rad), 0.42750874_rad_per_s },
+//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
+//     CtrvAugmentedState{
+//         .state{ 5.7441_m, 1.58938448_m, 2.26241076_mps, cp::Angle(0.68589429_rad), 0.50740598_rad_per_s },
+//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
+//     CtrvAugmentedState{
+//         .state{ 5.7441_m, 1.17061552_m, 2.14738924_mps, cp::Angle(0.31710571_rad), 0.19819402_rad_per_s },
+//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
+//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.33348605_mps, cp::Angle(0.52331144_rad), 0.38608966_rad_per_s },
 //                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.85768_m, 1.34566_m, 2.28414_mps, cp::Angle(0.44339_rad), 0.299973_rad_per_s },
+//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.07631395_mps, cp::Angle(0.47968856_rad), 0.31951034_rad_per_s },
 //                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.52806_m, 2.24557_mps, cp::Angle(0.631886_rad), 0.462123_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.29582_mps, cp::Angle(0.516923_rad), 0.376339_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.595227_rad), 0.48417_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.418721_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
+//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.63405006_rad), 0.53858573_rad_per_s },
 //                         .process_noise{ 0.34641_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
+//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.36894994_rad), 0.16701427_rad_per_s },
 //                         .process_noise{ 0_mps_sq, 0.34641_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.63052_m, 1.41434_m, 2.12566_mps, cp::Angle(0.55961_rad), 0.405627_rad_per_s },
+//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.44602584_rad_per_s },
 //                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.23194_m, 2.16423_mps, cp::Angle(0.371114_rad), 0.243477_rad_per_s },
+//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.25957416_rad_per_s },
 //                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.11398_mps, cp::Angle(0.486077_rad), 0.329261_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.407773_rad), 0.22143_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.286879_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
-//                         .process_noise{ -0.34641_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
-//                         .process_noise{ 0_mps_sq, -0.34641_rad_per_s_sq } }
+//     CtrvAugmentedState{ .state{ 55.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
+//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } }
 //   };
 
 //   const auto is_expected = [&expected_sigma_points](const auto& point) {
