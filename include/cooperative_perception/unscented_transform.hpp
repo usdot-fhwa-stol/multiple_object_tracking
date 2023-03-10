@@ -30,6 +30,8 @@
 
 namespace cooperative_perception
 {
+// TODO: Create lambda function
+
 /**
  * @brief Generate sample points from a state's distribution
  *
@@ -42,6 +44,8 @@ namespace cooperative_perception
  * @param[in] lambda A tuning parameter affecting how the points are sampled
  * @return Set of sampled points
  */
+// TODO: Add lambda as a parameter
+// TODO: refactor to generate_sigma_points
 template <typename State, typename StateCovariance>
 auto sampleStateDistribution(const State& state, const StateCovariance& covariance) -> std::unordered_set<State>
 {
@@ -67,6 +71,7 @@ auto unscentedTransform(const State& state, const StateCovariance& covariance, u
   // Compute the sigma points based on the state vector and state covariance
   const auto sigma_points{ cooperative_perception::sampleStateDistribution(state, covariance) };
 
+  // TODO: Consider better variable names since sigma_points are being propagated with nextState
   // Propagate state - this is sigma point 0
   const auto pred_state_0{ nextState(state, time_step) };
 
@@ -100,18 +105,18 @@ auto unscentedTransform(const State& state, const StateCovariance& covariance, u
   const Eigen::Vector<float, State::kNumVars> pred_state_vector{ State::toEigenVector(pred_state) };
   CtrvStateCovariance pred_covar{ w_0 * (pred_state_vector_0 - pred_state_vector) *
                                   (pred_state_vector_0 - pred_state_vector).transpose() };
-  for (const auto& pred_sigma_point : pred_sigma_points)
-  {
-    auto state_diff = pred_sigma_point - pred_state;
-    // If needed, fix yaw angle as it ranges 0 -> 2PI
-    if (units::math::fmod(state_diff.yaw.get_angle(), units::angle::radian_t{ 2 * M_PI }) >
-        units::angle::radian_t{ M_PI })
-    {
-      state_diff.yaw -= units::angle::radian_t{ 2 * M_PI };
-    }
-    const Eigen::Vector<float, State::kNumVars> state_diff_vector{ State::toEigenVector(state_diff) };
-    pred_covar += w_i * state_diff_vector * state_diff_vector.transpose();
-  }
+  // for (const auto& pred_sigma_point : pred_sigma_points)
+  // {
+  //   auto state_diff = pred_sigma_point - pred_state;
+  //   // If needed, fix yaw angle as it ranges 0 -> 2PI
+  //   if (units::math::fmod(state_diff.yaw.get_angle(), units::angle::radian_t{ 2 * M_PI }) >
+  //       units::angle::radian_t{ M_PI })
+  //   {
+  //     state_diff.yaw -= units::angle::radian_t{ 2 * M_PI };
+  //   }
+  //   const Eigen::Vector<float, State::kNumVars> state_diff_vector{ State::toEigenVector(state_diff) };
+  //   pred_covar += w_i * state_diff_vector * state_diff_vector.transpose();
+  // }
 
   return { pred_state, pred_covar };
 }

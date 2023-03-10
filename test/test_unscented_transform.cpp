@@ -76,6 +76,7 @@ TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)
                                                           0.3528_rad_per_s },
                                   .process_noise = cp::CtrvProcessNoise{ 0_mps_sq, 0_rad_per_s_sq } };
 
+  // TODO: call new lambda function
   const Eigen::Matrix<float, 7, 7> covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0, 0 },
                                                { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0, 0 },
                                                { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, 0, 0 },
@@ -134,6 +135,7 @@ TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)
 }
 TEST(TestUnscentedTransform, ComputeUnscentedTransform)
 {
+  // TODO: make our own using python generated data
   using namespace units::literals;
   const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
   const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
