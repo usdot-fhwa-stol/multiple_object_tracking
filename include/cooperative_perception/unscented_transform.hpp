@@ -31,7 +31,10 @@
 namespace cooperative_perception
 {
 // TODO: Create lambda function
-
+auto generate_lambda(int n, double alpha, int kappa) -> float
+{
+  return pow(alpha, 2) * (n + kappa) - n;
+}
 /**
  * @brief Generate sample points from a state's distribution
  *
