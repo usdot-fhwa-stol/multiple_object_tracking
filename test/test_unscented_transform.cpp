@@ -28,7 +28,7 @@
 
 namespace cp = cooperative_perception;
 
-TEST(TestUnscentedTransform, CreateSigmaPoints)
+TEST(TestUnscentedTransform, GenerateSigmaPoints)
 {
   using namespace units::literals;
   const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
@@ -69,6 +69,28 @@ TEST(TestUnscentedTransform, CreateSigmaPoints)
 
   std::for_each(std::cbegin(sigma_points), std::cend(sigma_points),
                 [&is_expected](const auto& point) { ASSERT_TRUE(is_expected(point)); });
+}
+
+TEST(TestUnscentedTransform, GenerateWeights)
+{
+  const auto n{ 5 };
+  const auto alpha{ 1.0 };
+  const auto beta{ 2.0 };
+  const auto kappa{ 1.0 };
+  const auto lambda{ cp::generateLambda(n, alpha, kappa) };
+
+  // Call the function under test
+  const auto [Wm, Wc] = cp::generateWeights(n, alpha, beta, lambda);
+
+  // Define the expected output
+  const std::vector<float> expected_Wm = { 0.16666667f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f,
+                                           0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f };
+  const std::vector<float> expected_Wc = { 2.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
+                                           0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333 };
+
+  // Check that the function returns the expected output
+  EXPECT_EQ(Wm, expected_Wm);
+  EXPECT_EQ(Wc, expected_Wc);
 }
 
 // TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)

@@ -30,11 +30,32 @@
 
 namespace cooperative_perception
 {
-// TODO: Create lambda function
+/**
+ * @brief Generate the scaling factor lambda for generating sigma points
+ * @param[in] n Dimension of state vector
+ * @param[in] alpha Scaling parameter for sigma points
+ * @param[in] kappa Secondary scaling parameter for sigma points
+ * @return Scaling factor lambda
+ */
 auto generateLambda(int n, float alpha, float kappa) -> float
 {
-  return pow(alpha, 2) * (n + kappa) - n;
+  return alpha * alpha * (n + kappa) - n;
 }
+
+auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<std::vector<float>, std::vector<float>>
+{
+  float wm_0 = lambda / (n + lambda);
+  float wc_0 = (lambda / (n + lambda)) + (1 - alpha * alpha + beta);
+  float wm_i = 0.5 * (1 / (n + lambda));
+  std::vector<float> Wm(2 * n + 1);
+  std::vector<float> Wc(2 * n + 1);
+  Wm[0] = wm_0;
+  Wc[0] = wc_0;
+  std::fill(Wm.begin() + 1, Wm.end(), wm_i);
+  std::fill(Wc.begin() + 1, Wc.end(), wm_i);
+  return { Wm, Wc };
+}
+
 /**
  * @brief Generate sample points from a state's distribution
  *
@@ -47,8 +68,6 @@ auto generateLambda(int n, float alpha, float kappa) -> float
  * @param[in] lambda A tuning parameter affecting how the points are sampled
  * @return Set of sampled points
  */
-// TODO: Add lambda as a parameter
-// TODO: refactor to generate_sigma_points
 template <typename State, typename StateCovariance>
 auto generateSigmaPoints(const State& state, const StateCovariance& covariance, const float& lambda)
     -> std::unordered_set<State>
