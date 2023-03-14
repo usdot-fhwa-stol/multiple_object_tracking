@@ -42,6 +42,15 @@ auto generateLambda(int n, float alpha, float kappa) -> float
   return alpha * alpha * (n + kappa) - n;
 }
 
+/**
+ * @brief This function generates weights for the Unscented Kalman Filter.
+ * @param[in] n Dimension of state vector
+ * @param[in] alpha Scaling parameter for sigma points
+ * @param[in] kappa Secondary scaling parameter for sigma points
+ * @param[in] lambda A tuning parameter affecting how the points are sampled
+ * @return Wm: vector of weights for mean calculation
+ * Wc: vector of weights for covariance calculation
+ */
 auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<std::vector<float>, std::vector<float>>
 {
   float wm_0 = lambda / (n + lambda);
