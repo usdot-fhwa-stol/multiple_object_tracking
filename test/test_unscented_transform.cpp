@@ -85,12 +85,11 @@ TEST(TestUnscentedTransform, GenerateWeights)
   // Define the expected output
   const std::vector<float> expected_Wm = { 0.16666667f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f,
                                            0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f };
-  const std::vector<float> expected_Wc = { 2.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
-                                           0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333 };
+  const std::vector<float> expected_Wc = { 2.16666667f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f,
+                                           0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f };
 
-  // Check that the function returns the expected output
-  EXPECT_EQ(Wm, expected_Wm);
-  EXPECT_EQ(Wc, expected_Wc);
+  EXPECT_TRUE(cp::utils::almostEqual(expected_Wm, Wm));
+  EXPECT_TRUE(cp::utils::almostEqual(expected_Wc, Wc));
 }
 
 // TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)

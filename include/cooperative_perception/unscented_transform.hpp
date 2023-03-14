@@ -143,6 +143,35 @@ auto unscentedTransform(const State& state, const StateCovariance& covariance, u
   return { pred_state, pred_covar };
 }
 
+namespace utils
+{
+/**
+ * @brief Compares the almost-equality of two vector of floats
+ *
+ * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
+ * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
+ *
+ * @return True if vectors are almost-equal, false otherwise
+ */
+inline auto almostEqual(const std::vector<float>& lhs, const std::vector<float>& rhs) -> bool
+{
+  if (lhs.size() != rhs.size())
+  {
+    return false;
+  }
+
+  for (int i = 0; i < lhs.size(); ++i)
+  {
+    if (!almostEqual(lhs[i], rhs[i]))
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+}  // namespace utils
+
 }  // namespace cooperative_perception
 
 #endif  // COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
