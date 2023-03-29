@@ -96,10 +96,10 @@ auto generateSigmaPoints(const State& state, const StateCovariance& covariance, 
   return sigma_pts;
 }
 
-auto vectorToMatrix(Eigen::VectorXd vector, int num_rows) -> Eigen::MatrixXd
+auto vectorToMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
 {
   int num_cols = vector.size();
-  Eigen::MatrixXd result(num_rows, num_cols);
+  Eigen::MatrixXf result(num_rows, num_cols);
   for (int i = 0; i < num_rows; i++)
   {
     result.row(i) = vector;
@@ -107,9 +107,9 @@ auto vectorToMatrix(Eigen::VectorXd vector, int num_rows) -> Eigen::MatrixXd
   return result;
 }
 
-auto vectorToVectorXd(const std::vector<float>& input) -> Eigen::VectorXd
+auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
 {
-  Eigen::VectorXd output(input.size());
+  Eigen::VectorXf output(input.size());
   for (int i = 0; i < input.size(); i++)
   {
     output(i) = input[i];
@@ -117,30 +117,28 @@ auto vectorToVectorXd(const std::vector<float>& input) -> Eigen::VectorXd
   return output;
 }
 
-// template <typename State>
-// auto sigmaSetToMatrixXd(const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXd
-// {
-//   std::vector<Eigen::VectorXd> input_vec(sigma_points.begin(), sigma_points.end());
-//   int rows = input_vec.size();
-//   int cols = input_vec[0].size();
-
-//   Eigen::MatrixXd output_matrix(rows, cols);
-//   for (const auto& sigma_point : sigma_points)
-//   {
-//     // output_matrix.row(i) = State::toEigenVector(sigma_point);
-//     std::cout << State::toEigenVector(sigma_point) << "\n";
-//   }
-
-// return output_matrix;
-// }
-
-auto unscentedTransform(const Eigen::MatrixXd& sigmas, const Eigen::VectorXd& Wm, const Eigen::VectorXd& Wc)
-    -> std::tuple<Eigen::VectorXd, Eigen::MatrixXd>
+template <typename State>
+auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXf
 {
-  Eigen::VectorXd x = Wm.transpose() * sigmas;
-  Eigen::MatrixXd x1 = vectorToMatrix(x, sigmas.rows());
-  Eigen::MatrixXd y = sigmas - x1;
-  Eigen::MatrixXd P = y.transpose() * (Wc.asDiagonal() * y);
+  Eigen::MatrixXf matrix(std::size(sigma_points) + 1, State::kNumVars);
+  matrix.row(0) = State::toEigenVector(state).transpose();
+  auto i = 1;
+  for (const auto& sigma_point : sigma_points)
+  {
+    matrix.row(i) = State::toEigenVector(sigma_point).transpose();
+    i++;
+  }
+
+  return matrix;
+}
+
+auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm, const Eigen::VectorXf& Wc)
+    -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+{
+  Eigen::VectorXf x = Wm.transpose() * sigmas;
+  Eigen::MatrixXf x1 = vectorToMatrix(x, sigmas.rows());
+  Eigen::MatrixXf y = sigmas - x1;
+  Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
   return std::make_tuple(x, P);
 }
 
@@ -158,76 +156,23 @@ auto computeUnscentedTransform(const State& state, const StateCovariance& covari
   // Generating weights
   const auto [vector_Wm, vector_Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
 
-  // Convert weights in Eigen::VectorXd
-  const auto Wm{ vectorToVectorXd(vector_Wm) };
-  const auto Wc{ vectorToVectorXd(vector_Wc) };
+  // Convert weights in Eigen::VectorXf
+  const auto Wm{ vectorToVectorXf(vector_Wm) };
+  const auto Wc{ vectorToVectorXf(vector_Wc) };
 
-  // Convert sigma points into Eigen::MatrixXd
-  // const auto m_sigma_points{ sigmaSetToMatrixXd(sigma_points) };
+  // TODO: Advance state and sigma_points to nextState before applying UT
 
-  // std::cout << "sigma points: \n" << m_sigma_points << "\n";
+  // Convert sigma points into Eigen::MatrixXf
+  const auto m_sigma_points{ sigmaSetToMatrixXf(state, sigma_points) };
 
-  std::cout << "Wm: \n" << Wm << "\n";
-  std::cout << "Wc: \n" << Wc << "\n";
+  // Compute UT based on the sigma points and weights
+  const auto transform_res{ unscentedTransform(m_sigma_points, Wm, Wc) };
+  const auto result_state_vector{ std::get<0>(transform_res) };
+  const auto result_covariance_matrix{ std::get<1>(transform_res) };
 
-  // // Compute the sigma points based on the state vector and state covariance
-
-  // const auto sigma_points{ cooperative_perception::generateSigmaPoints(state, covariance) };
-
-  // const auto pred_state_0{ nextState(state, time_step) };
-
-  // // Propagate each sigma point through the process dynamics
-  // std::unordered_set<State> pred_sigma_points{};
-  // for (const auto& state : sigma_points)
-  // {
-  //   const auto pred_sigma_point{ nextState(state, time_step) };
-  //   pred_sigma_points.insert(pred_sigma_point);
-  // }
-
-  // // Compute the constants and weights for performing mean/covariance computations
-  // const float lambda{ 3.0 - State::kNumVars };
-  // const float w_0{ lambda / (lambda + State::kNumVars) };
-  // const float w_i{ lambda / (2.0 * (lambda + State::kNumVars)) };
-
-  // /**
-  //  * Compute the new mean and covariance using these sigma points.
-  //  * The state and sigma point objects are converted to Eigen vector types
-  //  * for matrix arithmetic.
-  //  */
-  // // Predicted state calculation
-  // auto pred_state{ w_0 * pred_state_0 };
-  // for (const auto& pred_sigma_point : pred_sigma_points)
-  // {
-  //   pred_state += w_i * pred_sigma_point;
-  // }
-
-  // // Covariance calculation
-  // const Eigen::Vector<float, State::kNumVars> pred_state_vector_0{ State::toEigenVector(pred_state_0) };
-  // const Eigen::Vector<float, State::kNumVars> pred_state_vector{ State::toEigenVector(pred_state) };
-  // CtrvStateCovariance pred_covar{ w_0 * (pred_state_vector_0 - pred_state_vector) *
-  //                                 (pred_state_vector_0 - pred_state_vector).transpose() };
-  // for (const auto& pred_sigma_point : pred_sigma_points)
-  // {
-  //   auto state_diff = pred_sigma_point - pred_state;
-  //   // If needed, fix yaw angle as it ranges 0 -> 2PI
-  //   if (units::math::fmod(state_diff.yaw.get_angle(), units::angle::radian_t{ 2 * M_PI }) >
-  //       units::angle::radian_t{ M_PI })
-  //   {
-  //     state_diff.yaw -= units::angle::radian_t{ 2 * M_PI };
-  //   }
-  //   const Eigen::Vector<float, State::kNumVars> state_diff_vector{ State::toEigenVector(state_diff) };
-  //   pred_covar += w_i * state_diff_vector * state_diff_vector.transpose();
-  // }
-
-  using namespace units::literals;
-  const CtrvState pred_state{ 5.7441_m, 1.3800_m, 2.2049_mps, Angle(0.5015_rad), 0.3528_rad_per_s };
-  const CtrvStateCovariance pred_covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-                                             { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-                                             { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
-
-  return { pred_state, pred_covariance };
+  const auto result_state{ State::fromEigenVector(result_state_vector) };
+  const CtrvStateCovariance result_covariance{ result_covariance_matrix };
+  return { result_state, result_covariance };
 }
 
 namespace utils
