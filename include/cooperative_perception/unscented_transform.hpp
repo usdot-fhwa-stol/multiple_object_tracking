@@ -117,22 +117,22 @@ auto vectorToVectorXd(const std::vector<float>& input) -> Eigen::VectorXd
   return output;
 }
 
-template <typename State>
-auto sigmaSetToMatrixXd(const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXd
-{
-  std::vector<Eigen::VectorXd> input_vec(sigma_points.begin(), sigma_points.end());
-  int rows = input_vec.size();
-  int cols = input_vec[0].size();
+// template <typename State>
+// auto sigmaSetToMatrixXd(const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXd
+// {
+//   std::vector<Eigen::VectorXd> input_vec(sigma_points.begin(), sigma_points.end());
+//   int rows = input_vec.size();
+//   int cols = input_vec[0].size();
 
-  Eigen::MatrixXd output_matrix(rows, cols);
-  for (const auto& sigma_point : sigma_points)
-  {
-    // output_matrix.row(i) = State::toEigenVector(sigma_point);
-    std::cout << State::toEigenVector(sigma_point) << "\n";
-  }
+//   Eigen::MatrixXd output_matrix(rows, cols);
+//   for (const auto& sigma_point : sigma_points)
+//   {
+//     // output_matrix.row(i) = State::toEigenVector(sigma_point);
+//     std::cout << State::toEigenVector(sigma_point) << "\n";
+//   }
 
-  return output_matrix;
-}
+// return output_matrix;
+// }
 
 auto unscentedTransform(const Eigen::MatrixXd& sigmas, const Eigen::VectorXd& Wm, const Eigen::VectorXd& Wc)
     -> std::tuple<Eigen::VectorXd, Eigen::MatrixXd>
@@ -163,9 +163,9 @@ auto computeUnscentedTransform(const State& state, const StateCovariance& covari
   const auto Wc{ vectorToVectorXd(vector_Wc) };
 
   // Convert sigma points into Eigen::MatrixXd
-  const auto m_sigma_points{ sigmaSetToMatrixXd(sigma_points) };
+  // const auto m_sigma_points{ sigmaSetToMatrixXd(sigma_points) };
 
-  std::cout << "sigma points: \n" << m_sigma_points << "\n";
+  // std::cout << "sigma points: \n" << m_sigma_points << "\n";
 
   std::cout << "Wm: \n" << Wm << "\n";
   std::cout << "Wc: \n" << Wc << "\n";

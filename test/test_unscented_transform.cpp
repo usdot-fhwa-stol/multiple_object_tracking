@@ -110,18 +110,21 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
   VectorXd Wc{ { 2.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
                  0.08333333, 0.08333333, 0.08333333 } };
 
-  // std::cout << "Sigma Points: \n" << sigma_points << "\n";
-  // std::cout << "Wm: \n" << Wm << "\n";
-  // std::cout << "Wc: \n" << Wc << "\n";
+  // Expected values
+  VectorXd expected_state{ { 5.7441, 1.38, 2.2049, 0.5015, 0.3528 } };
+  MatrixXd expected_covariance(5, 5);
+  expected_covariance << 0.0043, -0.0013, 0.003, -0.0022, -0.002, -0.0013, 0.0077, 0.0011, 0.0071, 0.006, 0.003, 0.0011,
+      0.0054, 0.0007, 0.0008, -0.0022, 0.0071, 0.0007, 0.0098, 0.01, -0.002, 0.006, 0.0008, 0.01, 0.0123;
 
-  std::tuple transform_res = cp::unscentedTransform(sigma_points, Wm, Wc);
+  const auto transform_res{ cp::unscentedTransform(sigma_points, Wm, Wc) };
   const auto result_state{ std::get<0>(transform_res) };
   const auto result_covariance{ std::get<1>(transform_res) };
 
-  // std::cout << "Result state: \n" << result_state << "\n";
-  // std::cout << "Result covariance: \n" << result_covariance << "\n";
-}
+  std::cout << "Result state: \n" << result_state << "\n";
+  std::cout << "Result covariance: \n" << result_covariance << "\n";
 
+  EXPECT_EQ(expected_state, result_state);
+}
 
 TEST(TestUnscentedTransform, ComputeUnscentedTransform)
 {
