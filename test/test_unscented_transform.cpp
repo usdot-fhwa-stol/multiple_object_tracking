@@ -92,97 +92,61 @@ TEST(TestUnscentedTransform, GenerateWeights)
   EXPECT_TRUE(cp::utils::almostEqual(expected_Wc, Wc));
 }
 
-// TEST(TestUnscentedTransform, CreateAugmentedSigmaPoints)
-// {
-//   using namespace units::literals;
-//   using CtrvAugmentedState = cp::AugmentedState<cp::CtrvState, cp::CtrvProcessNoise>;
-//   const CtrvAugmentedState state{ .state = cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad),
-//                                                           0.3528_rad_per_s },
-//                                   .process_noise = cp::CtrvProcessNoise{ 0_mps_sq, 0_rad_per_s_sq } };
+TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
+{
+  using namespace Eigen;
 
-//   // TODO: call new lambda function
-//   const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-//                                             { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-//                                             { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-//                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-//                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
+  MatrixXd sigma_points(11, 5);
+  sigma_points << 5.7441, 1.38, 2.2049, 0.5015, 0.3528, 5.90472378, 1.33143932, 2.31696311, 0.41932039, 0.27809126,
+      5.58347622, 1.42856068, 2.09283689, 0.58367961, 0.42750874, 5.7441, 1.58938448, 2.26241076, 0.68589429,
+      0.50740598, 5.7441, 1.17061552, 2.14738924, 0.31710571, 0.19819402, 5.7441, 1.38, 2.33348605, 0.52331144,
+      0.38608966, 5.7441, 1.38, 2.07631395, 0.47968856, 0.31951034, 5.7441, 1.38, 2.2049, 0.63405006, 0.53858573,
+      5.7441, 1.38, 2.2049, 0.36894994, 0.16701427, 5.7441, 1.38, 2.2049, 0.5015, 0.44602584, 5.7441, 1.38, 2.2049,
+      0.5015, 0.25957416;
 
-//   const auto alpha{ 1.0 };
-//   const auto kappa{ 1.0 };
-//   const auto lambda{ cp::generateLambda(state.kNumVars, alpha, kappa) };
-//   const auto sigma_points{ cp::generateSigmaPoints(state.state, covariance, lambda) };
+  VectorXd Wm{ { 0.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
+                 0.08333333, 0.08333333, 0.08333333 } };
 
-//   const std::unordered_set<CtrvAugmentedState> expected_sigma_points{
-//     CtrvAugmentedState{
-//         .state{ 5.90472378_m, 1.33143932_m, 2.31696311_mps, cp::Angle(0.41932039_rad), 0.27809126_rad_per_s },
-//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{
-//         .state{ 5.58347622_m, 1.42856068_m, 2.09283689_mps, cp::Angle(0.58367961_rad), 0.42750874_rad_per_s },
-//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{
-//         .state{ 5.7441_m, 1.58938448_m, 2.26241076_mps, cp::Angle(0.68589429_rad), 0.50740598_rad_per_s },
-//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{
-//         .state{ 5.7441_m, 1.17061552_m, 2.14738924_mps, cp::Angle(0.31710571_rad), 0.19819402_rad_per_s },
-//         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.33348605_mps, cp::Angle(0.52331144_rad), 0.38608966_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.07631395_mps, cp::Angle(0.47968856_rad), 0.31951034_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.63405006_rad), 0.53858573_rad_per_s },
-//                         .process_noise{ 0.34641_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.36894994_rad), 0.16701427_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0.34641_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.44602584_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.25957416_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } },
-//     CtrvAugmentedState{ .state{ 55.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s },
-//                         .process_noise{ 0_mps_sq, 0_rad_per_s_sq } }
-//   };
+  VectorXd Wc{ { 2.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
+                 0.08333333, 0.08333333, 0.08333333 } };
 
-//   const auto is_expected = [&expected_sigma_points](const auto& point) {
-//     const auto result = std::find_if(std::cbegin(expected_sigma_points), std::cend(expected_sigma_points),
-//                                      [&point](const auto& expected_point) {
-//                                        return cp::utils::almostEqual(cp::utils::roundToDecimalPlace(point, 5),
-//                                                                      cp::utils::roundToDecimalPlace(expected_point,
-//                                                                      5));
-//                                      });
+  // std::cout << "Sigma Points: \n" << sigma_points << "\n";
+  // std::cout << "Wm: \n" << Wm << "\n";
+  // std::cout << "Wc: \n" << Wc << "\n";
 
-//     return result != std::cend(expected_sigma_points);
-//   };
+  std::tuple transform_res = cp::unscentedTransform(sigma_points, Wm, Wc);
+  const auto result_state{ std::get<0>(transform_res) };
+  const auto result_covariance{ std::get<1>(transform_res) };
 
-//   std::for_each(std::cbegin(sigma_points), std::cend(sigma_points),
-//                 [&is_expected](const auto& point) { ASSERT_TRUE(is_expected(point)); });
-// }
-// TEST(TestUnscentedTransform, ComputeUnscentedTransform)
-// {
-//   // TODO: make our own using python generated data
-//   using namespace units::literals;
-//   const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
-//   const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-//                                             { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-//                                             { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-//                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-//                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
+  // std::cout << "Result state: \n" << result_state << "\n";
+  // std::cout << "Result covariance: \n" << result_covariance << "\n";
+}
 
-//   const cp::CtrvState expected_state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
-//   const cp::CtrvStateCovariance expected_covariance{ { 0.00215007, -0.00065006, 0.00150001, -0.00110002, -0.00100002
-//   },
-//                                                      { -0.00065006, 0.00385017, 0.00055008, 0.00355007, 0.00300007 },
-//                                                      { 0.00150001, 0.00055008, 0.00269991, 0.00035007, 0.00040005 },
-//                                                      { -0.00110002, 0.00355007, 0.00035007, 0.00489998, 0.00499999 },
-//                                                      { -0.00100002, 0.00300007, 0.00040005, 0.00499999, 0.00614999 }
-//                                                      };
 
-//   const auto transform_res{ cp::unscentedTransform(state, covariance, 1.0_s) };
-//   cp::CtrvState result_state{ std::get<0>(transform_res) };
-//   cp::CtrvStateCovariance result_covariance{ std::get<1>(transform_res) };
+TEST(TestUnscentedTransform, ComputeUnscentedTransform)
+{
+  using namespace units::literals;
+  const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
+  const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+                                            { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+                                            { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+                                            { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+                                            { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
 
-//   EXPECT_TRUE(cp::utils::almostEqual(result_state, expected_state));
-//   std::cout << "\nExpected values: \n";
-//   debugPrint(expected_state);
-//   std::cout << "\nResult values: \n";
-//   debugPrint(result_state);
-//   // EXPECT_TRUE(cp::utils::almostEqual(result_covariance, expected_covariance));
-// };
+  const cp::CtrvState expected_state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
+  const cp::CtrvStateCovariance expected_covariance{ { 0.00215007, -0.00065006, 0.00150001, -0.00110002, -0.00100002 },
+                                                     { -0.00065006, 0.00385017, 0.00055008, 0.00355007, 0.00300007 },
+                                                     { 0.00150001, 0.00055008, 0.00269991, 0.00035007, 0.00040005 },
+                                                     { -0.00110002, 0.00355007, 0.00035007, 0.00489998, 0.00499999 },
+                                                     { -0.00100002, 0.00300007, 0.00040005, 0.00499999, 0.00614999 } };
+
+  const auto transform_res{ cp::computeUnscentedTransform(state, covariance, 1.0_s) };
+  cp::CtrvState result_state{ std::get<0>(transform_res) };
+  cp::CtrvStateCovariance result_covariance{ std::get<1>(transform_res) };
+
+  EXPECT_TRUE(cp::utils::almostEqual(result_state, expected_state));
+  std::cout << "\nExpected values: \n";
+  debugPrint(expected_state);
+  std::cout << "\nResult values: \n";
+  debugPrint(result_state);
+};
