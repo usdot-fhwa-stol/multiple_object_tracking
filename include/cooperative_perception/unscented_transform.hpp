@@ -122,7 +122,7 @@ auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<State>& sig
 {
   Eigen::MatrixXf matrix(std::size(sigma_points) + 1, State::kNumVars);
   matrix.row(0) = State::toEigenVector(state).transpose();
-  auto i = 1;
+  auto i{ 1 };
   for (const auto& sigma_point : sigma_points)
   {
     matrix.row(i) = State::toEigenVector(sigma_point).transpose();
@@ -160,10 +160,17 @@ auto computeUnscentedTransform(const State& state, const StateCovariance& covari
   const auto Wm{ vectorToVectorXf(vector_Wm) };
   const auto Wc{ vectorToVectorXf(vector_Wc) };
 
-  // TODO: Advance state and sigma_points to nextState before applying UT
+  // Advance mean and sigma points through the non-linear model
+  const auto predicted_mean{ nextState(state, time_step) };
+  std::unordered_set<State> predicted_sigma_points{};
+  for (const auto& state : sigma_points)
+  {
+    const auto predicted_sigma_point{ nextState(state, time_step) };
+    predicted_sigma_points.insert(predicted_sigma_point);
+  }
 
-  // Convert sigma points into Eigen::MatrixXf
-  const auto m_sigma_points{ sigmaSetToMatrixXf(state, sigma_points) };
+  // Convert mean and sigma points into Eigen::MatrixXf
+  const auto m_sigma_points{ sigmaSetToMatrixXf(predicted_mean, predicted_sigma_points) };
 
   // Compute UT based on the sigma points and weights
   const auto transform_res{ unscentedTransform(m_sigma_points, Wm, Wc) };

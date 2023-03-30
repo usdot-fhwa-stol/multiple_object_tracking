@@ -137,7 +137,7 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransform)
                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
 
-  const cp::CtrvState expected_state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
+  const cp::CtrvState expected_state{ 7.43224_m, 2.73933_m, 2.2049_mps, cp::Angle(0.8543_rad), 0.3528_rad_per_s };
   const cp::CtrvStateCovariance expected_covariance{ { 0.00215007, -0.00065006, 0.00150001, -0.00110002, -0.00100002 },
                                                      { -0.00065006, 0.00385017, 0.00055008, 0.00355007, 0.00300007 },
                                                      { 0.00150001, 0.00055008, 0.00269991, 0.00035007, 0.00040005 },
@@ -150,4 +150,5 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransform)
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(result_state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
+  // TODO: Add test that checks for covariance almost equality
 };
