@@ -83,10 +83,12 @@ TEST(TestUnscentedTransform, GenerateWeights)
   const auto [Wm, Wc] = cp::generateWeights(n, alpha, beta, lambda);
 
   // Define the expected output
-  const std::vector<float> expected_Wm = { 0.16666667f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f,
-                                           0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f };
-  const std::vector<float> expected_Wc = { 2.16666667f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f,
-                                           0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f };
+  Eigen::VectorXf expected_Wm(11);
+  expected_Wm << 0.16666667f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f, 0.08333333f,
+      0.08333333f, 0.08333333f, 0.08333333f;
+  Eigen::VectorXf expected_Wc(11);
+  expected_Wc << 2.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
+      0.08333333, 0.08333333, 0.08333333;
 
   EXPECT_TRUE(cp::utils::almostEqual(expected_Wm, Wm));
   EXPECT_TRUE(cp::utils::almostEqual(expected_Wc, Wc));
@@ -120,11 +122,8 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
   const auto result_state{ std::get<0>(transform_res) };
   const auto result_covariance{ std::get<1>(transform_res) };
 
-  std::cout << "Result state: \n" << result_state << "\n";
-  std::cout << "Result covariance: \n" << result_covariance << "\n";
-
-  std::cout << "Expected state: \n" << expected_state << "\n";
-  std::cout << "Expected covariance: \n" << expected_covariance << "\n";
+  EXPECT_TRUE(cp::utils::almostEqual(expected_state, result_state));
+  EXPECT_TRUE(cp::utils::almostEqual(expected_covariance, result_covariance));
 }
 
 TEST(TestUnscentedTransform, ComputeUnscentedTransform)
@@ -138,11 +137,11 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransform)
                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
 
   const cp::CtrvState expected_state{ 7.43224_m, 2.73933_m, 2.2049_mps, cp::Angle(0.8543_rad), 0.3528_rad_per_s };
-  const cp::CtrvStateCovariance expected_covariance{ { 0.00215007, -0.00065006, 0.00150001, -0.00110002, -0.00100002 },
-                                                     { -0.00065006, 0.00385017, 0.00055008, 0.00355007, 0.00300007 },
-                                                     { 0.00150001, 0.00055008, 0.00269991, 0.00035007, 0.00040005 },
-                                                     { -0.00110002, 0.00355007, 0.00035007, 0.00489998, 0.00499999 },
-                                                     { -0.00100002, 0.00300007, 0.00040005, 0.00499999, 0.00614999 } };
+  const cp::CtrvStateCovariance expected_covariance{ { 0.0650073, -0.0670999, 0.00564003, -0.0463523, -0.0240175 },
+                                                     { -0.0670999, 0.11094, 0.00625031, 0.0654438, 0.0333096 },
+                                                     { 0.00564003, 0.00625031, 0.0054, 0.0015, 0.000800002 },
+                                                     { -0.0463523, 0.0654438, 0.0015, 0.0421, 0.0223 },
+                                                     { -0.0240175, 0.0333096, 0.000800002, 0.0223, 0.0123 } };
 
   const auto transform_res{ cp::computeUnscentedTransform(state, covariance, 1.0_s) };
   cp::CtrvState result_state{ std::get<0>(transform_res) };
@@ -150,5 +149,5 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransform)
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(result_state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
-  // TODO: Add test that checks for covariance almost equality
+  EXPECT_TRUE(cp::utils::almostEqual(result_covariance, expected_covariance));
 };

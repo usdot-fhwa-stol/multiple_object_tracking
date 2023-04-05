@@ -52,17 +52,32 @@ auto generateLambda(int n, float alpha, float kappa) -> float
  * @return Wm: vector of weights for mean calculation
  * Wc: vector of weights for covariance calculation
  */
-auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<std::vector<float>, std::vector<float>>
+// auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<std::vector<float>,
+// std::vector<float>>
+// {
+//   float wm_0 = lambda / (n + lambda);
+//   float wc_0 = (lambda / (n + lambda)) + (1 - alpha * alpha + beta);
+//   float wm_i = 0.5 * (1 / (n + lambda));
+//   std::vector<float> Wm(2 * n + 1);
+//   std::vector<float> Wc(2 * n + 1);
+//   Wm[0] = wm_0;
+//   Wc[0] = wc_0;
+//   std::fill(Wm.begin() + 1, Wm.end(), wm_i);
+//   std::fill(Wc.begin() + 1, Wc.end(), wm_i);
+//   return { Wm, Wc };
+// }
+
+auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<Eigen::VectorXf, Eigen::VectorXf>
 {
   float wm_0 = lambda / (n + lambda);
   float wc_0 = (lambda / (n + lambda)) + (1 - alpha * alpha + beta);
   float wm_i = 0.5 * (1 / (n + lambda));
-  std::vector<float> Wm(2 * n + 1);
-  std::vector<float> Wc(2 * n + 1);
+  Eigen::VectorXf Wm(2 * n + 1);
+  Eigen::VectorXf Wc(2 * n + 1);
   Wm[0] = wm_0;
   Wc[0] = wc_0;
-  std::fill(Wm.begin() + 1, Wm.end(), wm_i);
-  std::fill(Wc.begin() + 1, Wc.end(), wm_i);
+  Wm.segment(1, 2 * n).setConstant(wm_i);
+  Wc.segment(1, 2 * n).setConstant(wm_i);
   return { Wm, Wc };
 }
 
@@ -154,11 +169,12 @@ auto computeUnscentedTransform(const State& state, const StateCovariance& covari
   const auto sigma_points{ generateSigmaPoints(state, covariance, lambda) };
 
   // Generating weights
-  const auto [vector_Wm, vector_Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
+  // const auto [vector_Wm, vector_Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
+  const auto [Wm, Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
 
-  // Convert weights in Eigen::VectorXf
-  const auto Wm{ vectorToVectorXf(vector_Wm) };
-  const auto Wc{ vectorToVectorXf(vector_Wc) };
+  // // Convert weights in Eigen::VectorXf
+  // const auto Wm{ vectorToVectorXf(vector_Wm) };
+  // const auto Wc{ vectorToVectorXf(vector_Wc) };
 
   // Advance mean and sigma points through the non-linear model
   const auto predicted_mean{ nextState(state, time_step) };
@@ -209,6 +225,62 @@ inline auto almostEqual(const std::vector<float>& lhs, const std::vector<float>&
 
   return true;
 }
+
+/**
+ * @brief Compares the almost-equality of two Eigen::VectorXf
+ *
+ * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
+ * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
+ *
+ * @return True if vectors are almost-equal, false otherwise
+ */
+inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs)
+{
+  if (lhs.size() != rhs.size())
+  {
+    return false;  // vectors are not equal if they have different sizes
+  }
+
+  for (int i = 0; i < lhs.size(); ++i)
+  {
+    if (!almostEqual(lhs[i], rhs[i]))
+    {
+      return false;  // vectors are not equal if any of their elements differ
+    }
+  }
+
+  return true;  // vectors are equal if all their elements are the same
+}
+
+/**
+ * @brief Compares the almost-equality of two Eigen::MatrixXf
+ *
+ * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
+ * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
+ *
+ * @return True if vectors are almost-equal, false otherwise
+ */
+inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs)
+{
+  if (lhs.rows() != rhs.rows() || lhs.cols() != rhs.cols())
+  {
+    return false;  // matrices are not equal if they have different dimensions
+  }
+
+  for (int i = 0; i < lhs.rows(); ++i)
+  {
+    for (int j = 0; j < lhs.cols(); ++j)
+    {
+      if (!almostEqual(lhs(i, j), rhs(i, j)))
+      {
+        return false;  // matrices are not equal if any of their elements differ
+      }
+    }
+  }
+
+  return true;  // matrices are equal if all their elements are the same
+}
+
 }  // namespace utils
 
 }  // namespace cooperative_perception

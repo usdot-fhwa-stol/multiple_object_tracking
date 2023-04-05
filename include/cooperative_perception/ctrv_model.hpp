@@ -26,6 +26,7 @@
 #include <functional>
 #include <Eigen/Dense>
 #include <units.h>
+#include <math.h>
 #include "cooperative_perception/angle.hpp"
 #include "cooperative_perception/units.hpp"
 
@@ -184,12 +185,12 @@ inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
   return rhs *= lhs;
 }
 
-using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
-
 /**
  * @brief Covariance matrix for the CTRV motion model
  */
-using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
+using CtrvStateCovariance = Eigen::MatrixXf;
+// CtrvState::kNumVars, CtrvState::kNumVars);
+// using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
 
 /**
  * @brief Process noise vector for the CTRV motion model
@@ -348,7 +349,8 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t 
  * @brief Rounds CtrvState vector elements to the nearest decimal place
  *
  * @param[in] state CtrvState being rounded
- * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
  * @return Rounded CtrvState
  */
 inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_place) -> CtrvState
@@ -362,6 +364,28 @@ inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_plac
                            units::math::round(state.yaw_rate * multiplier) / multiplier };
 
   return rounded_state;
+}
+
+/**
+ * @brief Rounds CtrvCovariance matrix elements to the nearest decimal place
+ *
+ * @param[in] matrix CtrvCovariance matrix being rounded
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
+ * @return Rounded CtrvCovariance matrix
+ */
+inline auto roundToDecimalPlace(CtrvStateCovariance& matrix, std::size_t decimal_place) -> Eigen::MatrixXf
+{
+  const auto multiplier{ std::pow(10, decimal_place) };
+  Eigen::MatrixXf out_matrix(matrix.rows(), matrix.cols());
+  for (int i = 0; i < matrix.rows(); ++i)
+  {
+    for (int j = 0; j < matrix.cols(); ++j)
+    {
+      out_matrix(i, j) = round(matrix(i, j) * multiplier) / multiplier;
+    }
+  }
+  return out_matrix;
 }
 
 /**
@@ -387,7 +411,8 @@ inline auto almostEqual(const CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs
  * @brief Rounds CtrvProcessNoise vector elements to the nearest decimal place
  *
  * @param[in] state CtrvProcessNoise being rounded
- * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
  * @return Rounded CtrvProcessNoise
  */
 inline auto roundToDecimalPlace(const CtrvProcessNoise& noise, std::size_t decimal_place) -> CtrvProcessNoise
