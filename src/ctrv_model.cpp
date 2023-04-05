@@ -75,7 +75,7 @@ auto nextState(const CtrvState& state, units::time::second_t time_step, const Ct
   return next_state;
 }
 
-void debugPrint(const CtrvState& state)
+auto printState(const CtrvState& state) -> void
 {
   std::cout << "CtrvState: \n";
   std::cout << "x: " << state.position_x << std::endl;

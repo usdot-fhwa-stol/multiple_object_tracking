@@ -164,6 +164,15 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
   return lhs;
 }
 
+/**
+ * @brief Multiply-assign operator overload
+ *
+ * Multiplies each member variable of a CtrvState variable by a scalar and returns the modified CtrvState.
+ *
+ * @param[in,out] lhs Left-hand side (lhs) of the multiplication expression, which will be modified and returned.
+ * @param[in] rhs Scalar value to multiply each member variable of lhs with
+ * @return Modified lhs
+ */
 inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
 {
   lhs.position_x *= rhs;
@@ -175,11 +184,29 @@ inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
   return lhs;
 }
 
+/**
+ * @brief Multiplication operator overload
+ *
+ * Multiplies a CtrvState variable with a scalar float value and returns the result in a new CtrvState.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the multiplication expression
+ * @param[in] rhs Right-hand side (rhs) of the multiplication expression
+ * @return Operation result
+ */
 inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
 {
   return lhs *= rhs;
 }
 
+/**
+ * @brief Multiplication operator overload
+ *
+ * Multiplies a scalar value with a CtrvState variable and returns the result in a new CtrvState.
+ *
+ * @param[in] lhs Scalar value to multiply
+ * @param[in] rhs CtrvState variable to multiply
+ * @return Operation result
+ */
 inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
 {
   return rhs *= lhs;
@@ -313,7 +340,16 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
-void debugPrint(const CtrvState& state);
+/**
+ * @brief Prints the values of a CtrvState object to the console
+ *
+ * This function prints the values of a CtrvState object to the console in a user-friendly format.
+ * The values printed are: position_x, position_y, velocity, yaw angle, and yaw rate.
+ *
+ * @param[in] state The CtrvState object to print
+ * @return None
+ */
+auto printState(const CtrvState& state) -> void;
 
 namespace utils
 {
