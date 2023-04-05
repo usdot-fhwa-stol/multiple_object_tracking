@@ -68,7 +68,7 @@ TEST(TestUnscentedTransform, GenerateSigmaPoints)
                                      });
 
     return result != std::cend(expected_sigma_points);
-  };  // Expected values
+  };
 
   std::for_each(std::cbegin(sigma_points), std::cend(sigma_points),
                 [&is_expected](const auto& point) { ASSERT_TRUE(is_expected(point)); });
@@ -79,6 +79,7 @@ TEST(TestUnscentedTransform, GenerateSigmaPoints)
  */
 TEST(TestUnscentedTransform, GenerateWeights)
 {
+  // Declaring parameters for UT
   const auto n{ 5 };
   const auto alpha{ 1.0 };
   const auto beta{ 2.0 };
