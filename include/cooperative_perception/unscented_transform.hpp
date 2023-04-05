@@ -49,24 +49,9 @@ auto generateLambda(int n, float alpha, float kappa) -> float
  * @param[in] alpha Scaling parameter for sigma points
  * @param[in] kappa Secondary scaling parameter for sigma points
  * @param[in] lambda A tuning parameter affecting how the points are sampled
- * @return Wm: vector of weights for mean calculation
+ * @return tuple with Wm: vector of weights for mean calculation and
  * Wc: vector of weights for covariance calculation
  */
-// auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<std::vector<float>,
-// std::vector<float>>
-// {
-//   float wm_0 = lambda / (n + lambda);
-//   float wc_0 = (lambda / (n + lambda)) + (1 - alpha * alpha + beta);
-//   float wm_i = 0.5 * (1 / (n + lambda));
-//   std::vector<float> Wm(2 * n + 1);
-//   std::vector<float> Wc(2 * n + 1);
-//   Wm[0] = wm_0;
-//   Wc[0] = wc_0;
-//   std::fill(Wm.begin() + 1, Wm.end(), wm_i);
-//   std::fill(Wc.begin() + 1, Wc.end(), wm_i);
-//   return { Wm, Wc };
-// }
-
 auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<Eigen::VectorXf, Eigen::VectorXf>
 {
   float wm_0 = lambda / (n + lambda);
@@ -111,7 +96,7 @@ auto generateSigmaPoints(const State& state, const StateCovariance& covariance, 
   return sigma_pts;
 }
 
-auto vectorToMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
+auto stackVectorIntoMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
 {
   int num_cols = vector.size();
   Eigen::MatrixXf result(num_rows, num_cols);
@@ -151,7 +136,7 @@ auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm
     -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   Eigen::VectorXf x = Wm.transpose() * sigmas;
-  Eigen::MatrixXf x1 = vectorToMatrix(x, sigmas.rows());
+  Eigen::MatrixXf x1 = stackVectorIntoMatrix(x, sigmas.rows());
   Eigen::MatrixXf y = sigmas - x1;
   Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
   return std::make_tuple(x, P);

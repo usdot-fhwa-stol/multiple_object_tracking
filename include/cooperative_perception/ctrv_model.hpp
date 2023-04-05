@@ -189,8 +189,6 @@ inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
  * @brief Covariance matrix for the CTRV motion model
  */
 using CtrvStateCovariance = Eigen::MatrixXf;
-// CtrvState::kNumVars, CtrvState::kNumVars);
-// using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
 
 /**
  * @brief Process noise vector for the CTRV motion model

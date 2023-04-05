@@ -28,6 +28,9 @@
 
 namespace cp = cooperative_perception;
 
+/**
+ * Test the generateSigmaPoints function
+ */
 TEST(TestUnscentedTransform, GenerateSigmaPoints)
 {
   using namespace units::literals;
@@ -65,12 +68,15 @@ TEST(TestUnscentedTransform, GenerateSigmaPoints)
                                      });
 
     return result != std::cend(expected_sigma_points);
-  };
+  };  // Expected values
 
   std::for_each(std::cbegin(sigma_points), std::cend(sigma_points),
                 [&is_expected](const auto& point) { ASSERT_TRUE(is_expected(point)); });
 }
 
+/**
+ * Test the generateWeights function
+ */
 TEST(TestUnscentedTransform, GenerateWeights)
 {
   const auto n{ 5 };
@@ -94,6 +100,9 @@ TEST(TestUnscentedTransform, GenerateWeights)
   EXPECT_TRUE(cp::utils::almostEqual(expected_Wc, Wc));
 }
 
+/**
+ * Test the unscentedTransform function using purely Eigen matrices and vectors
+ */
 TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
 {
   using namespace Eigen;
@@ -126,16 +135,20 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
   EXPECT_TRUE(cp::utils::almostEqual(expected_covariance, result_covariance));
 }
 
+/**
+ * Test the ComputeUnscentedTransform function given a state, covariance and time step
+ */
 TEST(TestUnscentedTransform, ComputeUnscentedTransform)
 {
   using namespace units::literals;
+  // Declaring Initial state and covariance
   const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
   const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
                                             { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
                                             { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
-
+  // Expected values
   const cp::CtrvState expected_state{ 7.43224_m, 2.73933_m, 2.2049_mps, cp::Angle(0.8543_rad), 0.3528_rad_per_s };
   const cp::CtrvStateCovariance expected_covariance{ { 0.0650073, -0.0670999, 0.00564003, -0.0463523, -0.0240175 },
                                                      { -0.0670999, 0.11094, 0.00625031, 0.0654438, 0.0333096 },
