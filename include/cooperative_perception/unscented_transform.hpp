@@ -167,7 +167,7 @@ auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm
 }
 
 /**
- * @brief This function computes the Unscented Transform (UT) for a given state and state covariance matrix by
+ * This function computes the Unscented Transform (UT) for a given state and state covariance matrix by
  * generating sigma points, weights, and using them to compute the mean and covariance of the transformed sigma points
  * through a non-linear model. It takes the current state of the system, the covariance matrix associated with it, and a
  * time step to advance the state through the non-linear model. The UT parameters (alpha, beta, kappa, lambda) are
