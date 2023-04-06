@@ -75,14 +75,14 @@ auto nextState(const CtrvState& state, units::time::second_t time_step, const Ct
   return next_state;
 }
 
-void debugPrint(const CtrvState& state)
+auto printState(const CtrvState& state) -> void
 {
   std::cout << "CtrvState: \n";
-  std::cout << "x: " << state.position_x << std::endl;
-  std::cout << "y: " << state.position_y << std::endl;
-  std::cout << "velocity: " << state.velocity << std::endl;
-  std::cout << "yaw: " << state.yaw.get_angle() << std::endl;
-  std::cout << "yaw rate: " << state.yaw_rate << std::endl;
+  std::cout << "x: " << state.position_x << "\n";
+  std::cout << "y: " << state.position_y << "\n";
+  std::cout << "velocity: " << state.velocity << "\n";
+  std::cout << "yaw: " << state.yaw.get_angle() << "\n";
+  std::cout << "yaw rate: " << state.yaw_rate << "\n";
 }
 
 }  // namespace cooperative_perception
