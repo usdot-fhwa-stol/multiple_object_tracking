@@ -46,7 +46,7 @@ struct DetectedObject
 /**
  * @brief DetectedObject specialization for a vehicle using the CTRV motion model
  */
-using VehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
+using CtrvVehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
 
 /**
  * @brief Aggregation of all DetectedObject specializations
@@ -54,7 +54,7 @@ using VehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
  * This type contains all the DetectedObject types supported by the library. It can be used to refer
  * generically to any DetectedObject and allows all DetectedObject types to be stored in the same container.
  */
-using DetectedObjectType = std::variant<VehicleObject>;
+using DetectedObjectType = std::variant<CtrvVehicleObject>;
 
 /**
  * @brief Maximum number of DetectedObjects that can be stored at a time

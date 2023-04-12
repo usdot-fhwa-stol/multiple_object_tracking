@@ -26,6 +26,8 @@
 #include <functional>
 #include <Eigen/Dense>
 #include <units.h>
+#include <math.h>
+#include "cooperative_perception/angle.hpp"
 #include "cooperative_perception/units.hpp"
 
 /**
@@ -38,9 +40,8 @@ struct CtrvState
   units::length::meter_t position_x;
   units::length::meter_t position_y;
   units::velocity::meters_per_second_t velocity;
-  units::angle::radian_t yaw;
+  Angle yaw;
   units::angular_velocity::radians_per_second_t yaw_rate;
-
   /**
    * @brief Number of elements in CTRV state vector
    */
@@ -59,6 +60,21 @@ struct CtrvState
                       .velocity{ units::velocity::meters_per_second_t{ vec(2) } },
                       .yaw{ units::angle::radian_t{ vec(3) } },
                       .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } } };
+  }
+
+  /**
+   * @brief Convert a CtrvState into an Eigen::Vector
+   *
+   * @param[in] ctrv_state CtrvState to be converted
+   * @return CtrvState instance
+   */
+  static inline auto toEigenVector(const CtrvState& ctrv_state) noexcept -> Eigen::Vector<float, kNumVars>
+  {
+    return Eigen::Vector<float, kNumVars>{ units::unit_cast<float>(ctrv_state.position_x),
+                                           units::unit_cast<float>(ctrv_state.position_y),
+                                           units::unit_cast<float>(ctrv_state.velocity),
+                                           units::unit_cast<float>(ctrv_state.yaw.get_angle()),
+                                           units::unit_cast<float>(ctrv_state.yaw_rate) };
   }
 };
 
@@ -149,9 +165,57 @@ inline auto operator-(CtrvState lhs, const CtrvState& rhs) -> CtrvState
 }
 
 /**
+ * @brief Multiply-assign operator overload
+ *
+ * Multiplies each member variable of a CtrvState variable by a scalar and returns the modified CtrvState.
+ *
+ * @param[in,out] lhs Left-hand side (lhs) of the multiplication expression, which will be modified and returned.
+ * @param[in] rhs Scalar value to multiply each member variable of lhs with
+ * @return Modified lhs
+ */
+inline auto operator*=(CtrvState& lhs, float rhs) noexcept -> CtrvState&
+{
+  lhs.position_x *= rhs;
+  lhs.position_y *= rhs;
+  lhs.velocity *= rhs;
+  lhs.yaw *= rhs;
+  lhs.yaw_rate *= rhs;
+
+  return lhs;
+}
+
+/**
+ * @brief Multiplication operator overload
+ *
+ * Multiplies a CtrvState variable with a scalar float value and returns the result in a new CtrvState.
+ *
+ * @param[in] lhs Left-hand side (lhs) of the multiplication expression
+ * @param[in] rhs Right-hand side (rhs) of the multiplication expression
+ * @return Operation result
+ */
+inline auto operator*(CtrvState lhs, float rhs) noexcept -> CtrvState
+{
+  return lhs *= rhs;
+}
+
+/**
+ * @brief Multiplication operator overload
+ *
+ * Multiplies a scalar value with a CtrvState variable and returns the result in a new CtrvState.
+ *
+ * @param[in] lhs Scalar value to multiply
+ * @param[in] rhs CtrvState variable to multiply
+ * @return Operation result
+ */
+inline auto operator*(float lhs, CtrvState rhs) noexcept -> CtrvState
+{
+  return rhs *= lhs;
+}
+
+/**
  * @brief Covariance matrix for the CTRV motion model
  */
-using CtrvStateCovariance = Eigen::Matrix<float, CtrvState::kNumVars, CtrvState::kNumVars>;
+using CtrvStateCovariance = Eigen::MatrixXf;
 
 /**
  * @brief Process noise vector for the CTRV motion model
@@ -276,6 +340,17 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
+/**
+ * @brief Prints the values of a CtrvState object to the console
+ *
+ * This function prints the values of a CtrvState object to the console in a user-friendly format.
+ * The values printed are: position_x, position_y, velocity, yaw angle, and yaw rate.
+ *
+ * @param[in] state The CtrvState object to print
+ * @return None
+ */
+auto printState(const CtrvState& state) -> void;
+
 namespace utils
 {
 /**
@@ -295,8 +370,8 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t 
                                                  units::unit_cast<double>(rhs.position_y)) };
   const auto dist_vel{ boost::math::float_distance(units::unit_cast<double>(lhs.velocity),
                                                    units::unit_cast<double>(rhs.velocity)) };
-  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw),
-                                                   units::unit_cast<double>(rhs.yaw)) };
+  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw.get_angle()),
+                                                   units::unit_cast<double>(rhs.yaw.get_angle())) };
   const auto dist_yaw_rate{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw_rate),
                                                         units::unit_cast<double>(rhs.yaw_rate)) };
 
@@ -308,7 +383,8 @@ inline auto almostEqual(const CtrvState& lhs, const CtrvState& rhs, std::size_t 
  * @brief Rounds CtrvState vector elements to the nearest decimal place
  *
  * @param[in] state CtrvState being rounded
- * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
  * @return Rounded CtrvState
  */
 inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_place) -> CtrvState
@@ -318,10 +394,32 @@ inline auto roundToDecimalPlace(const CtrvState& state, std::size_t decimal_plac
   CtrvState rounded_state{ units::math::round(state.position_x * multiplier) / multiplier,
                            units::math::round(state.position_y * multiplier) / multiplier,
                            units::math::round(state.velocity * multiplier) / multiplier,
-                           units::math::round(state.yaw * multiplier) / multiplier,
+                           units::math::round(state.yaw.get_angle() * multiplier) / multiplier,
                            units::math::round(state.yaw_rate * multiplier) / multiplier };
 
   return rounded_state;
+}
+
+/**
+ * @brief Rounds CtrvCovariance matrix elements to the nearest decimal place
+ *
+ * @param[in] matrix CtrvCovariance matrix being rounded
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
+ * @return Rounded CtrvCovariance matrix
+ */
+inline auto roundToDecimalPlace(CtrvStateCovariance& matrix, std::size_t decimal_place) -> Eigen::MatrixXf
+{
+  const auto multiplier{ std::pow(10, decimal_place) };
+  Eigen::MatrixXf out_matrix(matrix.rows(), matrix.cols());
+  for (int i = 0; i < matrix.rows(); ++i)
+  {
+    for (int j = 0; j < matrix.cols(); ++j)
+    {
+      out_matrix(i, j) = round(matrix(i, j) * multiplier) / multiplier;
+    }
+  }
+  return out_matrix;
 }
 
 /**
@@ -347,7 +445,8 @@ inline auto almostEqual(const CtrvProcessNoise& lhs, const CtrvProcessNoise& rhs
  * @brief Rounds CtrvProcessNoise vector elements to the nearest decimal place
  *
  * @param[in] state CtrvProcessNoise being rounded
- * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
  * @return Rounded CtrvProcessNoise
  */
 inline auto roundToDecimalPlace(const CtrvProcessNoise& noise, std::size_t decimal_place) -> CtrvProcessNoise
@@ -386,7 +485,7 @@ struct hash<cooperative_perception::CtrvState>
     boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
     boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
     boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
-    boost::hash_combine(seed, units::unit_cast<double>(state.yaw));
+    boost::hash_combine(seed, units::unit_cast<double>(state.yaw.get_angle()));
     boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
 
     return seed;
