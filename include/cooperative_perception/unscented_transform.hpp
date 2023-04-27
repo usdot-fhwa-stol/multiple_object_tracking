@@ -1,4 +1,3 @@
-#pragma once
 /*
  * Copyright 2022 Leidos
  *
@@ -22,12 +21,12 @@
 #ifndef COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 #define COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 
-#include <boost/container_hash/hash.hpp>
-#include <unordered_set>
 #include <tuple>
+#include <math.h>
 #include <vector>
 #include <units.h>
 #include <Eigen/Dense>
+#include <unordered_set>
 #include "cooperative_perception/ctrv_model.hpp"
 
 namespace cooperative_perception
@@ -253,7 +252,7 @@ inline auto almostEqual(const std::vector<float>& lhs, const std::vector<float>&
  *
  * @return True if vectors are almost-equal, false otherwise
  */
-inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs)
+inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs) -> bool
 {
   if (lhs.size() != rhs.size())
   {
@@ -272,6 +271,22 @@ inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs)
 }
 
 /**
+ * @brief Rounds a float to the nearest decimal place. Useful for comparing covariance values
+ *
+ * @param[in] n float being rounded
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
+ * @return Rounded float
+ */
+inline auto roundToDecimalPlace(float n, std::size_t decimal_place) -> float
+{
+  const auto multiplier{ std::pow(10, decimal_place) };
+
+  float x = round(n * multiplier) / multiplier;
+  return x;
+}
+
+/**
  * @brief Compares the almost-equality of two Eigen::MatrixXf
  *
  * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
@@ -279,7 +294,7 @@ inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs)
  *
  * @return True if vectors are almost-equal, false otherwise
  */
-inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs)
+inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs) -> bool
 {
   if (lhs.rows() != rhs.rows() || lhs.cols() != rhs.cols())
   {
@@ -290,7 +305,7 @@ inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs)
   {
     for (int j = 0; j < lhs.cols(); ++j)
     {
-      if (!almostEqual(lhs(i, j), rhs(i, j)))
+      if (!almostEqual(roundToDecimalPlace(lhs(i, j), 4), roundToDecimalPlace(rhs(i, j), 4)))
       {
         return false;  // matrices are not equal if any of their elements differ
       }
