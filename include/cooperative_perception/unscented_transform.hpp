@@ -1,3 +1,4 @@
+#pragma once
 /*
  * Copyright 2022 Leidos
  *
@@ -38,7 +39,7 @@ namespace cooperative_perception
  * @param[in] kappa Secondary scaling parameter for sigma points
  * @return Scaling factor lambda
  */
-auto generateLambda(int n, float alpha, float kappa) -> float
+inline auto generateLambda(int n, float alpha, float kappa) -> float
 {
   return alpha * alpha * (n + kappa) - n;
 }
@@ -52,7 +53,8 @@ auto generateLambda(int n, float alpha, float kappa) -> float
  * @return tuple with Wm: vector of weights for mean calculation and
  * Wc: vector of weights for covariance calculation
  */
-auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple<Eigen::VectorXf, Eigen::VectorXf>
+inline auto generateWeights(int n, float alpha, float beta, float lambda)
+    -> std::tuple<Eigen::VectorXf, Eigen::VectorXf>
 {
   float wm_0 = lambda / (n + lambda);
   float wc_0 = (lambda / (n + lambda)) + (1 - alpha * alpha + beta);
@@ -79,7 +81,7 @@ auto generateWeights(int n, float alpha, float beta, float lambda) -> std::tuple
  * @return Set of sampled points
  */
 template <typename State, typename StateCovariance>
-auto generateSigmaPoints(const State& state, const StateCovariance& covariance, const float& lambda)
+inline auto generateSigmaPoints(const State& state, const StateCovariance& covariance, const float& lambda)
     -> std::unordered_set<State>
 {
   std::unordered_set<State> sigma_pts{};
@@ -102,7 +104,7 @@ auto generateSigmaPoints(const State& state, const StateCovariance& covariance, 
  * @param[in] num_rows The number of rows in the output matrix
  * @return The stacked matrix with the input vector repeated for each row
  */
-auto stackVectorIntoMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
+inline auto stackVectorIntoMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
 {
   int num_cols = vector.size();
   Eigen::MatrixXf result(num_rows, num_cols);
@@ -118,7 +120,7 @@ auto stackVectorIntoMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::Matri
  * @param[in] input The input std::vector of floats to be converted into an Eigen::VectorXf.
  * @return The resulting Eigen::VectorXf that has the same values as the input std::vector.
  */
-auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
+inline auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
 {
   Eigen::VectorXf output(input.size());
   for (int i = 0; i < input.size(); i++)
@@ -136,7 +138,7 @@ auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
  * @return A matrix containing the state and sigma points as rows.
  */
 template <typename State>
-auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXf
+inline auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXf
 {
   Eigen::MatrixXf matrix(std::size(sigma_points) + 1, State::kNumVars);
   matrix.row(0) = State::toEigenVector(state).transpose();
@@ -157,7 +159,7 @@ auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<State>& sig
  *@param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points.
  *@return A tuple containing the weighted mean and weighted covariance of the sigma points.
  */
-auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm, const Eigen::VectorXf& Wc)
+inline auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm, const Eigen::VectorXf& Wc)
     -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   Eigen::VectorXf x = Wm.transpose() * sigmas;
@@ -180,8 +182,8 @@ auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm
  * @return Tuple containing the resulting state and covariance matrix.
  */
 template <typename State, typename StateCovariance>
-auto computeUnscentedTransform(const State& state, const StateCovariance& covariance, units::time::second_t time_step)
-    -> std::tuple<State, StateCovariance>
+inline auto computeUnscentedTransform(const State& state, const StateCovariance& covariance,
+                                      units::time::second_t time_step) -> std::tuple<State, StateCovariance>
 {
   // Declaring parameters for UT
   const auto alpha{ 1.0 };
