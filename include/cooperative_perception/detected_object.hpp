@@ -26,6 +26,7 @@
 #include <units.h>
 
 #include "cooperative_perception/ctrv_model.hpp"
+#include "cooperative_perception/ctra_model.hpp"
 
 namespace cooperative_perception
 {
@@ -49,12 +50,17 @@ struct DetectedObject
 using CtrvVehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
 
 /**
+ * @brief DetectedObject specialization for a vehicle using the CTRA motion model.
+ */
+using CtraVehicleObject = DetectedObject<CtraState, CtraStateCovariance>;
+
+/**
  * @brief Aggregation of all DetectedObject specializations
  *
  * This type contains all the DetectedObject types supported by the library. It can be used to refer
  * generically to any DetectedObject and allows all DetectedObject types to be stored in the same container.
  */
-using DetectedObjectType = std::variant<CtrvVehicleObject>;
+using DetectedObjectType = std::variant<CtrvVehicleObject, CtraVehicleObject>;
 
 /**
  * @brief Maximum number of DetectedObjects that can be stored at a time
