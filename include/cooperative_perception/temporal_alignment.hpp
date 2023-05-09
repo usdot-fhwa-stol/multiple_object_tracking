@@ -23,6 +23,8 @@
 
 #include <variant>
 #include <units.h>
+#include "cooperative_perception/covariance_calibration.hpp"
+#include "cooperative_perception/unscented_transform.hpp"
 #include "cooperative_perception/detected_object.hpp"
 #include "cooperative_perception/utils.hpp"
 
@@ -70,6 +72,23 @@ auto objectsAtTime(const DetectedObjectList& objects, units::time::second_t time
 
   return new_objects;
 }
+
+/**
+ * @brief Temporally align object to a specific time step
+ *
+ * @param object DetectedObjectType being predicted
+ * @param time Prediction time
+ * @return None, object is updated in place
+ */
+template <typename DetectedObject>
+auto alignToTime(DetectedObject& object, units::time::second_t time) -> void
+{
+  calibrateCovariance(object);
+  auto [state, covariance] = computeUnscentedTransform(object.state, object.covariance, time - object.timestamp);
+  object.state = state;
+  object.covariance = covariance;
+  object.timestamp = time;
+};
 
 }  // namespace cooperative_perception
 

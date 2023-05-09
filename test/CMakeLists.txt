@@ -20,6 +20,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_ctra_model.cpp
   test_detected_object.cpp
   test_unscented_transform.cpp
+  test_host_object_alignment.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable
