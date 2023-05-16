@@ -22,6 +22,7 @@
 #define COOPERATIVE_PERCEPTION_DETECTED_OBJECT_HPP
 
 #include <variant>
+#include <map>
 #include <boost/container/static_vector.hpp>
 #include <units.h>
 
@@ -74,6 +75,15 @@ inline constexpr auto kMaxDetectedObjects{ 200U };
  * @brief Container for DetectedObject variables
  */
 using DetectedObjectList = boost::container::static_vector<DetectedObjectType, kMaxDetectedObjects>;
+
+/**
+ * @brief A data store that caches the most recent DetectedObjects
+ *
+ *  BSM and SDSM messages report a TemporaryID, which may be assumed to be unique during
+ *  a CDA CP interaction. This TemporaryID will be treated as a unique string that is associated
+ *  with the most recent DetectedObject with that ID.
+ */
+using DetectedObjectCache = std::map<std::string, DetectedObjectType>;
 
 }  // namespace cooperative_perception
 
