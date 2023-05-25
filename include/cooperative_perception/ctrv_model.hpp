@@ -340,7 +340,7 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
-inline auto euclidean_distance(CtrvState lhs, CtrvState rhs) -> float
+inline auto euclidean_distance(const CtrvState& lhs, const CtrvState& rhs) -> float
 {
   const Eigen::VectorXf diff = CtrvState::toEigenVector(lhs) - CtrvState::toEigenVector(rhs);
 

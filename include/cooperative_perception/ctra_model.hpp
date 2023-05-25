@@ -298,7 +298,7 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
  */
 auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState;
 
-inline auto euclidean_distance(CtraState lhs, CtraState rhs) -> float
+inline auto euclidean_distance(const CtraState& lhs, const CtraState& rhs) -> float
 {
   const Eigen::VectorXf diff = CtraState::toEigenVector(lhs) - CtraState::toEigenVector(rhs);
 
