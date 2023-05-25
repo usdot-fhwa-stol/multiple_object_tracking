@@ -43,6 +43,7 @@ struct DetectedObject
   units::time::second_t timestamp;
   StateType state;
   CovarianceType covariance;
+  std::string uuid;
 };
 
 /**
