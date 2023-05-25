@@ -340,6 +340,20 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
+inline auto euclidean_distance(CtrvState lhs, CtrvState rhs) -> float
+{
+  const Eigen::VectorXf diff = CtrvState::toEigenVector(lhs) - CtrvState::toEigenVector(rhs);
+
+  return std::sqrt(diff.transpose() * diff);
+}
+
+inline auto mahalanobis_distance(CtrvState mean, CtrvStateCovariance covariance, CtrvState point) -> float
+{
+  const Eigen::VectorXf diff = CtrvState::toEigenVector(point) - CtrvState::toEigenVector(mean);
+
+  return std::sqrt(diff.transpose() * covariance.inverse() * diff);
+}
+
 /**
  * @brief Prints the values of a CtrvState object to the console
  *

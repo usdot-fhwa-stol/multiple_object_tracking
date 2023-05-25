@@ -1,4 +1,4 @@
-# Copyright 2022 Leidos
+# Copyright 2023 Leidos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_detected_object.cpp
   test_unscented_transform.cpp
   test_host_object_alignment.cpp
+  test_scoring.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable

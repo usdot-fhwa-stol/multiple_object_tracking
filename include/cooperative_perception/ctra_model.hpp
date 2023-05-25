@@ -21,6 +21,7 @@
 #ifndef COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 
+#include <cmath>
 #include <boost/container_hash/hash.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <functional>
@@ -62,6 +63,22 @@ struct CtraState
                       .yaw{ units::angle::radian_t{ vec(3) } },
                       .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } },
                       .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5) } } };
+  }
+
+  /**
+   * @brief Convert a CtraState into an Eigen::Vector
+   *
+   * @param[in] ctra_state CtraState to be converted
+   * @return Eigen::Vector representation of CTRA state
+   */
+
+  static inline auto toEigenVector(const CtraState& ctra_state) noexcept -> Eigen::Vector<float, kNumVars>
+  {
+    return Eigen::Vector<float, kNumVars>{
+      units::unit_cast<float>(ctra_state.position_x), units::unit_cast<float>(ctra_state.position_y),
+      units::unit_cast<float>(ctra_state.velocity),   units::unit_cast<float>(ctra_state.yaw.get_angle()),
+      units::unit_cast<float>(ctra_state.yaw_rate),   units::unit_cast<float>(ctra_state.acceleration)
+    };
   }
 };
 
@@ -280,6 +297,20 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
  * @param[in] angular_accel_noise Angular acceleration process noise
  */
 auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState;
+
+inline auto euclidean_distance(CtraState lhs, CtraState rhs) -> float
+{
+  const Eigen::VectorXf diff = CtraState::toEigenVector(lhs) - CtraState::toEigenVector(rhs);
+
+  return std::sqrt(diff.transpose() * diff);
+}
+
+inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance, CtraState point) -> float
+{
+  const Eigen::VectorXf diff = CtraState::toEigenVector(point) - CtraState::toEigenVector(mean);
+
+  return std::sqrt(diff.transpose() * covariance.inverse() * diff);
+}
 
 namespace utils
 {
