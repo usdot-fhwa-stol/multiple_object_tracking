@@ -54,8 +54,18 @@ constexpr utils::Visitor kEuclideanDistanceGetter{
   [](const auto& track, const auto& object)
       -> std::enable_if_t<!std::is_same_v<decltype(track.state), decltype(object.state)>, float> { return -1.0F; },
 };
+constexpr utils::Visitor kMahalanobisDistanceGetter{
+  [](const auto& track,
+     const auto& object) -> std::enable_if_t<std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
+    return mahalanobis_distance(track.state, track.covariance, object.state);
+  },
+  [](const auto& track, const auto& object)
+      -> std::enable_if_t<!std::is_same_v<decltype(track.state), decltype(object.state)>, float> { return -1.0F; },
+};
 
-auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects)
+template <typename DistanceVisitor>
+auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects,
+                              const DistanceVisitor& distance_metric)
 {
   std::map<std::pair<std::string, std::string>, float> scores;
 
@@ -66,7 +76,7 @@ auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::v
     for (const auto& object : objects)
     {
       const auto object_uuid = std::visit(kUuidExtractor, object);
-      scores[std::pair{ track_uuid, object_uuid }] = std::visit(kEuclideanDistanceGetter, track, object);
+      scores[std::pair{ track_uuid, object_uuid }] = std::visit(distance_metric, track, object);
     }
   }
 

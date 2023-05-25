@@ -102,7 +102,7 @@ TEST(TestScoring, CtraMahalanobisDistance)
   EXPECT_FLOAT_EQ(mahalanobis_dist, 122.3575692494651);
 }
 
-TEST(TestScoring, TrackToObjectScoring)
+TEST(TestScoring, TrackToObjectScoringEuclidean)
 {
   using namespace units::literals;
 
@@ -123,13 +123,67 @@ TEST(TestScoring, TrackToObjectScoring)
                 .uuid{ "test_object2" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects);
+  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::kEuclideanDistanceGetter);
 
   const std::map<std::pair<std::string, std::string>, float> expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 7.0710678 },
     { std::pair{ "test_track1", "test_object2" }, 5.7445626 },
     { std::pair{ "test_track2", "test_object1" }, 7.2801099 },
     { std::pair{ "test_track2", "test_object2" }, 6.1644139 },
+  };
+
+  EXPECT_EQ(std::size(scores), std::size(expected_scores));
+
+  for (const auto& [key, value] : scores)
+  {
+    EXPECT_FLOAT_EQ(expected_scores.at(key), value);
+  }
+}
+
+TEST(TestScoring, TrackToObjectScoringMahalanobis)
+{
+  using namespace units::literals;
+
+  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
+
+  const std::vector<cp::TrackType> tracks{
+    TestTrack{ .state{ cp::CtraState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq } },
+               .covariance{ cp::CtraStateCovariance{
+                   { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
+                   { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
+                   { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
+                   { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
+                   { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
+                   { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
+               } },
+               .uuid{ "test_track1" } },
+    TestTrack{ .state{ cp::CtraState{ 8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq } },
+               .covariance{ cp::CtraStateCovariance{
+                   { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
+                   { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
+                   { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
+                   { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
+                   { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
+                   { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
+               } },
+               .uuid{ "test_track2" } }
+  };
+
+  const std::vector<cp::DetectedObjectType> objects{
+    TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
+                .uuid{ "test_object1" } },
+    TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
+                .uuid{ "test_object2" } }
+  };
+
+  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::kMahalanobisDistanceGetter);
+
+  const std::map<std::pair<std::string, std::string>, float> expected_scores{
+    { std::pair{ "test_track1", "test_object1" }, 122.35757 },
+    { std::pair{ "test_track1", "test_object2" }, 90.688416 },
+    { std::pair{ "test_track2", "test_object1" }, 109.70312 },
+    { std::pair{ "test_track2", "test_object2" }, 95.243896 },
   };
 
   EXPECT_EQ(std::size(scores), std::size(expected_scores));
