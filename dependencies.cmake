@@ -15,6 +15,7 @@
 find_package(Boost REQUIRED COMPONENTS container)
 find_package(Eigen3 3.4 REQUIRED)
 find_package(units REQUIRED)
+find_package(dlib REQUIRED)
 
 if(cooperative_perception_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
   find_package(GTest REQUIRED)

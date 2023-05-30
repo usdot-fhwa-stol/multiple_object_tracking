@@ -31,4 +31,5 @@ target_link_libraries(cooperative_perception_coreLibrary
     Boost::container
     Eigen3::Eigen
     units::units
+    dlib::dlib
 )
