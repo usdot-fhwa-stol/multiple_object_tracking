@@ -56,6 +56,7 @@ struct Track
   CovarianceType covariance;
   TrackStatus status;
   std::string uuid;
+  std::vector<std::string> associated_object_ids;
 };
 
 /**
