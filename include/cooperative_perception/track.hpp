@@ -55,6 +55,7 @@ struct Track
   StateType state;
   CovarianceType covariance;
   TrackStatus status;
+  std::string uuid;
 };
 
 /**

@@ -21,6 +21,7 @@
 #ifndef COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 
+#include <cmath>
 #include <boost/container_hash/hash.hpp>
 #include <boost/math/special_functions/next.hpp>
 #include <functional>
@@ -62,6 +63,22 @@ struct CtraState
                       .yaw{ units::angle::radian_t{ vec(3) } },
                       .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } },
                       .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5) } } };
+  }
+
+  /**
+   * @brief Convert a CtraState into an Eigen::Vector
+   *
+   * @param[in] ctra_state CtraState to be converted
+   * @return Eigen::Vector representation of CTRA state
+   */
+
+  static inline auto toEigenVector(const CtraState& ctra_state) noexcept -> Eigen::Vector<float, kNumVars>
+  {
+    return Eigen::Vector<float, kNumVars>{
+      units::unit_cast<float>(ctra_state.position_x), units::unit_cast<float>(ctra_state.position_y),
+      units::unit_cast<float>(ctra_state.velocity),   units::unit_cast<float>(ctra_state.yaw.get_angle()),
+      units::unit_cast<float>(ctra_state.yaw_rate),   units::unit_cast<float>(ctra_state.acceleration)
+    };
   }
 };
 
@@ -280,6 +297,38 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
  * @param[in] angular_accel_noise Angular acceleration process noise
  */
 auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState;
+
+inline auto euclidean_distance(const CtraState& lhs, const CtraState& rhs) -> float
+{
+  const Eigen::Vector3f lhs_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(lhs.position_x), units::unit_cast<float>(lhs.position_y),
+                       units::unit_cast<float>(lhs.yaw.get_angle()) };
+  const Eigen::Vector3f rhs_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(rhs.position_x), units::unit_cast<float>(rhs.position_y),
+                       units::unit_cast<float>(rhs.yaw.get_angle()) };
+
+  const Eigen::VectorXf diff = lhs_pose - rhs_pose;
+
+  return std::sqrt(diff.transpose() * diff);
+}
+
+inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance, CtraState point) -> float
+{
+  const Eigen::Vector3f mean_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(mean.position_x), units::unit_cast<float>(mean.position_y),
+                       units::unit_cast<float>(mean.yaw.get_angle()) };
+  const Eigen::Vector3f point_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(point.position_x), units::unit_cast<float>(point.position_y),
+                       units::unit_cast<float>(point.yaw.get_angle()) };
+
+  const Eigen::VectorXf diff = mean_pose - point_pose;
+
+  const Eigen::MatrixXf pose_cov = Eigen::Matrix3f{ { covariance(0, 0), covariance(0, 1), covariance(0, 3) },
+                                                    { covariance(1, 0), covariance(1, 1), covariance(1, 3) },
+                                                    { covariance(3, 0), covariance(3, 1), covariance(3, 3) } };
+
+  return std::sqrt(diff.transpose() * pose_cov.inverse() * diff);
+}
 
 namespace utils
 {

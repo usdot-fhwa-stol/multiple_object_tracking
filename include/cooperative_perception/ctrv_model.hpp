@@ -340,6 +340,37 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
  */
 auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState;
 
+inline auto euclidean_distance(const CtrvState& lhs, const CtrvState& rhs) -> float
+{
+  const Eigen::Vector3f lhs_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(lhs.position_x), units::unit_cast<float>(lhs.position_y),
+                       units::unit_cast<float>(lhs.yaw.get_angle()) };
+  const Eigen::Vector3f rhs_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(rhs.position_x), units::unit_cast<float>(rhs.position_y),
+                       units::unit_cast<float>(rhs.yaw.get_angle()) };
+
+  const Eigen::VectorXf diff = lhs_pose - rhs_pose;
+
+  return std::sqrt(diff.transpose() * diff);
+}
+
+inline auto mahalanobis_distance(CtrvState mean, CtrvStateCovariance covariance, CtrvState point) -> float
+{
+  const Eigen::Vector3f mean_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(mean.position_x), units::unit_cast<float>(mean.position_y),
+                       units::unit_cast<float>(mean.yaw.get_angle()) };
+  const Eigen::Vector3f point_pose =
+      Eigen::Vector3f{ units::unit_cast<float>(point.position_x), units::unit_cast<float>(point.position_y),
+                       units::unit_cast<float>(point.yaw.get_angle()) };
+  const Eigen::VectorXf diff = mean_pose - point_pose;
+
+  const Eigen::MatrixXf pose_cov = Eigen::Matrix3f{ { covariance(0, 0), covariance(0, 1), covariance(0, 3) },
+                                                    { covariance(1, 0), covariance(1, 1), covariance(1, 3) },
+                                                    { covariance(3, 0), covariance(3, 1), covariance(3, 3) } };
+
+  return std::sqrt(diff.transpose() * pose_cov.inverse() * diff);
+}
+
 /**
  * @brief Prints the values of a CtrvState object to the console
  *
