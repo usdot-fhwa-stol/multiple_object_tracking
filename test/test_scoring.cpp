@@ -38,7 +38,7 @@ TEST(TestScoring, CtrvEuclideanDistance)
 
   const auto track = TestTrack{ .state{ cp::CtrvState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s } } };
 
-  const auto euclidean_dist = cp::euclidean_distance(object, track);
+  const auto euclidean_dist = cp::euclidean_distance(object.state, track.state);
   EXPECT_FLOAT_EQ(euclidean_dist, 7.0710678118654755F);
 }
 
@@ -59,7 +59,7 @@ TEST(TestScoring, CtrvMahalanobisDistance)
                                                        { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
                                                        { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } } };
 
-  const auto mahalanobis_dist = cp::mahalanobis_distance(object, track);
+  const auto mahalanobis_dist = cp::mahalanobis_distance(track.state, track.covariance, object.state);
   EXPECT_FLOAT_EQ(mahalanobis_dist, 74.37377728947332F);
 }
 
@@ -75,7 +75,7 @@ TEST(TestScoring, CtraEuclideanDistance)
     units::time::second_t{ 0 }, cp::CtraState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq }
   };
 
-  const auto euclidean_dist = cp::euclidean_distance(object, track);
+  const auto euclidean_dist = cp::euclidean_distance(object.state, track.state);
   EXPECT_FLOAT_EQ(euclidean_dist, 7.0710678118654755);
 }
 
@@ -98,7 +98,7 @@ TEST(TestScoring, CtraMahalanobisDistance)
                                     { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
                                 } } };
 
-  const auto mahalanobis_dist = cp::mahalanobis_distance(object, track);
+  const auto mahalanobis_dist = cp::mahalanobis_distance(track.state, track.covariance, object.state);
   EXPECT_FLOAT_EQ(mahalanobis_dist, 122.3575692494651);
 }
 
@@ -123,7 +123,7 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
                 .uuid{ "test_object2" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::kEuclideanDistanceGetter);
+  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::euclidean_distance_visitor);
 
   const std::map<std::pair<std::string, std::string>, float> expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 7.0710678 },
@@ -177,7 +177,7 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
                 .uuid{ "test_object2" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::kMahalanobisDistanceGetter);
+  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::mahalanobis_distance_visitor);
 
   const std::map<std::pair<std::string, std::string>, float> expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 122.35757 },
