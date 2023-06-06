@@ -32,36 +32,36 @@
 
 namespace cooperative_perception
 {
-
 constexpr utils::Visitor uuid_visitor{ [](const auto& entity) { return entity.uuid; } };
 
-constexpr utils::Visitor euclidean_distance_visitor{
-  [](const auto& track,
-     const auto& object) -> std::enable_if_t<std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
+constexpr utils::Visitor euclidean_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
+  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
+  {
     return euclidean_distance(track.state, object.state);
-  },
-  [](const auto& track,
-     const auto& object) -> std::enable_if_t<!std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
-    throw std::invalid_argument("Track and object states are incompatible for calculating distance.");
-  },
-};
+  }
+  else
+  {
+    return std::nullopt;
+  }
+} };
 
-constexpr utils::Visitor mahalanobis_distance_visitor{
-  [](const auto& track,
-     const auto& object) -> std::enable_if_t<std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
+constexpr utils::Visitor mahalanobis_distance_visitor{ [](const auto& track,
+                                                          const auto& object) -> std::optional<float> {
+  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
+  {
     return mahalanobis_distance(track.state, track.covariance, object.state);
-  },
-  [](const auto& track,
-     const auto& object) -> std::enable_if_t<!std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
-    throw std::invalid_argument("Track and object states are incompatible for calculating distance.");
-  },
-};
+  }
+  else
+  {
+    return std::nullopt;
+  }
+} };
 
 template <typename DistanceVisitor>
 auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects,
                               const DistanceVisitor& distance_visitor)
 {
-  std::map<std::pair<std::string, std::string>, float> scores;
+  std::map<std::pair<std::string, std::string>, std::optional<float>> scores;
 
   for (const auto& track : tracks)
   {
