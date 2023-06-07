@@ -25,58 +25,52 @@
 #include <map>
 #include <utility>
 #include <type_traits>
+#include <stdexcept>
 
 #include "cooperative_perception/track.hpp"
 #include "cooperative_perception/detected_object.hpp"
-#include "cooperative_perception/ctra_model.hpp"
-#include "cooperative_perception/ctrv_model.hpp"
 
 namespace cooperative_perception
 {
-template <typename DetectedObject, typename Track>
-auto mahalanobis_distance(DetectedObject object, Track track) -> float
-{
-  return mahalanobis_distance(track.state, track.covariance, object.state);
-}
+constexpr utils::Visitor uuid_visitor{ [](const auto& entity) { return entity.uuid; } };
 
-template <typename DetectedObject, typename Track>
-auto euclidean_distance(DetectedObject object, Track track) -> float
-{
-  return euclidean_distance(object.state, track.state);
-}
-
-constexpr utils::Visitor kUuidExtractor{ [](const auto& entity) { return entity.uuid; } };
-constexpr utils::Visitor kEuclideanDistanceGetter{
-  [](const auto& track,
-     const auto& object) -> std::enable_if_t<std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
+constexpr utils::Visitor euclidean_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
+  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
+  {
     return euclidean_distance(track.state, object.state);
-  },
-  [](const auto& track, const auto& object)
-      -> std::enable_if_t<!std::is_same_v<decltype(track.state), decltype(object.state)>, float> { return -1.0F; },
-};
-constexpr utils::Visitor kMahalanobisDistanceGetter{
-  [](const auto& track,
-     const auto& object) -> std::enable_if_t<std::is_same_v<decltype(track.state), decltype(object.state)>, float> {
+  }
+  else
+  {
+    return std::nullopt;
+  }
+} };
+
+constexpr utils::Visitor mahalanobis_distance_visitor{ [](const auto& track,
+                                                          const auto& object) -> std::optional<float> {
+  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
+  {
     return mahalanobis_distance(track.state, track.covariance, object.state);
-  },
-  [](const auto& track, const auto& object)
-      -> std::enable_if_t<!std::is_same_v<decltype(track.state), decltype(object.state)>, float> { return -1.0F; },
-};
+  }
+  else
+  {
+    return std::nullopt;
+  }
+} };
 
 template <typename DistanceVisitor>
 auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects,
-                              const DistanceVisitor& distance_metric)
+                              const DistanceVisitor& distance_visitor)
 {
-  std::map<std::pair<std::string, std::string>, float> scores;
+  std::map<std::pair<std::string, std::string>, std::optional<float>> scores;
 
   for (const auto& track : tracks)
   {
-    const auto track_uuid = std::visit(kUuidExtractor, track);
+    const auto track_uuid = std::visit(uuid_visitor, track);
 
     for (const auto& object : objects)
     {
-      const auto object_uuid = std::visit(kUuidExtractor, object);
-      scores[std::pair{ track_uuid, object_uuid }] = std::visit(distance_metric, track, object);
+      const auto object_uuid = std::visit(uuid_visitor, object);
+      scores[std::pair{ track_uuid, object_uuid }] = std::visit(distance_visitor, track, object);
     }
   }
 
