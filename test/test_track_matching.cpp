@@ -55,3 +55,24 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
 
   EXPECT_DOUBLE_EQ(expected_optimal_cost, result_optimal_cost);
 }
+
+TEST(TestTrackMatching, Example)
+{
+  using namespace dlib;
+
+  int n = 3;
+  matrix<int> test(n, n);
+  for (int i = 0; i < n * n; i++)
+  {
+    test(i) = i;
+  }
+  std::cout << test << std::endl;
+
+  matrix<int> cost(3, 2);
+  cost = 1, 2, 6, 5, 3, 6;
+  std::vector<long> result_assignment = max_cost_assignment(cost);
+  for (int i = 0; i < result_assignment.size(); i++)
+  {
+    std::cout << result_assignment[i] << std::endl;
+  }
+}
