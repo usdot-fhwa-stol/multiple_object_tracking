@@ -22,43 +22,85 @@
 #define COOPERATIVE_PERCEPTION_TRACK_MATCHING_HPP
 
 #include "cooperative_perception/track.hpp"
-#include <cooperative_perception/scoring.hpp>
+#include "cooperative_perception/scoring.hpp"
 #include "cooperative_perception/detected_object.hpp"
+#include <map>
+#include <vector>
+#include <string>
 #include <dlib/optimization/max_cost_assignment.h>
 
 namespace cooperative_perception
 {
-void assign_objects_to_tracks(const std::vector<DetectedObject> objects, std::vector<Track> tracks)
+using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
+using AssociationMap = std::map<std::string, std::vector<std::string>>;
+
+struct EuclideanScorer
 {
-  using namespace dlib;
-  // Steps for assigning tracks to object
-
-  // Step 1: Score each object versus each track using Mahalanobis distance
-  std::vector<float> scores;
-
-  for (int i = 0; i < tracks.size(); i++)
+  template <typename ObjectType, typename TrackType>
+  auto score(ObjectType object, TrackType track) -> float
   {
-    for (int j = 0; i < objects.size(); i++)
+    return euclidean_distance(object, track);
+  }
+};
+
+struct MahalanobisScorer
+{
+  template <typename ObjectType, typename TrackType>
+  auto score(ObjectType object, TrackType track) -> float
+  {
+    return mahalanobis_distance(object, track);
+  }
+};
+
+template <typename Scorer, typename TrackType, typename ObjectType>
+auto score(Scorer scorer, const std::vector<TrackType>& tracks, const std::vector<ObjectType>& objects) -> ScoreMap
+{
+  ScoreMap scores;
+
+  for (const auto& track : tracks)
+  {
+    for (const auto& object : objects)
     {
-      scores.push_back(mahalanobis_distance(object[j], tracks[i]));
+      scores[{ track.uuid, object.uuid }] = scorer.score(track, object);
+      std::cout << "Track uuid: " << track.uuid << " Object uuid: " << object.uuid << "\n";
     }
   }
 
-  // Step 2: Using the scores, build up a cost matrix that the dlib library can interpret
-  matrix<int> cost(tracks.size(), objects.size());
+  return scores;
+}
 
-  for (int i = 0; i < scores.size(); i++)
+template <typename TrackType, typename ObjectType>
+void assign_objects_to_tracks(const std::vector<TrackType> objects, std::vector<ObjectType> tracks)
+{
+  //   using namespace dlib;
+  // Steps for assigning tracks to object
+
+  // Step 1: Score each object versus each track using Mahalanobis distance
+  const auto scores = score(MahalanobisScorer(), tracks, objects);
+
+  for (const auto& pair : scores)
   {
-    cost(i) = scores[i];
+    std::cout << "Key: " << pair.first.first << pair.first.second << ", Value: " << pair.second << std::endl;
   }
 
+  std::cout << "Hello! \n";
+
+  // Step 2: Using the scores, build up a cost matrix that the dlib library can interpret
+  //   matrix<int> cost(tracks.size(), objects.size());
+
+  //   for (int i = 0; i < scores.size(); i++)
+  //   {
+  //     cost(i) = scores[i];
+  //   }
+
   // Step 3: Call the max_cost_assignment function and get the assignment row vector
-  std::vector<long> assignment = max_cost_assignment(cost);
+  //   std::vector<long> assignment = max_cost_assignment(cost);
 
   // Step 4: Once each object is matched with each track, we add the object uuid to the track
 
   // added detected object uuid to matched tracked
 }
+
 }  // namespace cooperative_perception
 
 #endif  // COOPERATIVE_PERCEPTION_TRACK_MATCHING_HPP

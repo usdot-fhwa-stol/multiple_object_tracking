@@ -22,6 +22,8 @@
 #include <dlib/optimization/max_cost_assignment.h>
 #include <cooperative_perception/track.hpp>
 #include <cooperative_perception/scoring.hpp>
+#include <cooperative_perception/detected_object.hpp>
+#include <cooperative_perception/track_matching.hpp>
 
 namespace cp = cooperative_perception;
 
@@ -58,21 +60,29 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
 
 TEST(TestTrackMatching, Example)
 {
-  using namespace dlib;
+  using namespace units::literals;
 
-  int n = 3;
-  matrix<int> test(n, n);
-  for (int i = 0; i < n * n; i++)
-  {
-    test(i) = i;
-  }
-  std::cout << test << std::endl;
+  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
-  matrix<int> cost(3, 2);
-  cost = 1, 2, 6, 5, 3, 6;
-  std::vector<long> result_assignment = max_cost_assignment(cost);
-  for (int i = 0; i < result_assignment.size(); i++)
-  {
-    std::cout << result_assignment[i] << std::endl;
-  }
+  const auto object =
+      TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } }.uuid{} };
+
+  const auto track = TestTrack{ .state{ cp::CtraState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq } },
+                                .covariance{ cp::CtraStateCovariance{
+                                    { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
+                                    { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
+                                    { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
+                                    { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
+                                    { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
+                                    { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
+                                } } };
+
+  std::vector<TestObject> objects;
+  objects.push_back(object);
+
+  std::vector<TestTrack> tracks;
+  tracks.push_back(track);
+
+  cp::assign_objects_to_tracks(objects, tracks);
 }
