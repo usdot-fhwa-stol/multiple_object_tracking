@@ -65,24 +65,35 @@ TEST(TestTrackMatching, Example)
   using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
-  const auto object =
-      TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } }.uuid{} };
+  const std::vector<cp::TrackType> tracks{
+    TestTrack{ .state{ cp::CtraState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq } },
+               .covariance{ cp::CtraStateCovariance{
+                   { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
+                   { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
+                   { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
+                   { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
+                   { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
+                   { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
+               } },
+               .uuid{ "test_track1" } },
+    TestTrack{ .state{ cp::CtraState{ 8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq } },
+               .covariance{ cp::CtraStateCovariance{
+                   { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
+                   { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
+                   { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
+                   { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
+                   { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
+                   { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
+               } },
+               .uuid{ "test_track2" } }
+  };
 
-  const auto track = TestTrack{ .state{ cp::CtraState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq } },
-                                .covariance{ cp::CtraStateCovariance{
-                                    { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
-                                    { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
-                                    { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
-                                    { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
-                                    { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
-                                    { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
-                                } } };
-
-  std::vector<TestObject> objects;
-  objects.push_back(object);
-
-  std::vector<TestTrack> tracks;
-  tracks.push_back(track);
+  const std::vector<cp::DetectedObjectType> objects{
+    TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
+                .uuid{ "test_object1" } },
+    TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
+                .uuid{ "test_object2" } }
+  };
 
   cp::assign_objects_to_tracks(objects, tracks);
 }

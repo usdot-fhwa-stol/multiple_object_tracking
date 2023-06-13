@@ -59,10 +59,13 @@ auto score(Scorer scorer, const std::vector<TrackType>& tracks, const std::vecto
 
   for (const auto& track : tracks)
   {
+    const auto track_uuid = std::visit(kUuidExtractor, track);
+
     for (const auto& object : objects)
     {
-      scores[{ track.uuid, object.uuid }] = scorer.score(track, object);
-      std::cout << "Track uuid: " << track.uuid << " Object uuid: " << object.uuid << "\n";
+      const auto object_uuid = std::visit(kUuidExtractor, object);
+      scores[{ track_uuid, object_uuid }] = scorer.score(track, object);
+      std::cout << "Track uuid: " << object_uuid << " Object uuid: " << object_uuid << "\n";
     }
   }
 
