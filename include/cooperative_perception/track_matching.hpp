@@ -34,44 +34,6 @@ namespace cooperative_perception
 using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
 using AssociationMap = std::map<std::string, std::vector<std::string>>;
 
-struct EuclideanScorer
-{
-  template <typename ObjectType, typename TrackType>
-  auto score(ObjectType object, TrackType track) -> float
-  {
-    return euclidean_distance(object, track);
-  }
-};
-
-struct MahalanobisScorer
-{
-  template <typename ObjectType, typename TrackType>
-  auto score(ObjectType object, TrackType track) -> float
-  {
-    return mahalanobis_distance(object, track);
-  }
-};
-
-template <typename Scorer, typename TrackType, typename ObjectType>
-auto score(Scorer scorer, const std::vector<TrackType>& tracks, const std::vector<ObjectType>& objects) -> ScoreMap
-{
-  ScoreMap scores;
-
-  for (const auto& track : tracks)
-  {
-    const auto track_uuid = std::visit(kUuidExtractor, track);
-
-    for (const auto& object : objects)
-    {
-      const auto object_uuid = std::visit(kUuidExtractor, object);
-      scores[{ track_uuid, object_uuid }] = scorer.score(track, object);
-      std::cout << "Track uuid: " << object_uuid << " Object uuid: " << object_uuid << "\n";
-    }
-  }
-
-  return scores;
-}
-
 template <typename TrackType, typename ObjectType>
 void assign_objects_to_tracks(const std::vector<TrackType> objects, std::vector<ObjectType> tracks)
 {
@@ -79,12 +41,12 @@ void assign_objects_to_tracks(const std::vector<TrackType> objects, std::vector<
   // Steps for assigning tracks to object
 
   // Step 1: Score each object versus each track using Mahalanobis distance
-  const auto scores = score(MahalanobisScorer(), tracks, objects);
+  //   const auto scores = score(MahalanobisScorer(), tracks, objects);
 
-  for (const auto& pair : scores)
-  {
-    std::cout << "Key: " << pair.first.first << pair.first.second << ", Value: " << pair.second << std::endl;
-  }
+  //   for (const auto& pair : scores)
+  //   {
+  //     std::cout << "Key: " << pair.first.first << pair.first.second << ", Value: " << pair.second << std::endl;
+  //   }
 
   std::cout << "Hello! \n";
 
