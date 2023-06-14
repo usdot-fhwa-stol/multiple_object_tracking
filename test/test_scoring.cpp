@@ -19,7 +19,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <cooperative_perception/detected_object.hpp>
+#include <cooperative_perception/detection.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/track.hpp>
 #include <cooperative_perception/scoring.hpp>

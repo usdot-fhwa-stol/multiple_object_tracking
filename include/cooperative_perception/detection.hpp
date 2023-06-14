@@ -18,8 +18,8 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_DETECTED_OBJECT_HPP
-#define COOPERATIVE_PERCEPTION_DETECTED_OBJECT_HPP
+#ifndef COOPERATIVE_PERCEPTION_DETECTION_HPP
+#define COOPERATIVE_PERCEPTION_DETECTION_HPP
 
 #include <variant>
 #include <map>
@@ -88,4 +88,4 @@ using DetectionCache = std::map<std::string, DetectionType>;
 
 }  // namespace cooperative_perception
 
-#endif  // COOPERATIVE_PERCEPTION_DETECTED_OBJECT_HPP
+#endif  // COOPERATIVE_PERCEPTION_DETECTION_HPP

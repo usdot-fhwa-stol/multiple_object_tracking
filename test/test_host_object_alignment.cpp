@@ -22,7 +22,7 @@
 #include <cooperative_perception/utils.hpp>
 #include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/detected_object.hpp>
+#include <cooperative_perception/detection.hpp>
 #include <cooperative_perception/temporal_alignment.hpp>
 #include <units.h>
 

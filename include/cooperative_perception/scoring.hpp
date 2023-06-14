@@ -28,7 +28,7 @@
 #include <stdexcept>
 
 #include "cooperative_perception/track.hpp"
-#include "cooperative_perception/detected_object.hpp"
+#include "cooperative_perception/detection.hpp"
 
 namespace cooperative_perception
 {

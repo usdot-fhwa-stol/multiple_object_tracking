@@ -25,7 +25,7 @@
 #include <units.h>
 #include "cooperative_perception/covariance_calibration.hpp"
 #include "cooperative_perception/unscented_transform.hpp"
-#include "cooperative_perception/detected_object.hpp"
+#include "cooperative_perception/detection.hpp"
 #include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
