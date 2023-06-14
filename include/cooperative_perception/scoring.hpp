@@ -58,7 +58,7 @@ constexpr utils::Visitor mahalanobis_distance_visitor{ [](const auto& track,
 } };
 
 template <typename DistanceVisitor>
-auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects,
+auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectionType>& objects,
                               const DistanceVisitor& distance_visitor)
 {
   std::map<std::pair<std::string, std::string>, std::optional<float>> scores;

@@ -38,7 +38,7 @@ namespace cooperative_perception
  * @tparam CovarianceType Covariance matrix type for object's motion model
  */
 template <typename StateType, typename CovarianceType>
-struct DetectedObject
+struct Detection
 {
   units::time::second_t timestamp;
   StateType state;
@@ -47,44 +47,44 @@ struct DetectedObject
 };
 
 /**
- * @brief DetectedObject specialization for a vehicle using the CTRV motion model
+ * @brief Detection specialization for a vehicle using the CTRV motion model
  */
-using CtrvVehicleObject = DetectedObject<CtrvState, CtrvStateCovariance>;
+using CtrvVehicleObject = Detection<CtrvState, CtrvStateCovariance>;
 
 /**
- * @brief DetectedObject specialization for a vehicle using the CTRA motion model.
+ * @brief Detection specialization for a vehicle using the CTRA motion model.
  */
-using CtraVehicleObject = DetectedObject<CtraState, CtraStateCovariance>;
+using CtraVehicleObject = Detection<CtraState, CtraStateCovariance>;
 
 /**
- * @brief Aggregation of all DetectedObject specializations
+ * @brief Aggregation of all Detection specializations
  *
- * This type contains all the DetectedObject types supported by the library. It can be used to refer
- * generically to any DetectedObject and allows all DetectedObject types to be stored in the same container.
+ * This type contains all the Detection types supported by the library. It can be used to refer
+ * generically to any Detection and allows all Detection types to be stored in the same container.
  */
-using DetectedObjectType = std::variant<CtrvVehicleObject, CtraVehicleObject>;
+using DetectionType = std::variant<CtrvVehicleObject, CtraVehicleObject>;
 
 /**
- * @brief Maximum number of DetectedObjects that can be stored at a time
+ * @brief Maximum number of Detections that can be stored at a time
  *
- * To help ensure the system executes in a timely manner, the number of concurrent DetectedObjects that are being
+ * To help ensure the system executes in a timely manner, the number of concurrent Detections that are being
  * tracked is limited.
  */
-inline constexpr auto kMaxDetectedObjects{ 200U };
+inline constexpr auto kMaxDetections{ 200U };
 
 /**
- * @brief Container for DetectedObject variables
+ * @brief Container for Detection variables
  */
-using DetectedObjectList = boost::container::static_vector<DetectedObjectType, kMaxDetectedObjects>;
+using DetectionList = boost::container::static_vector<DetectionType, kMaxDetections>;
 
 /**
- * @brief A data store that caches the most recent DetectedObjects
+ * @brief A data store that caches the most recent Detections
  *
  *  BSM and SDSM messages report a TemporaryID, which may be assumed to be unique during
  *  a CDA CP interaction. This TemporaryID will be treated as a unique string that is associated
- *  with the most recent DetectedObject with that ID.
+ *  with the most recent Detection with that ID.
  */
-using DetectedObjectCache = std::map<std::string, DetectedObjectType>;
+using DetectionCache = std::map<std::string, DetectionType>;
 
 }  // namespace cooperative_perception
 

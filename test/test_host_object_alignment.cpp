@@ -51,8 +51,7 @@ TEST(TestHostObjectAlignment, TemporalAlignment)
                                                      { -0.0240175, 0.0333096, 0.000800002, 0.0223, 0.0123 } };
 
   // Created DetectObject that will be temporally align
-  auto object =
-      cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
+  auto object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
   alignToTime(object, time_step);
@@ -84,8 +83,7 @@ TEST(TestHostObjectAlignment, TemporalAlignmentFiveSeconds)
                                                      { -2.19491, 0.00421134, 0.00470001, 0.4173, 0.0715 },
                                                      { -0.375167, -0.000232116, 0.000800001, 0.0715, 0.0123 } };
   // Created DetectObject that will be temporally align
-  auto object =
-      cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
+  auto object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
   alignToTime(object, time_step);

@@ -31,7 +31,7 @@ TEST(TestScoring, CtrvEuclideanDistance)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>;
+  using TestObject = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
   using TestTrack = cp::Track<cp::CtrvState, cp::CtrvStateCovariance>;
 
   const auto object = TestObject{ .state{ cp::CtrvState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s } } };
@@ -46,7 +46,7 @@ TEST(TestScoring, CtrvMahalanobisDistance)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>;
+  using TestObject = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
   using TestTrack = cp::Track<cp::CtrvState, cp::CtrvStateCovariance>;
 
   const auto object = TestObject{ .state{ cp::CtrvState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s } } };
@@ -67,7 +67,7 @@ TEST(TestScoring, CtraEuclideanDistance)
 {
   using namespace units::literals;
 
-  const auto object = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>{
+  const auto object = cp::Detection<cp::CtraState, cp::CtraStateCovariance>{
     units::time::second_t{ 0 }, cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq }
   };
 
@@ -83,7 +83,7 @@ TEST(TestScoring, CtraMahalanobisDistance)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const auto object = TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } } };
@@ -106,7 +106,7 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const std::vector<cp::TrackType> tracks{
@@ -118,13 +118,13 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
                                                        .uuid{ "test_track3" } }
   };
 
-  const std::vector<cp::DetectedObjectType> objects{
+  const std::vector<cp::DetectionType> objects{
     TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
                 .uuid{ "test_object1" } },
     TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
                 .uuid{ "test_object2" } },
-    cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>{
-        .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s }, .uuid{ "test_object3" } }
+    cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s },
+                                                           .uuid{ "test_object3" } }
   };
 
   const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::euclidean_distance_visitor);
@@ -157,7 +157,7 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const std::vector<cp::TrackType> tracks{
@@ -191,13 +191,13 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
         .uuid{ "test_track3" } }
   };
 
-  const std::vector<cp::DetectedObjectType> objects{
+  const std::vector<cp::DetectionType> objects{
     TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
                 .uuid{ "test_object1" } },
     TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
                 .uuid{ "test_object2" } },
-    cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>{
-        .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s }, .uuid{ "test_object3" } }
+    cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s },
+                                                           .uuid{ "test_object3" } }
   };
 
   const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::mahalanobis_distance_visitor);
