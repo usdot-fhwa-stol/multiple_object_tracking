@@ -95,5 +95,5 @@ TEST(TestTrackMatching, Example)
                 .uuid{ "test_object2" } }
   };
 
-  cp::assign_objects_to_tracks(objects, tracks);
+  // cp::assign_objects_to_tracks(objects, tracks);
 }

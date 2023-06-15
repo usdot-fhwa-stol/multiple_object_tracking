@@ -31,39 +31,22 @@
 
 namespace cooperative_perception
 {
-using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
-using AssociationMap = std::map<std::string, std::vector<std::string>>;
+// association_visitor
 
-template <typename TrackType, typename ObjectType>
-void assign_objects_to_tracks(const std::vector<TrackType> objects, std::vector<ObjectType> tracks)
+template <typename AssociationVisitor>
+auto associate_objects_to_tracks(std::map<std::pair<std::string, std::string>, std::optional<float>> gated_scores,
+                                 const AssociationVisitor& association_visitor)
+    -> std::map<std::string, std::vector<std::string>>
 {
   //   using namespace dlib;
-  // Steps for assigning tracks to object
+  std::map<std::string, std::vector<std::string>> associations;
 
-  // Step 1: Score each object versus each track using Mahalanobis distance
-  //   const auto scores = score(MahalanobisScorer(), tracks, objects);
+  for (const auto& [uuid_pair, score] : gated_scores)
+  {
+    associations[uuid_pair.first] = std::visit(association_visitor, uuid_pair.first, gated_scores);
+  }
 
-  //   for (const auto& pair : scores)
-  //   {
-  //     std::cout << "Key: " << pair.first.first << pair.first.second << ", Value: " << pair.second << std::endl;
-  //   }
-
-  std::cout << "Hello! \n";
-
-  // Step 2: Using the scores, build up a cost matrix that the dlib library can interpret
-  //   matrix<int> cost(tracks.size(), objects.size());
-
-  //   for (int i = 0; i < scores.size(); i++)
-  //   {
-  //     cost(i) = scores[i];
-  //   }
-
-  // Step 3: Call the max_cost_assignment function and get the assignment row vector
-  //   std::vector<long> assignment = max_cost_assignment(cost);
-
-  // Step 4: Once each object is matched with each track, we add the object uuid to the track
-
-  // added detected object uuid to matched tracked
+  return associations;
 }
 
 }  // namespace cooperative_perception
