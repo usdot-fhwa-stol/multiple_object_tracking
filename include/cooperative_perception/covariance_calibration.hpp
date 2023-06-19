@@ -21,17 +21,17 @@
 #ifndef COOPERATIVE_PERCEPTION_COVARIANCE_CALIBRATION_HPP
 #define COOPERATIVE_PERCEPTION_COVARIANCE_CALIBRATION_HPP
 
-#include "cooperative_perception/detected_object.hpp"
+#include "cooperative_perception/detection.hpp"
 
 namespace cooperative_perception
 {
 /**
  * @brief Covariance Calibration
  *
- * @tparam DetectedObjectType for whose covariance needs to be calibrated
+ * @tparam DetectionType for whose covariance needs to be calibrated
  */
-template <typename DetectedObjectType>
-auto calibrateCovariance(DetectedObjectType object) -> void
+template <typename DetectionType>
+auto calibrateCovariance(DetectionType object) -> void
 {
   // TODO: Implement covariance calibration algorithm here
   // Covariance calibration magic here
