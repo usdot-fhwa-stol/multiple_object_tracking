@@ -25,7 +25,7 @@
 #include <units.h>
 #include "cooperative_perception/covariance_calibration.hpp"
 #include "cooperative_perception/unscented_transform.hpp"
-#include "cooperative_perception/detected_object.hpp"
+#include "cooperative_perception/detection.hpp"
 #include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
@@ -41,15 +41,15 @@ constexpr utils::Visitor kStatePropagator{ [](auto& object, units::time::second_
 } };
 
 /**
- * @brief Get predicted DetectedObject for specified time
+ * @brief Get predicted Detection for specified time
  *
- * @param object DetectedObjectType being predicted
+ * @param object DetectionType being predicted
  * @param time Prediction time
- * @return DetectedObjectType whose state corresponds to the specified time
+ * @return DetectionType whose state corresponds to the specified time
  */
-auto objectAtTime(const DetectedObjectType& object, units::time::second_t time) -> DetectedObjectType
+auto objectAtTime(const DetectionType& object, units::time::second_t time) -> DetectionType
 {
-  DetectedObjectType new_object{ object };
+  DetectionType new_object{ object };
 
   std::visit(kStatePropagator, new_object, std::variant<units::time::second_t>(time));
 
@@ -57,18 +57,18 @@ auto objectAtTime(const DetectedObjectType& object, units::time::second_t time) 
 };
 
 /**
- * @brief Get predicted DetectedObjects for specified time
+ * @brief Get predicted Detections for specified time
  *
- * @param objects List of DetectedObjectTypes being predicted
+ * @param objects List of DetectionTypes being predicted
  * @param time Prediction time
- * @return List of DetectedObjectTypes, each of whose state corresponds to the specified time
+ * @return List of DetectionTypes, each of whose state corresponds to the specified time
  */
-auto objectsAtTime(const DetectedObjectList& objects, units::time::second_t time) -> DetectedObjectList
+auto objectsAtTime(const DetectionList& objects, units::time::second_t time) -> DetectionList
 {
-  DetectedObjectList new_objects{ objects };
+  DetectionList new_objects{ objects };
 
   std::transform(std::cbegin(new_objects), std::cend(new_objects), std::begin(new_objects),
-                 [time](const DetectedObjectType& object) { return objectAtTime(object, time); });
+                 [time](const DetectionType& object) { return objectAtTime(object, time); });
 
   return new_objects;
 }
@@ -76,12 +76,12 @@ auto objectsAtTime(const DetectedObjectList& objects, units::time::second_t time
 /**
  * @brief Temporally align object to a specific time step
  *
- * @param object DetectedObjectType being predicted
+ * @param object DetectionType being predicted
  * @param time Prediction time
  * @return None, object is updated in place
  */
-template <typename DetectedObject>
-auto alignToTime(DetectedObject& object, units::time::second_t time) -> void
+template <typename Detection>
+auto alignToTime(Detection& object, units::time::second_t time) -> void
 {
   calibrateCovariance(object);
   auto [state, covariance] = computeUnscentedTransform(object.state, object.covariance, time - object.timestamp);
