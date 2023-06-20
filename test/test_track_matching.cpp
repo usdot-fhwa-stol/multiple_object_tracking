@@ -22,7 +22,7 @@
 #include <dlib/optimization/max_cost_assignment.h>
 #include <cooperative_perception/track.hpp>
 #include <cooperative_perception/scoring.hpp>
-#include <cooperative_perception/detected_object.hpp>
+#include <cooperative_perception/detection.hpp>
 #include <cooperative_perception/track_matching.hpp>
 
 namespace cp = cooperative_perception;
@@ -62,7 +62,7 @@ TEST(TestTrackMatching, Example)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const std::vector<cp::TrackType> tracks{
@@ -88,7 +88,7 @@ TEST(TestTrackMatching, Example)
                .uuid{ "test_track2" } }
   };
 
-  const std::vector<cp::DetectedObjectType> objects{
+  const std::vector<cp::DetectionType> objects{
     TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
                 .uuid{ "test_object1" } },
     TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },

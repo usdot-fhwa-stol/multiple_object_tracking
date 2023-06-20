@@ -23,7 +23,7 @@
 
 #include "cooperative_perception/track.hpp"
 #include "cooperative_perception/scoring.hpp"
-#include "cooperative_perception/detected_object.hpp"
+#include "cooperative_perception/detection.hpp"
 #include <map>
 #include <vector>
 #include <string>
