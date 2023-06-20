@@ -20,47 +20,32 @@
 
 #ifndef COOPERATIVE_PERCEPTION_GATING_HPP
 #define COOPERATIVE_PERCEPTION_GATING_HPP
-#include <vector>
-#include <map>
-#include <utility>
-#include <type_traits>
-#include <stdexcept>
 
-#include "cooperative_perception/track.hpp"
-#include "cooperative_perception/detected_object.hpp"
+#include <vector>
+
+#include "cooperative_perception/scoring.hpp"
 
 namespace cooperative_perception
 {
-constexpr utils::Visitor euclidean_gating_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
-  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
-  {
-    return mahalanobis_distance(track.state, track.covariance, object.state);
-  }
-  else
-  {
-    return std::nullopt;
-  }
-} };
-
-template <typename GatingVisitor>
-auto gate_scores(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects,
-                 const GatingVisitor& gating_visitor)
-    -> std::map<std::pair<std::string, std::string>, std::optional<float>>
+template <typename UnaryPredicate>
+auto pruneTrackAndDetectionScoresIf(ScoreMap& scores, UnaryPredicate should_prune) -> void
 {
-  std::map<std::pair<std::string, std::string>, std::optional<float>> gated_scores;
-  for (const auto& track : tracks)
-  {
-    const auto track_uuid = std::visit(uuid_visitor, track);
+  std::vector<std::pair<std::string, std::string>> keys_to_prune;
 
-    for (const auto& object : objects)
+  for (const auto& [key, score] : scores)
+  {
+    if (should_prune(score))
     {
-      const auto object_uuid = std::visit(uuid_visitor, object);
-      gated_scores[std::pair{ track_uuid, object_uuid }] = std::visit(gating_visitor, track, object);
+      keys_to_prune.emplace_back(key);
     }
   }
 
-  return gated_scores;
+  for (const auto& key : keys_to_prune)
+  {
+    scores.erase(key);
+  }
 }
+
 }  // namespace cooperative_perception
 
 #endif  // COOPERATIVE_PERCEPTION_GATING_HPP

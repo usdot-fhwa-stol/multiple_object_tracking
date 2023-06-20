@@ -28,18 +28,59 @@
 #include <vector>
 #include <string>
 #include <dlib/optimization/max_cost_assignment.h>
+#include <dlib/matrix.h>
 
 namespace cooperative_perception
 {
+using AssociationMap = std::map<std::string, std::vector<std::string>>;
+
+auto scoreMatrixFromScoreMap(const ScoreMap& scores) -> dlib::matrix<float>
+{
+  std::vector<float> values;
+  std::set<std::string> trackSet;
+  std::set<std::string> detectionSet;
+
+  // Extract values and track/detection uuids from the ScoreMap
+  for (const auto& pair : scores)
+  {
+    values.push_back(pair.second);
+    trackSet.insert(pair.first.first);
+    detectionSet.insert(pair.first.second);
+  }
+
+  // Determine the number of tracks and detections
+  const long numTracks = trackSet.size();
+  const long numDetections = detectionSet.size();
+
+  // Create the dlib matrix with the appropriate size and initialize all values to zero
+  dlib::matrix<float> output(numTracks, numDetections);
+  output = 0.0;
+
+  // Assign the values to the matrix
+  for (long r = 0; r < output.nr(); ++r)
+  {
+    for (long c = 0; c < output.nc(); ++c)
+    {
+      const auto& track_uuid = *std::next(trackSet.begin(), r);
+      const auto& detection_uuid = *std::next(detectionSet.begin(), c);
+      const auto& it = scores.find({ track_uuid, detection_uuid });
+      if (it != scores.end())
+      {
+        const auto& score = it->second;
+        output(r, c) = score;
+      }
+    }
+  }
+  return output;
+}
+
 // association_visitor
 
 template <typename AssociationVisitor>
-auto associate_objects_to_tracks(std::map<std::pair<std::string, std::string>, std::optional<float>> gated_scores,
-                                 const AssociationVisitor& association_visitor)
-    -> std::map<std::string, std::vector<std::string>>
+auto associate_objects_to_tracks(ScoreMap gated_scores, const AssociationVisitor& association_visitor) -> AssociationMap
 {
   //   using namespace dlib;
-  std::map<std::string, std::vector<std::string>> associations;
+  AssociationMap associations;
 
   for (const auto& [uuid_pair, score] : gated_scores)
   {
