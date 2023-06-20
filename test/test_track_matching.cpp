@@ -121,7 +121,10 @@ TEST(TestTrackMatching, Example)
                         { { "track2", "detection3" }, 10.0 },
                         { { "track3", "detection3" }, 10.0 } };
 
-  auto score = cp::scoreMatrixFromScoreMap(scores2);
+  // cp::AssociationMap associations{ { "track1", "detection3" }, { "track2", "detection2" }, { "track3", "detection1" }
+  // };
+
+  auto score = cp::scoreMatrixFromScoreMap(scores);
 
   auto cost = cp::costMatrixFromScoreMatrix(score);
   std::cout << score << "\n";
@@ -133,4 +136,10 @@ TEST(TestTrackMatching, Example)
   {
     std::cout << assignment << "\n";
   }
+
+  auto associations = cp::associationMapFromScoreMap(scores, assignments);
+
+  cp::printAssociationMap(associations);
+
+  std::cout << "Done! \n";
 }

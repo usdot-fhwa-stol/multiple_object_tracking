@@ -93,13 +93,67 @@ auto costMatrixFromScoreMatrix(const dlib::matrix<float>& scoreMatrix) -> dlib::
     {
       const float normalizedScore = scoreMatrix(r, c) / maxScore;
       const float costValue = 1.0 - normalizedScore;
-      const int scaledCost =
-          static_cast<int>(costValue * 100);  // Scale the value by multiplying by 100 and convert to int
+      // Scale the value by multiplying by 100 and convert to int
+      const int scaledCost = static_cast<int>(costValue * 100);
       costMatrix(r, c) = scaledCost;
     }
   }
 
   return costMatrix;
+}
+
+template <typename T>
+const T& getElementAt(const std::set<T>& s, size_t index)
+{
+  if (index >= s.size())
+  {
+    throw std::out_of_range("Index out of range");
+  }
+
+  auto it = s.begin();
+  std::advance(it, index);
+  return *it;
+}
+
+auto associationMapFromScoreMap(const ScoreMap& scores, const std::vector<long>& assignments) -> AssociationMap
+{
+  std::set<std::string> trackSet;
+  std::set<std::string> detectionSet;
+
+  // Extract values and track/detection uuids from the ScoreMap
+  for (const auto& pair : scores)
+  {
+    trackSet.insert(pair.first.first);
+    detectionSet.insert(pair.first.second);
+  }
+  // Create the AssociationMap
+  AssociationMap associations;
+
+  for (int i = 0; i < assignments.size(); i++)
+  {
+    auto track_uuid = getElementAt(trackSet, i);
+    auto detection_uuid = getElementAt(detectionSet, assignments[i]);
+    associations[track_uuid].push_back(detection_uuid);
+  }
+
+  return associations;
+}
+
+void printAssociationMap(const AssociationMap& associations)
+{
+  for (const auto& pair : associations)
+  {
+    const std::string& trackUUID = pair.first;
+    const std::vector<std::string>& detectionUUIDs = pair.second;
+
+    std::cout << "Track UUID: " << trackUUID << std::endl;
+    std::cout << "Assigned Detection UUIDs: ";
+    for (const std::string& detectionUUID : detectionUUIDs)
+    {
+      std::cout << detectionUUID << " ";
+    }
+    std::cout << std::endl << std::endl;
+  }
 }
 
 // association_visitor
