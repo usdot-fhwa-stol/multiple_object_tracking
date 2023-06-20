@@ -119,20 +119,18 @@ TEST(TestTrackMatching, Example)
 
   cp::ScoreMap scores2{ { { "track1", "detection1" }, 10 },
                         { { "track2", "detection3" }, 10.0 },
-                        { { "track3", "detection2" }, 10.0 } };
+                        { { "track3", "detection3" }, 10.0 } };
 
-  auto cost = cp::dlibMatrixFromScoreMap(scores);
+  auto score = cp::scoreMatrixFromScoreMap(scores2);
 
+  auto cost = cp::costMatrixFromScoreMatrix(score);
+  std::cout << score << "\n";
   std::cout << cost << "\n";
 
-  auto cost2 = cp::dlibMatrixFromScoreMap(scores2);
+  std::vector<long> assignments = max_cost_assignment(cost);
 
-  std::cout << cost2 << "\n";
-
-  // std::vector<long> assignments = max_cost_assignment(cost);
-
-  // for (const auto& assignment : assignments)
-  // {
-  //   std::cout << assignment << "\n";
-  // }
+  for (const auto& assignment : assignments)
+  {
+    std::cout << assignment << "\n";
+  }
 }

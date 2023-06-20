@@ -74,6 +74,34 @@ auto scoreMatrixFromScoreMap(const ScoreMap& scores) -> dlib::matrix<float>
   return output;
 }
 
+auto costMatrixFromScoreMatrix(const dlib::matrix<float>& scoreMatrix) -> dlib::matrix<int>
+{
+  // Determine the dimensions of the score matrix
+  const long numTracks = scoreMatrix.nr();
+  const long numDetections = scoreMatrix.nc();
+
+  // Find the maximum value in the score matrix
+  const float maxScore = dlib::max(scoreMatrix);
+
+  // Create the cost matrix with the same dimensions
+  dlib::matrix<int> costMatrix(numTracks, numDetections);
+
+  // Normalize the score matrix, subtract from 1, and convert to integer
+  for (long r = 0; r < numTracks; ++r)
+  {
+    for (long c = 0; c < numDetections; ++c)
+    {
+      const float normalizedScore = scoreMatrix(r, c) / maxScore;
+      const float costValue = 1.0 - normalizedScore;
+      const int scaledCost =
+          static_cast<int>(costValue * 100);  // Scale the value by multiplying by 100 and convert to int
+      costMatrix(r, c) = scaledCost;
+    }
+  }
+
+  return costMatrix;
+}
+
 // association_visitor
 
 template <typename AssociationVisitor>
