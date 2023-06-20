@@ -18,24 +18,16 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_COVARIANCE_CALIBRATION_HPP
-#define COOPERATIVE_PERCEPTION_COVARIANCE_CALIBRATION_HPP
+#ifndef COOPERATIVE_PERCEPTION_COMMON_VISITORS_HPP
+#define COOPERATIVE_PERCEPTION_COMMON_VISITORS_HPP
 
-#include "cooperative_perception/detection.hpp"
+#include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception
 {
-/**
- * @brief Covariance Calibration
- *
- * @tparam DetectionType for whose covariance needs to be calibrated
- */
-template <typename DetectionType>
-auto calibrateCovariance(DetectionType object) -> void
-{
-  // TODO: Implement covariance calibration algorithm here
-  // Covariance calibration magic here
-}
+
+constexpr Visitor uuid_visitor{ [](const auto& entity) { return entity.uuid; } };
+
 }  // namespace cooperative_perception
 
-#endif  // COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
+#endif  // COOPERATIVE_PERCEPTION_COMMON_VISITORS_HPP

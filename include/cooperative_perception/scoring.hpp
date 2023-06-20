@@ -23,18 +23,18 @@
 
 #include <vector>
 #include <map>
+#include <optional>
+#include <string>
 #include <utility>
-#include <type_traits>
-#include <stdexcept>
+#include <variant>
 
-#include "cooperative_perception/track.hpp"
-#include "cooperative_perception/detected_object.hpp"
+#include "cooperative_perception/common_visitors.hpp"
+#include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception
 {
-constexpr utils::Visitor uuid_visitor{ [](const auto& entity) { return entity.uuid; } };
 
-constexpr utils::Visitor euclidean_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
+constexpr Visitor euclidean_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
   if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
   {
     return euclidean_distance(track.state, object.state);
@@ -45,8 +45,7 @@ constexpr utils::Visitor euclidean_distance_visitor{ [](const auto& track, const
   }
 } };
 
-constexpr utils::Visitor mahalanobis_distance_visitor{ [](const auto& track,
-                                                          const auto& object) -> std::optional<float> {
+constexpr Visitor mahalanobis_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
   if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
   {
     return mahalanobis_distance(track.state, track.covariance, object.state);
@@ -57,20 +56,26 @@ constexpr utils::Visitor mahalanobis_distance_visitor{ [](const auto& track,
   }
 } };
 
-template <typename DistanceVisitor>
-auto score_tracks_and_objects(const std::vector<TrackType>& tracks, const std::vector<DetectedObjectType>& objects,
-                              const DistanceVisitor& distance_visitor)
+using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
+
+template <typename TrackType, typename DetectionType, typename MetricVisitor>
+auto scoreTracksAndDetections(const std::vector<TrackType>& tracks, const std::vector<DetectionType>& detections,
+                              const MetricVisitor& metric_visitor) -> ScoreMap
 {
-  std::map<std::pair<std::string, std::string>, std::optional<float>> scores;
+  ScoreMap scores;
 
   for (const auto& track : tracks)
   {
-    const auto track_uuid = std::visit(uuid_visitor, track);
+    const auto track_uuid{ std::visit(uuid_visitor, track) };
 
-    for (const auto& object : objects)
+    for (const auto& detection : detections)
     {
-      const auto object_uuid = std::visit(uuid_visitor, object);
-      scores[std::pair{ track_uuid, object_uuid }] = std::visit(distance_visitor, track, object);
+      const auto detection_uuid{ std::visit(uuid_visitor, detection) };
+
+      if (const auto score = std::visit(metric_visitor, track, detection); score.has_value())
+      {
+        scores[{ track_uuid, detection_uuid }] = score.value();
+      }
     }
   }
 

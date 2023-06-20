@@ -19,7 +19,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <cooperative_perception/detected_object.hpp>
+#include <cooperative_perception/detection.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/track.hpp>
 #include <cooperative_perception/scoring.hpp>
@@ -31,7 +31,7 @@ TEST(TestScoring, CtrvEuclideanDistance)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>;
+  using TestObject = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
   using TestTrack = cp::Track<cp::CtrvState, cp::CtrvStateCovariance>;
 
   const auto object = TestObject{ .state{ cp::CtrvState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s } } };
@@ -46,7 +46,7 @@ TEST(TestScoring, CtrvMahalanobisDistance)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>;
+  using TestObject = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
   using TestTrack = cp::Track<cp::CtrvState, cp::CtrvStateCovariance>;
 
   const auto object = TestObject{ .state{ cp::CtrvState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s } } };
@@ -67,7 +67,7 @@ TEST(TestScoring, CtraEuclideanDistance)
 {
   using namespace units::literals;
 
-  const auto object = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>{
+  const auto object = cp::Detection<cp::CtraState, cp::CtraStateCovariance>{
     units::time::second_t{ 0 }, cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq }
   };
 
@@ -83,7 +83,7 @@ TEST(TestScoring, CtraMahalanobisDistance)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const auto object = TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } } };
@@ -106,7 +106,7 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const std::vector<cp::TrackType> tracks{
@@ -118,26 +118,22 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
                                                        .uuid{ "test_track3" } }
   };
 
-  const std::vector<cp::DetectedObjectType> objects{
+  const std::vector<cp::DetectionType> objects{
     TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
                 .uuid{ "test_object1" } },
     TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
                 .uuid{ "test_object2" } },
-    cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>{
-        .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s }, .uuid{ "test_object3" } }
+    cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s },
+                                                           .uuid{ "test_object3" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::euclidean_distance_visitor);
+  const auto scores = cp::scoreTracksAndDetections(tracks, objects, cp::euclidean_distance_visitor);
 
-  const std::map<std::pair<std::string, std::string>, std::optional<float> > expected_scores{
+  const cp::ScoreMap expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 7.0710678 },
     { std::pair{ "test_track1", "test_object2" }, 5.7445626 },
-    { std::pair{ "test_track1", "test_object3" }, std::nullopt },
     { std::pair{ "test_track2", "test_object1" }, 7.2801099 },
     { std::pair{ "test_track2", "test_object2" }, 6.1644139 },
-    { std::pair{ "test_track2", "test_object3" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object1" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object2" }, std::nullopt },
     { std::pair{ "test_track3", "test_object3" }, 0.0 },
   };
 
@@ -145,11 +141,7 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
 
   for (const auto& [key, value] : scores)
   {
-    ASSERT_EQ(expected_scores.at(key).has_value(), value.has_value());
-    if (expected_scores.at(key).has_value())
-    {
-      EXPECT_FLOAT_EQ(expected_scores.at(key).value(), value.value());
-    }
+    EXPECT_FLOAT_EQ(expected_scores.at(key), value);
   }
 }
 
@@ -157,7 +149,7 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
 {
   using namespace units::literals;
 
-  using TestObject = cp::DetectedObject<cp::CtraState, cp::CtraStateCovariance>;
+  using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
   const std::vector<cp::TrackType> tracks{
@@ -191,26 +183,22 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
         .uuid{ "test_track3" } }
   };
 
-  const std::vector<cp::DetectedObjectType> objects{
+  const std::vector<cp::DetectionType> objects{
     TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
                 .uuid{ "test_object1" } },
     TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
                 .uuid{ "test_object2" } },
-    cp::DetectedObject<cp::CtrvState, cp::CtrvStateCovariance>{
-        .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s }, .uuid{ "test_object3" } }
+    cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ .state{ 1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s },
+                                                           .uuid{ "test_object3" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::mahalanobis_distance_visitor);
+  const auto scores = cp::scoreTracksAndDetections(tracks, objects, cp::mahalanobis_distance_visitor);
 
-  const std::map<std::pair<std::string, std::string>, std::optional<float> > expected_scores{
+  const cp::ScoreMap expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 122.35757 },
     { std::pair{ "test_track1", "test_object2" }, 90.688416 },
-    { std::pair{ "test_track1", "test_object3" }, std::nullopt },
     { std::pair{ "test_track2", "test_object1" }, 109.70312 },
     { std::pair{ "test_track2", "test_object2" }, 95.243896 },
-    { std::pair{ "test_track2", "test_object3" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object1" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object2" }, std::nullopt },
     { std::pair{ "test_track3", "test_object3" }, 0.0 },
   };
 
@@ -218,10 +206,6 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
 
   for (const auto& [key, value] : scores)
   {
-    ASSERT_EQ(expected_scores.at(key).has_value(), value.has_value());
-    if (expected_scores.at(key).has_value())
-    {
-      EXPECT_FLOAT_EQ(expected_scores.at(key).value(), value.value());
-    }
+    EXPECT_FLOAT_EQ(expected_scores.at(key), value);
   }
 }
