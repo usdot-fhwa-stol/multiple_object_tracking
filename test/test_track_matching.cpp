@@ -58,88 +58,80 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
   EXPECT_DOUBLE_EQ(expected_optimal_cost, result_optimal_cost);
 }
 
-TEST(TestTrackMatching, Example)
+TEST(TestTrackMatching, GnnAssociator)
 {
-  // using namespace units::literals;
-
-  // using TestObject = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
-  // using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
-
-  // const std::vector<cp::TrackType> tracks{
-  //   TestTrack{ .state{ cp::CtraState{ 6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq } },
-  //              .covariance{ cp::CtraStateCovariance{
-  //                  { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
-  //                  { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
-  //                  { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
-  //                  { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
-  //                  { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
-  //                  { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
-  //              } },
-  //              .uuid{ "test_track1" } },
-  //   TestTrack{ .state{ cp::CtraState{ 8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq } },
-  //              .covariance{ cp::CtraStateCovariance{
-  //                  { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5 },
-  //                  { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123 },
-  //                  { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34 },
-  //                  { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009 },
-  //                  { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021 },
-  //                  { 0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701 },
-  //              } },
-  //              .uuid{ "test_track2" } }
-  // };
-
-  // const std::vector<cp::DetectionType> objects{
-  //   TestObject{ .state{ cp::CtraState{ 1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq } },
-  //               .uuid{ "test_object1" } },
-  //   TestObject{ .state{ cp::CtraState{ 2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq } },
-  //               .uuid{ "test_object2" } }
-  // };
-
-  // cp::assign_objects_to_tracks(objects, tracks);
-
-  using namespace dlib;
-
-  // matrix<int> cost(3, 3);
-  // cost = 10, 2, 1, 2, 1, 10, 3, 10, 5;
-  // std::cout << cost << "\n";
-
-  // To find out the best assignment of people to jobs we just need to call this function.
-  // std::vector<long> assignments = max_cost_assignment(cost);
-
-  // for (const auto& assignment : assignments)
-  // {
-  //   std::cout << assignment << "\n";
-  // }
-
   cp::ScoreMap scores{ { { "track1", "detection1" }, 10 },  { { "track1", "detection2" }, 2.0 },
                        { { "track1", "detection3" }, 1.0 }, { { "track2", "detection1" }, 2.0 },
                        { { "track2", "detection2" }, 1.0 }, { { "track2", "detection3" }, 10.0 },
                        { { "track3", "detection1" }, 3.0 }, { { "track3", "detection2" }, 10.0 },
                        { { "track3", "detection3" }, 5.0 } };
 
-  cp::ScoreMap scores2{ { { "track1", "detection1" }, 10 },
-                        { { "track2", "detection3" }, 10.0 },
-                        { { "track3", "detection3" }, 10.0 } };
+  cp::AssociationMap expected_associations{ { "track1", { "detection3" } },
+                                            { "track2", { "detection2" } },
+                                            { "track3", { "detection1" } } };
 
-  // cp::AssociationMap associations{ { "track1", "detection3" }, { "track2", "detection2" }, { "track3", "detection1" }
-  // };
+  auto result_associations = cp::associateDetectionsToTracks(scores, cp::gnn_association_visitor);
 
-  // auto score = cp::scoreMatrixFromScoreMap(scores);
+  EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
 
-  // auto cost = cp::costMatrixFromScoreMatrix(score);
-  // std::cout << score << "\n";
-  // std::cout << cost << "\n";
+  // Compare expected_associations with result_associations
+  for (const auto& pair : expected_associations)
+  {
+    const std::string& track_uuid = pair.first;
+    const std::vector<std::string>& expected_detections = pair.second;
 
-  // std::vector<long> assignments = max_cost_assignment(cost);
+    // Check if track_uuid exists in result_associations
+    EXPECT_TRUE(result_associations.count(track_uuid) > 0);
 
-  // for (const auto& assignment : assignments)
-  // {
-  //   std::cout << assignment << "\n";
-  // }
+    // Get the corresponding vector of detections from result_associations
+    const std::vector<std::string>& result_detections = result_associations[track_uuid];
 
-  auto associations = cp::GnnAssociator(scores);
+    // Check if the expected and result detections have the same size
+    EXPECT_EQ(std::size(expected_detections), std::size(result_detections));
 
-  cp::printAssociationMap(associations);
+    // Check if each detection in expected_detections exists in result_detections
+    for (const auto& detection_uuid : expected_detections)
+    {
+      EXPECT_TRUE(std::find(result_detections.begin(), result_detections.end(), detection_uuid) !=
+                  result_detections.end());
+    }
+  }
+}
 
-  std::cout << "Done! \n";
+TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
+{
+  cp::ScoreMap scores{ { { "track1", "detection3" }, 1.0 },
+                       { { "track2", "detection2" }, 1.0 },
+                       { { "track3", "detection1" }, 1.0 } };
+
+  cp::AssociationMap expected_associations{ { "track1", { "detection3" } },
+                                            { "track2", { "detection2" } },
+                                            { "track3", { "detection1" } } };
+
+  auto result_associations = cp::associateDetectionsToTracks(scores, cp::gnn_association_visitor);
+
+  EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
+
+  // Compare expected_associations with result_associations
+  for (const auto& pair : expected_associations)
+  {
+    const std::string& track_uuid = pair.first;
+    const std::vector<std::string>& expected_detections = pair.second;
+
+    // Check if track_uuid exists in result_associations
+    EXPECT_TRUE(result_associations.count(track_uuid) > 0);
+
+    // Get the corresponding vector of detections from result_associations
+    const std::vector<std::string>& result_detections = result_associations[track_uuid];
+
+    // Check if the expected and result detections have the same size
+    EXPECT_EQ(std::size(expected_detections), std::size(result_detections));
+
+    // Check if each detection in expected_detections exists in result_detections
+    for (const auto& detection_uuid : expected_detections)
+    {
+      EXPECT_TRUE(std::find(result_detections.begin(), result_detections.end(), detection_uuid) !=
+                  result_detections.end());
+    }
+  }
 }
