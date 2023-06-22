@@ -124,20 +124,20 @@ TEST(TestTrackMatching, Example)
   // cp::AssociationMap associations{ { "track1", "detection3" }, { "track2", "detection2" }, { "track3", "detection1" }
   // };
 
-  auto score = cp::scoreMatrixFromScoreMap(scores);
+  // auto score = cp::scoreMatrixFromScoreMap(scores);
 
-  auto cost = cp::costMatrixFromScoreMatrix(score);
-  std::cout << score << "\n";
-  std::cout << cost << "\n";
+  // auto cost = cp::costMatrixFromScoreMatrix(score);
+  // std::cout << score << "\n";
+  // std::cout << cost << "\n";
 
-  std::vector<long> assignments = max_cost_assignment(cost);
+  // std::vector<long> assignments = max_cost_assignment(cost);
 
-  for (const auto& assignment : assignments)
-  {
-    std::cout << assignment << "\n";
-  }
+  // for (const auto& assignment : assignments)
+  // {
+  //   std::cout << assignment << "\n";
+  // }
 
-  auto associations = cp::associationMapFromScoreMap(scores, assignments);
+  auto associations = cp::GnnAssociator(scores);
 
   cp::printAssociationMap(associations);
 

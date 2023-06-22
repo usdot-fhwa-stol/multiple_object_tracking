@@ -34,11 +34,10 @@ namespace cooperative_perception
 {
 using AssociationMap = std::map<std::string, std::vector<std::string>>;
 
-auto scoreMatrixFromScoreMap(const ScoreMap& scores) -> dlib::matrix<float>
+auto scoreMatrixFromScoreMap(const ScoreMap& scores, std::set<std::string>& trackSet,
+                             std::set<std::string>& detectionSet) -> dlib::matrix<float>
 {
   std::vector<float> values;
-  std::set<std::string> trackSet;
-  std::set<std::string> detectionSet;
 
   // Extract values and track/detection uuids from the ScoreMap
   for (const auto& pair : scores)
@@ -115,31 +114,44 @@ const T& getElementAt(const std::set<T>& s, size_t index)
   return *it;
 }
 
-auto associationMapFromScoreMap(const ScoreMap& scores, const std::vector<long>& assignments) -> AssociationMap
+auto associationMapFromScoreMap(const ScoreMap& scores, const std::vector<long>& assignments,
+                                const std::set<std::string>& trackSet, const std::set<std::string>& detectionSet)
+    -> AssociationMap
 {
-  std::set<std::string> trackSet;
-  std::set<std::string> detectionSet;
-
-  // Extract values and track/detection uuids from the ScoreMap
-  for (const auto& pair : scores)
-  {
-    trackSet.insert(pair.first.first);
-    detectionSet.insert(pair.first.second);
-  }
   // Create the AssociationMap
   AssociationMap associations;
 
   for (int i = 0; i < assignments.size(); i++)
   {
-    auto track_uuid = getElementAt(trackSet, i);
-    auto detection_uuid = getElementAt(detectionSet, assignments[i]);
+    const auto& track_uuid = getElementAt(trackSet, i);
+    const auto& detection_uuid = getElementAt(detectionSet, assignments[i]);
     associations[track_uuid].push_back(detection_uuid);
   }
 
   return associations;
 }
 
-void printAssociationMap(const AssociationMap& associations)
+auto GnnAssociator(const ScoreMap& scores) -> AssociationMap
+{
+  std::set<std::string> trackSet;
+  std::set<std::string> detectionSet;
+
+  // Generate the score matrix
+  const auto scoreMatrix = scoreMatrixFromScoreMap(scores, trackSet, detectionSet);
+
+  // Generate the cost matrix
+  const auto costMatrix = costMatrixFromScoreMatrix(scoreMatrix);
+
+  // Perform max_cost_assignment
+  const std::vector<long> assignments = max_cost_assignment(costMatrix);
+
+  // Generate the association map
+  const auto associations = associationMapFromScoreMap(scores, assignments, trackSet, detectionSet);
+
+  return associations;
+}
+
+auto printAssociationMap(const AssociationMap& associations) -> void
 {
   for (const auto& pair : associations)
   {
