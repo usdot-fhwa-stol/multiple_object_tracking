@@ -212,7 +212,7 @@ inline auto computeUnscentedTransform(const State& state, const StateCovariance&
   const auto result_covariance_matrix{ std::get<1>(transform_res) };
 
   const auto result_state{ State::fromEigenVector(result_state_vector) };
-  const CtrvStateCovariance result_covariance{ result_covariance_matrix };
+  const StateCovariance result_covariance{ result_covariance_matrix };
   return { result_state, result_covariance };
 }
 
