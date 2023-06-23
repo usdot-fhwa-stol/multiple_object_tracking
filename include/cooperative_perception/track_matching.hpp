@@ -139,7 +139,7 @@ auto costMatrixFromScoreMatrix(const dlib::matrix<float>& score_matrix) -> dlib:
  * @throw std::out_of_range If the index is out of range.
  */
 template <typename T>
-const T& getElementAt(const std::set<T>& s, size_t index)
+auto getElementAt(const std::set<T>& s, size_t index) -> const T&
 {
   // Check if the index is valid
   if (index >= s.size())
