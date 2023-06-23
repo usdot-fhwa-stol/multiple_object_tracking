@@ -32,6 +32,9 @@
 
 namespace cooperative_perception
 {
+/**
+ * @brief Definition of AssociationMap, which is a mapping of track UUIDs to vectors of detection UUIDs
+ */
 using AssociationMap = std::map<std::string, std::vector<std::string>>;
 
 /**
