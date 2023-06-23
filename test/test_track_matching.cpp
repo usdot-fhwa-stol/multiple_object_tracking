@@ -27,6 +27,9 @@
 
 namespace cp = cooperative_perception;
 
+/**
+ * Test dlib library installation using example from library
+ */
 TEST(TestTrackMatching, VerifyLibraryInstallation)
 {
   using namespace dlib;
@@ -58,6 +61,9 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
   EXPECT_DOUBLE_EQ(expected_optimal_cost, result_optimal_cost);
 }
 
+/**
+ * Test the GnnAssociator function for associating detections to tracks
+ */
 TEST(TestTrackMatching, GnnAssociator)
 {
   cp::ScoreMap scores{ { { "track1", "detection1" }, 10 },  { { "track1", "detection2" }, 2.0 },
@@ -98,6 +104,9 @@ TEST(TestTrackMatching, GnnAssociator)
   }
 }
 
+/**
+ * Test the GnnAssociator function with gated scores for associating detections to tracks
+ */
 TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
 {
   cp::ScoreMap scores{ { { "track1", "detection3" }, 1.0 },
