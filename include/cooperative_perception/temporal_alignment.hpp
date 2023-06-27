@@ -26,7 +26,7 @@
 #include "cooperative_perception/covariance_calibration.hpp"
 #include "cooperative_perception/unscented_transform.hpp"
 #include "cooperative_perception/detection.hpp"
-#include "cooperative_perception/utils.hpp"
+#include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception
 {
@@ -35,7 +35,7 @@ namespace cooperative_perception
  *
  * When called, this visitor will propagate the visited object's state vector and update its timestamp.
  */
-constexpr utils::Visitor kStatePropagator{ [](auto& object, units::time::second_t time) {
+constexpr Visitor kStatePropagator{ [](auto& object, units::time::second_t time) {
   object.state = nextState(object.state, time - object.timestamp);
   object.timestamp = time;
 } };
