@@ -25,26 +25,6 @@
 
 namespace cooperative_perception::utils
 {
-/**
- * @brief Generic visitor class
- *
- * This is a utility class to make it easier to build visitors with lambdas.
- */
-template <typename... Base>
-struct Visitor : Base...
-{
-  /**
-   * @brief Bring base class' operator overloads into this scope
-   */
-  using Base::operator()...;
-};
-
-/**
- * @brief Type deduction hint for the Visitor constructor
- */
-template <typename... T>
-Visitor(T&&... t) -> Visitor<T...>;
-
 /** Check if two floating point numbers are equal
  *
  * The two numbers are considered equal if their relative distance is within an epsilon interval.

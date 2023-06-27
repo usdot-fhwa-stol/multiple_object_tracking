@@ -23,13 +23,14 @@ add_executable(test_cooperative_perceptionExecutable
   test_host_object_alignment.cpp
   test_scoring.cpp
   test_track_matching.cpp
+  test_gating.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable
   PRIVATE
-    cooperative_perception::cooperative_perception
-    GTest::GTest
-    GTest::Main
+  cooperative_perception::cooperative_perception
+  GTest::GTest
+  GTest::Main
 )
 
 include(GoogleTest)
