@@ -22,6 +22,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_unscented_transform.cpp
   test_host_object_alignment.cpp
   test_scoring.cpp
+  test_gating.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable
