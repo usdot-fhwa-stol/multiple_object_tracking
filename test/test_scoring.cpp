@@ -127,17 +127,13 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
                                                            .uuid{ "test_object3" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::euclidean_distance_visitor);
+  const auto scores = cp::scoreTracksAndDetections(tracks, objects, cp::euclidean_distance_visitor);
 
-  const std::map<std::pair<std::string, std::string>, std::optional<float>> expected_scores{
+  const cp::ScoreMap expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 7.0710678 },
     { std::pair{ "test_track1", "test_object2" }, 5.7445626 },
-    { std::pair{ "test_track1", "test_object3" }, std::nullopt },
     { std::pair{ "test_track2", "test_object1" }, 7.2801099 },
     { std::pair{ "test_track2", "test_object2" }, 6.1644139 },
-    { std::pair{ "test_track2", "test_object3" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object1" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object2" }, std::nullopt },
     { std::pair{ "test_track3", "test_object3" }, 0.0 },
   };
 
@@ -145,11 +141,7 @@ TEST(TestScoring, TrackToObjectScoringEuclidean)
 
   for (const auto& [key, value] : scores)
   {
-    ASSERT_EQ(expected_scores.at(key).has_value(), value.has_value());
-    if (expected_scores.at(key).has_value())
-    {
-      EXPECT_FLOAT_EQ(expected_scores.at(key).value(), value.value());
-    }
+    EXPECT_FLOAT_EQ(expected_scores.at(key), value);
   }
 }
 
@@ -200,17 +192,13 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
                                                            .uuid{ "test_object3" } }
   };
 
-  const auto scores = cp::score_tracks_and_objects(tracks, objects, cp::mahalanobis_distance_visitor);
+  const auto scores = cp::scoreTracksAndDetections(tracks, objects, cp::mahalanobis_distance_visitor);
 
-  const std::map<std::pair<std::string, std::string>, std::optional<float>> expected_scores{
+  const cp::ScoreMap expected_scores{
     { std::pair{ "test_track1", "test_object1" }, 122.35757 },
     { std::pair{ "test_track1", "test_object2" }, 90.688416 },
-    { std::pair{ "test_track1", "test_object3" }, std::nullopt },
     { std::pair{ "test_track2", "test_object1" }, 109.70312 },
     { std::pair{ "test_track2", "test_object2" }, 95.243896 },
-    { std::pair{ "test_track2", "test_object3" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object1" }, std::nullopt },
-    { std::pair{ "test_track3", "test_object2" }, std::nullopt },
     { std::pair{ "test_track3", "test_object3" }, 0.0 },
   };
 
@@ -218,10 +206,6 @@ TEST(TestScoring, TrackToObjectScoringMahalanobis)
 
   for (const auto& [key, value] : scores)
   {
-    ASSERT_EQ(expected_scores.at(key).has_value(), value.has_value());
-    if (expected_scores.at(key).has_value())
-    {
-      EXPECT_FLOAT_EQ(expected_scores.at(key).value(), value.value());
-    }
+    EXPECT_FLOAT_EQ(expected_scores.at(key), value);
   }
 }

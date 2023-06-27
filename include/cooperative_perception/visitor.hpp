@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,32 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_UTILS_HPP
-#define COOPERATIVE_PERCEPTION_UTILS_HPP
+#ifndef COOPERATIVE_PERCEPTION_VISITOR_HPP
+#define COOPERATIVE_PERCEPTION_VISITOR_HPP
 
-#include <cmath>
-
-namespace cooperative_perception::utils
+namespace cooperative_perception
 {
-/** Check if two floating point numbers are equal
+
+/**
+ * @brief Generic visitor class
  *
- * The two numbers are considered equal if their relative distance is within an epsilon interval.
- *
- * @param[in] first First number
- * @param[in] second Second number
- * @return If the two specified numbers are equal
+ * This is a utility class to make it easier to build visitors with lambdas.
  */
-constexpr auto almostEqual(double first, double second) -> bool
+template <typename... Base>
+struct Visitor : Base...
 {
-  constexpr auto kEpsilon{ 1e-5 };
-
-  return std::abs(first - second) < kEpsilon;
+  /**
+   * @brief Bring base class' operator overloads into this scope
+   */
+  using Base::operator()...;
 };
 
-}  // namespace cooperative_perception::utils
+/**
+ * @brief Type deduction hint for the Visitor constructor
+ */
+template <typename... T>
+Visitor(T&&... t) -> Visitor<T...>;
 
-#endif  // COOPERATIVE_PERCEPTION_UTILS_HPP
+}  // namespace cooperative_perception
+
+#endif  // COOPERATIVE_PERCEPTION_VISITOR_HPP
