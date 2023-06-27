@@ -27,7 +27,6 @@
 
 namespace cooperative_perception
 {
-
 template <typename UnaryPredicate>
 auto pruneTrackAndDetectionScoresIf(ScoreMap& scores, UnaryPredicate should_prune) -> void
 {
