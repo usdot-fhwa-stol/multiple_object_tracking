@@ -27,7 +27,7 @@
 #include <units.h>
 #include <Eigen/Dense>
 #include <unordered_set>
-#include "cooperative_perception/ctrv_model.hpp"
+#include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
 {
@@ -158,8 +158,8 @@ inline auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<Stat
  *@param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points.
  *@return A tuple containing the weighted mean and weighted covariance of the sigma points.
  */
-inline auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm, const Eigen::VectorXf& Wc)
-    -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm,
+                                      const Eigen::VectorXf& Wc) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   Eigen::VectorXf x = Wm.transpose() * sigmas;
   Eigen::MatrixXf y = sigmas - stackVectorIntoMatrix(x, sigmas.rows());
@@ -168,52 +168,33 @@ inline auto unscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::Vecto
 }
 
 /**
- * This function computes the Unscented Transform (UT) for a given state and state covariance matrix by
- * generating sigma points, weights, and using them to compute the mean and covariance of the transformed sigma points
- * through a non-linear model. It takes the current state of the system, the covariance matrix associated with it, and a
- * time step to advance the state through the non-linear model. The UT parameters (alpha, beta, kappa, lambda) are
- * predefined and used to generate the sigma points and weights. The nextState() function is used to advance the state
- * and sigma points through the non-linear model. The computed mean and sigma points are converted to an Eigen::MatrixXf
- * and used to compute the UT, which returns the predicted state and covariance.
- * @param[in] state The initial state of the system.
- * @param[in] covariance The covariance matrix of the system.
- * @param[in] time_step The time step to advance the system forward.
- * @return Tuple containing the resulting state and covariance matrix.
+ * This function generates the sigma points and weights required for the Unscented Kalman Filter.
+ * It computes the scaling factor lambda based on the provided alpha and kappa parameters.
+ * The function then generates the sigma points using the given state and covariance, along with the computed lambda.
+ * Additionally, it calculates the weights for mean and covariance calculations using the provided alpha, beta, and
+ * lambda.
+ *
+ * @tparam State The type of the state vector.
+ * @tparam StateCovariance The type of the covariance matrix.
+ *
+ * @param[in] state The initial state vector.
+ * @param[in] covariance The covariance matrix associated with the state.
+ * @param[in] alpha The scaling parameter for sigma points in the unscented transform.
+ * @param[in] beta The secondary scaling parameter for sigma points in the unscented transform.
+ * @param[in] kappa The secondary scaling parameter for sigma points in the unscented transform.
+ *
+ * @return A tuple containing the generated sigma points, weight vector for mean calculation, and weight vector for
+ * covariance calculation.
  */
-template <typename State, typename StateCovariance>
-inline auto computeUnscentedTransform(const State& state, const StateCovariance& covariance,
-                                      units::time::second_t time_step) -> std::tuple<State, StateCovariance>
+template <typename StateType, typename CovarianceType>
+inline auto generateSigmaPointsAndWeights(const StateType& state, const CovarianceType& covariance, const float alpha,
+                                          const float beta, const float kappa)
+    -> std::tuple<std::unordered_set<StateType>, Eigen::VectorXf, Eigen::VectorXf>
 {
-  // Declaring parameters for UT
-  const auto alpha{ 1.0 };
-  const auto beta{ 2.0 };
-  const auto kappa{ 1.0 };
   const auto lambda{ generateLambda(state.kNumVars, alpha, kappa) };
   const auto sigma_points{ generateSigmaPoints(state, covariance, lambda) };
-
-  // Generating weights
   const auto [Wm, Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
-
-  // Advance mean and sigma points through the non-linear model
-  const auto predicted_mean{ nextState(state, time_step) };
-  std::unordered_set<State> predicted_sigma_points{};
-  for (const auto& state : sigma_points)
-  {
-    const auto predicted_sigma_point{ nextState(state, time_step) };
-    predicted_sigma_points.insert(predicted_sigma_point);
-  }
-
-  // Convert mean and sigma points into Eigen::MatrixXf
-  const auto m_sigma_points{ sigmaSetToMatrixXf(predicted_mean, predicted_sigma_points) };
-
-  // Compute UT based on the sigma points and weights
-  const auto transform_res{ unscentedTransform(m_sigma_points, Wm, Wc) };
-  const auto result_state_vector{ std::get<0>(transform_res) };
-  const auto result_covariance_matrix{ std::get<1>(transform_res) };
-
-  const auto result_state{ State::fromEigenVector(result_state_vector) };
-  const StateCovariance result_covariance{ result_covariance_matrix };
-  return { result_state, result_covariance };
+  return { sigma_points, Wm, Wc };
 }
 
 namespace utils

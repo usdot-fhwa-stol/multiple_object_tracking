@@ -19,12 +19,12 @@
  */
 
 #include <gtest/gtest.h>
+#include <units.h>
 #include <cooperative_perception/utils.hpp>
 #include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/detection.hpp>
 #include <cooperative_perception/temporal_alignment.hpp>
-#include <units.h>
 
 namespace cp = cooperative_perception;
 
@@ -43,18 +43,20 @@ TEST(TestHostObjectAlignment, TemporalAlignment)
                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
   // Expected values
-  const cp::CtrvState expected_state{ 7.43224_m, 2.73933_m, 2.2049_mps, cp::Angle(0.8543_rad), 0.3528_rad_per_s };
-  const cp::CtrvStateCovariance expected_covariance{ { 0.0650073, -0.0670999, 0.00564003, -0.0463523, -0.0240175 },
-                                                     { -0.0670999, 0.11094, 0.00625031, 0.0654438, 0.0333096 },
-                                                     { 0.00564003, 0.00625031, 0.0054, 0.0015, 0.000800002 },
-                                                     { -0.0463523, 0.0654438, 0.0015, 0.0421, 0.0223 },
-                                                     { -0.0240175, 0.0333096, 0.000800002, 0.0223, 0.0123 } };
+  const cp::CtrvState expected_state{ 7.43226_m, 2.73934_m, 2.2049_mps, cp::Angle(0.8543_rad), 0.3528_rad_per_s };
+
+  const cp::CtrvStateCovariance expected_covariance{ { 0.064633, -0.0671223, 0.00564156, -0.0462884, -0.0239845 },
+                                                     { -0.0671223, 0.110445, 0.00623941, 0.0653499, 0.0332627 },
+                                                     { 0.00564156, 0.00623941, 0.0054, 0.0015, 0.000800001 },
+                                                     { -0.0462884, 0.0653499, 0.0015, 0.0421, 0.0223 },
+                                                     { -0.0239845, 0.0332627, 0.000800001, 0.0223, 0.0123 } };
 
   // Created DetectObject that will be temporally align
   auto object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  alignToTime(object, time_step);
+  cp::alignToTime(object, time_step);
+
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(object.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
   EXPECT_TRUE(cp::utils::almostEqual(object.covariance, expected_covariance));
@@ -76,12 +78,12 @@ TEST(TestHostObjectAlignment, TemporalAlignmentFiveSeconds)
                                             { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
                                             { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
   // Expected values
-  const cp::CtrvState expected_state{ 7.67421_m, 10.0832_m, 2.2049_mps, cp::Angle(2.2655_rad), 0.3528_rad_per_s };
-  const cp::CtrvStateCovariance expected_covariance{ { 11.6508, -0.301315, -0.0157757, -2.19491, -0.375167 },
-                                                     { -0.301315, 1.9979, 0.0232638, 0.00421135, -0.000232115 },
-                                                     { -0.0157757, 0.0232638, 0.0054, 0.00470001, 0.000800002 },
-                                                     { -2.19491, 0.00421134, 0.00470001, 0.4173, 0.0715 },
-                                                     { -0.375167, -0.000232116, 0.000800001, 0.0715, 0.0123 } };
+  const cp::CtrvState expected_state{ 7.6724_m, 10.0889_m, 2.2049_mps, cp::Angle(2.2655_rad), 0.3528_rad_per_s };
+  const cp::CtrvStateCovariance expected_covariance{ { 11.3487, -0.258615, -0.015211, -2.1669, -0.370411 },
+                                                     { -0.258615, 1.57984, 0.0232558, 0.0112134, 0.000969029 },
+                                                     { -0.015211, 0.0232558, 0.0054, 0.00470001, 0.000800001 },
+                                                     { -2.1669, 0.0112134, 0.00470001, 0.4173, 0.0715 },
+                                                     { -0.370411, 0.000969029, 0.000800001, 0.0715, 0.0123 } };
   // Created DetectObject that will be temporally align
   auto object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 

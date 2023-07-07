@@ -24,6 +24,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_scoring.cpp
   test_track_matching.cpp
   test_gating.cpp
+  test_unscented_kalman_filter.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable

@@ -24,7 +24,7 @@
 #include <variant>
 #include <units.h>
 #include "cooperative_perception/covariance_calibration.hpp"
-#include "cooperative_perception/unscented_transform.hpp"
+#include "cooperative_perception/unscented_kalman_filter.hpp"
 #include "cooperative_perception/detection.hpp"
 #include "cooperative_perception/visitor.hpp"
 
@@ -84,7 +84,11 @@ template <typename Detection>
 auto alignToTime(Detection& object, units::time::second_t time) -> void
 {
   calibrateCovariance(object);
-  auto [state, covariance] = computeUnscentedTransform(object.state, object.covariance, time - object.timestamp);
+  const auto alpha{ 1.0 };
+  const auto beta{ 2.0 };
+  const auto kappa{ 1.0 };
+  auto [state, covariance] =
+      unscentedKalmanFilterPredict(object.state, object.covariance, time - object.timestamp, alpha, kappa, beta);
   object.state = state;
   object.covariance = covariance;
   object.timestamp = time;
