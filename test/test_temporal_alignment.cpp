@@ -35,6 +35,9 @@ namespace cp = cooperative_perception;
 TEST(TestTemporalAlignment, CtrvDetection)
 {
   using namespace units::literals;
+
+  using TestObject = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
+
   // Declaring Initial state and covariance
   auto time_step{ 1.0_s };
   const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
@@ -53,11 +56,21 @@ TEST(TestTemporalAlignment, CtrvDetection)
                                                      { -0.0239845, 0.0332627, 0.000800001, 0.0223, 0.0123 } };
 
   // Created Detection that will be temporally align
-  auto detection =
-      cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
+
+  TestObject detection{ .timestamp{ units::time::second_t{ 0 } },
+                        .state{
+                            cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
+                        .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+                                                              { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+                                                              { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+                                                              { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+                                                              { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } } };
+
+  // auto detection =
+  //     cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  cp::alignToTime(detection, time_step);
+  cp::alignToTime(detection, time_step, cp::ukf_prediction_visitor);
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
@@ -92,7 +105,7 @@ TEST(TestTemporalAlignment, CtrvDetectionFiveSeconds)
       cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  cp::alignToTime(detection, time_step);
+  cp::alignToTime(detection, time_step, cp::ukf_prediction_visitor);
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
@@ -132,7 +145,7 @@ TEST(TestTemporalAlignment, CtraDetection)
       cp::Detection<cp::CtraState, cp::CtraStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  cp::alignToTime(detection, time_step);
+  cp::alignToTime(detection, time_step, cp::ukf_prediction_visitor);
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
@@ -168,7 +181,7 @@ TEST(TestTemporalAlignment, CtraDetectionFiveSeconds)
       cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  cp::alignToTime(detection, time_step);
+  cp::alignToTime(detection, time_step, cp::ukf_prediction_visitor);
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));

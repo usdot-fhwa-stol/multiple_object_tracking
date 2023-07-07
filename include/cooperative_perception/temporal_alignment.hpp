@@ -23,6 +23,7 @@
 
 #include <variant>
 #include <units.h>
+#include <stdexcept>
 #include "cooperative_perception/covariance_calibration.hpp"
 #include "cooperative_perception/unscented_kalman_filter.hpp"
 #include "cooperative_perception/detection.hpp"
@@ -35,7 +36,7 @@ namespace cooperative_perception
  *
  * When called, this visitor will propagate the visited object's state vector and update its timestamp.
  */
-constexpr Visitor kStatePropagator{ [](auto& object, units::time::second_t time) {
+constexpr Visitor state_propagation_visitor{ [](auto& object, units::time::second_t time) {
   object.state = nextState(object.state, time - object.timestamp);
   object.timestamp = time;
 } };
@@ -51,7 +52,7 @@ auto objectAtTime(const DetectionType& object, units::time::second_t time) -> De
 {
   DetectionType new_object{ object };
 
-  std::visit(kStatePropagator, new_object, std::variant<units::time::second_t>(time));
+  std::visit(state_propagation_visitor, new_object, std::variant<units::time::second_t>(time));
 
   return new_object;
 };
@@ -74,16 +75,11 @@ auto objectsAtTime(const DetectionList& objects, units::time::second_t time) -> 
 }
 
 /**
- * @brief Temporally align object to a specific time step
+ * @brief UKF prediction visitor
  *
- * @param object DetectionType being predicted
- * @param time Prediction time
- * @return None, object is updated in place
+ * When called, this visitor will predict the visited object's state vector and covariance.
  */
-template <typename Detection>
-auto alignToTime(Detection& object, units::time::second_t time) -> void
-{
-  calibrateCovariance(object);
+constexpr Visitor ukf_prediction_visitor{ [](auto& object, units::time::second_t time) {
   const auto alpha{ 1.0 };
   const auto beta{ 2.0 };
   const auto kappa{ 1.0 };
@@ -92,6 +88,20 @@ auto alignToTime(Detection& object, units::time::second_t time) -> void
   object.state = state;
   object.covariance = covariance;
   object.timestamp = time;
+} };
+
+/**
+ * @brief Temporally align object to a specific time step
+ *
+ * @param object DetectionType being predicted
+ * @param time Prediction time
+ * @return None, object is updated in place
+ */
+template <typename DetectionType, typename AlignmentVisitor>
+auto alignToTime(DetectionType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor) -> void
+{
+  calibrateCovariance(object);
+  std::visit(alignment_visitor, object, std::variant<units::time::second_t>(time));
 };
 
 }  // namespace cooperative_perception
