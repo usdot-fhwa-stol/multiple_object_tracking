@@ -261,9 +261,30 @@ inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs) 
  */
 inline auto roundToDecimalPlace(float n, std::size_t decimal_place) -> float
 {
-  const auto multiplier{ std::pow(10, decimal_place) };
+  const auto multiplier{ std::pow(10.0f, decimal_place) };
 
   float x = round(n * multiplier) / multiplier;
+  return x;
+}
+
+/**
+ * @brief Rounds a Eigen::MatrixXf to the nearest decimal place. Useful for comparing covariance values
+ *
+ * @param[in] n Eigen::MatrixXf being rounded
+ * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
+ * (0.001)
+ * @return Rounded Eigen::MatrixXf
+ */
+inline auto roundToDecimalPlace(const Eigen::MatrixXf& n, std::size_t decimal_place) -> Eigen::MatrixXf
+{
+  Eigen::MatrixXf x(n.rows(), n.cols());
+  for (int i = 0; i < n.rows(); ++i)
+  {
+    for (int j = 0; j < n.cols(); ++j)
+    {
+      x(i, j) = roundToDecimalPlace(n(i, j), decimal_place);
+    }
+  }
   return x;
 }
 
@@ -286,7 +307,7 @@ inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs) 
   {
     for (int j = 0; j < lhs.cols(); ++j)
     {
-      if (!almostEqual(roundToDecimalPlace(lhs(i, j), 4), roundToDecimalPlace(rhs(i, j), 4)))
+      if (!almostEqual(lhs(i, j), rhs(i, j)))
       {
         return false;  // matrices are not equal if any of their elements differ
       }
