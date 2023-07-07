@@ -173,7 +173,7 @@ inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
 /**
  * @brief Covariance matrix for the CTRA motion model
  */
-using CtraStateCovariance = Eigen::Matrix<float, CtraState::kNumVars, CtraState::kNumVars>;
+using CtraStateCovariance = Eigen::MatrixXf;
 
 /**
  * @brief Process noise vector for the CTRA motion model
