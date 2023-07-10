@@ -31,7 +31,7 @@ namespace cooperative_perception
  * @tparam DetectionType for whose covariance needs to be calibrated
  */
 template <typename DetectionType>
-auto calibrateCovariance(DetectionType object) -> void
+auto calibrateCovariance(DetectionType& detection) -> void
 {
   // TODO: Implement covariance calibration algorithm here
   // Covariance calibration magic here
