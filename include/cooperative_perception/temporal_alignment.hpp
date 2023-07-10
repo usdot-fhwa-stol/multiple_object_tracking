@@ -36,42 +36,42 @@ namespace cooperative_perception
  *
  * When called, this visitor will propagate the visited object's state vector and update its timestamp.
  */
-constexpr Visitor state_propagation_visitor{ [](auto& detection, units::time::second_t time) {
-  detection.state = nextState(detection.state, time - detection.timestamp);
-  detection.timestamp = time;
+constexpr Visitor state_propagation_visitor{ [](auto& object, units::time::second_t time) {
+  object.state = nextState(object.state, time - object.timestamp);
+  object.timestamp = time;
 } };
 
 /**
- * @brief Get predicted Detection for specified time
+ * @brief Get predicted object for specified time
  *
- * @param detection DetectionType being predicted
+ * @param object DetectionType being predicted
  * @param time Prediction time
  * @return DetectionType whose state corresponds to the specified time
  */
-auto detectionAtTime(const DetectionType& detection, units::time::second_t time) -> DetectionType
+auto objectAtTime(const DetectionType& object, units::time::second_t time) -> DetectionType
 {
-  DetectionType new_detection{ detection };
+  DetectionType new_object{ object };
 
-  std::visit(state_propagation_visitor, new_detection, std::variant<units::time::second_t>(time));
+  std::visit(state_propagation_visitor, new_object, std::variant<units::time::second_t>(time));
 
-  return new_detection;
+  return new_object;
 };
 
 /**
- * @brief Get predicted Detections for specified time
+ * @brief Get predicted objects for specified time
  *
- * @param detections List of DetectionTypes being predicted
+ * @param objects List of DetectionTypes being predicted
  * @param time Prediction time
  * @return List of DetectionTypes, each of whose state corresponds to the specified time
  */
-auto detectionsAtTime(const DetectionList& detections, units::time::second_t time) -> DetectionList
+auto objectsAtTime(const DetectionList& objects, units::time::second_t time) -> DetectionList
 {
-  DetectionList new_detections{ detections };
+  DetectionList new_objects{ objects };
 
-  std::transform(std::cbegin(new_detections), std::cend(new_detections), std::begin(new_detections),
-                 [time](const DetectionType& detection) { return detectionAtTime(detection, time); });
+  std::transform(std::cbegin(new_objects), std::cend(new_objects), std::begin(new_objects),
+                 [time](const DetectionType& object) { return objectAtTime(object, time); });
 
-  return new_detections;
+  return new_objects;
 }
 
 /**
@@ -79,52 +79,51 @@ auto detectionsAtTime(const DetectionList& detections, units::time::second_t tim
  *
  * When called, this visitor will predict the visited object's state vector and covariance.
  */
-constexpr Visitor ukf_prediction_visitor{ [](auto& detection, units::time::second_t time) {
+constexpr Visitor ukf_prediction_visitor{ [](auto& object, units::time::second_t time) {
   const auto alpha{ 1.0 };
   const auto beta{ 2.0 };
   const auto kappa{ 1.0 };
-  auto [state, covariance] = unscentedKalmanFilterPredict(detection.state, detection.covariance,
-                                                          time - detection.timestamp, alpha, kappa, beta);
-  detection.state = state;
-  detection.covariance = covariance;
-  detection.timestamp = time;
+  auto [state, covariance] =
+      unscentedKalmanFilterPredict(object.state, object.covariance, time - object.timestamp, alpha, kappa, beta);
+  object.state = state;
+  object.covariance = covariance;
+  object.timestamp = time;
 } };
 
 /**
- * @brief Propagate detection to a specific time stamp
+ * @brief Propagate object to a specific time stamp
  *
- * @param detection Detection being propagated
+ * @param object Object being propagated
  * @param time Propagation time
- * @param alignment_visitor Visitor with implementation for propagating detection
+ * @param alignment_visitor Visitor with implementation for propagating object
  * @return None, object is updated in place
  */
-template <typename DetectionType, typename AlignmentVisitor>
-auto propagateToTime(DetectionType& detection, units::time::second_t time, const AlignmentVisitor& alignment_visitor)
-    -> void
+template <typename ObjectType, typename AlignmentVisitor>
+auto propagateToTime(ObjectType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor) -> void
 {
-  calibrateCovariance(detection);
-  std::variant<DetectionType> detection_variant{ detection };
-  std::visit(alignment_visitor, detection_variant, std::variant<units::time::second_t>(time));
-  detection = std::get<DetectionType>(detection_variant);
+  calibrateCovariance(object);
+  std::variant<ObjectType> object_variant{ object };
+  std::visit(alignment_visitor, object_variant, std::variant<units::time::second_t>(time));
+  object = std::get<ObjectType>(object_variant);
 };
 
 /**
- * @brief Predict detection to a specific time stamp
+ * @brief Predict object to a specific time stamp
  *
- * @param detection Detection being predicted
+ * @param object Object being predicted
  * @param time Prediction time
- * @param alignment_visitor Visitor with implementation for predicting detection
- * @return New predicted detection
+ * @param alignment_visitor Visitor with implementation for predicting object
+ * @return New predicted object
  */
-template <typename DetectionType, typename AlignmentVisitor>
-auto predictToTime(const DetectionType& detection, units::time::second_t time,
-                   const AlignmentVisitor& alignment_visitor) -> DetectionType
+template <typename ObjectType, typename AlignmentVisitor>
+auto predictToTime(const ObjectType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor)
+    -> ObjectType
 {
-  calibrateCovariance(detection);
-  std::variant<DetectionType> detection_variant{ detection };
-  std::visit(alignment_visitor, detection_variant, std::variant<units::time::second_t>(time));
-  DetectionType new_predicted_detection = std::get<DetectionType>(detection_variant);
-  return new_predicted_detection;
+  calibrateCovariance(object);
+  std::variant<ObjectType> object_variant{ object };
+  std::visit(alignment_visitor, object_variant, std::variant<units::time::second_t>(time));
+  ObjectType new_predicted_object = std::get<ObjectType>(object_variant);
+  return new_predicted_object;
 };
 
 }  // namespace cooperative_perception
