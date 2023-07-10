@@ -50,15 +50,16 @@ TEST(TestHostObjectAlignment, TemporalAlignment)
                                                      { -0.0463523, 0.0654438, 0.0015, 0.0421, 0.0223 },
                                                      { -0.0240175, 0.0333096, 0.000800002, 0.0223, 0.0123 } };
 
-  // Created DetectObject that will be temporally align
-  auto object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
+  // Created Detection that will be temporally align
+  auto detection =
+      cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  alignToTime(object, time_step);
-  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(object.state, 4),
+  alignToTime(detection, time_step);
+  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almostEqual(object.covariance, expected_covariance));
-  EXPECT_TRUE(cp::utils::almostEqual(object.timestamp.value(), time_step.value()));
+  EXPECT_TRUE(cp::utils::almostEqual(detection.covariance, expected_covariance));
+  EXPECT_TRUE(cp::utils::almostEqual(detection.timestamp.value(), time_step.value()));
 };
 
 /**
@@ -82,14 +83,15 @@ TEST(TestHostObjectAlignment, TemporalAlignmentFiveSeconds)
                                                      { -0.0157757, 0.0232638, 0.0054, 0.00470001, 0.000800002 },
                                                      { -2.19491, 0.00421134, 0.00470001, 0.4173, 0.0715 },
                                                      { -0.375167, -0.000232116, 0.000800001, 0.0715, 0.0123 } };
-  // Created DetectObject that will be temporally align
-  auto object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
+  // Created Detection that will be temporally align
+  auto detection =
+      cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 0 }, state, covariance };
 
   // Call the function under test
-  alignToTime(object, time_step);
+  alignToTime(detection, time_step);
 
-  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(object.state, 4),
+  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almostEqual(object.covariance, expected_covariance));
-  EXPECT_TRUE(cp::utils::almostEqual(object.timestamp.value(), time_step.value()));
+  EXPECT_TRUE(cp::utils::almostEqual(detection.covariance, expected_covariance));
+  EXPECT_TRUE(cp::utils::almostEqual(detection.timestamp.value(), time_step.value()));
 };

@@ -33,33 +33,56 @@
 
 namespace cooperative_perception
 {
+constexpr Visitor euclidean_distance_visitor{
+  /**
+   * @brief Calculate the Euclidean distance between a track and detection
+   *
+   * The track and detection must have identical state types to be compared.
+   *
+   * @param[in] track Track being measured (TrackType)
+   * @param[in] detection Detection being measured (DetectionType)
+   * @return Euclidean distance between track and detection if their state
+   * types are identical; std::nullopt otherwise
+   */
+  [](const auto& track, const auto& detection) -> std::optional<float> {
+    if constexpr (std::is_same_v<decltype(track.state), decltype(detection.state)>)
+    {
+      return euclidean_distance(track.state, detection.state);
+    }
+    else
+    {
+      return std::nullopt;
+    }
+  }
+};
 
-constexpr Visitor euclidean_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
-  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
-  {
-    return euclidean_distance(track.state, object.state);
+constexpr Visitor mahalanobis_distance_visitor{
+  /**
+   * @brief Calculate the Mahalanobis distance between a track and detection
+   *
+   * The track and detection must have identical state types to be compared.
+   *
+   * @param[in] track Track being measured (TrackType)
+   * @param[in] detection Detection being measured (DetectionType)
+   * @return Mahalanobis distance between track and detection if their state
+   * types are identical; std::nullopt otherwise
+   */
+  [](const auto& track, const auto& detection) -> std::optional<float> {
+    if constexpr (std::is_same_v<decltype(track.state), decltype(detection.state)>)
+    {
+      return mahalanobis_distance(track.state, track.covariance, detection.state);
+    }
+    else
+    {
+      return std::nullopt;
+    }
   }
-  else
-  {
-    return std::nullopt;
-  }
-} };
-
-constexpr Visitor mahalanobis_distance_visitor{ [](const auto& track, const auto& object) -> std::optional<float> {
-  if constexpr (std::is_same_v<decltype(track.state), decltype(object.state)>)
-  {
-    return mahalanobis_distance(track.state, track.covariance, object.state);
-  }
-  else
-  {
-    return std::nullopt;
-  }
-} };
+};
 
 using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
 
-template <typename TrackType, typename DetectionType, typename MetricVisitor>
-auto scoreTracksAndDetections(const std::vector<TrackType>& tracks, const std::vector<DetectionType>& detections,
+template <typename TrackVariant, typename DetectionVariant, typename MetricVisitor>
+auto scoreTracksAndDetections(const std::vector<TrackVariant>& tracks, const std::vector<DetectionVariant>& detections,
                               const MetricVisitor& metric_visitor) -> ScoreMap
 {
   ScoreMap scores;
