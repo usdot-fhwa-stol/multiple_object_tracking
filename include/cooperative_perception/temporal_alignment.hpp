@@ -101,7 +101,9 @@ template <typename DetectionType, typename AlignmentVisitor>
 auto alignToTime(DetectionType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor) -> void
 {
   calibrateCovariance(object);
-  std::visit(alignment_visitor, object, std::variant<units::time::second_t>(time));
+  std::variant<DetectionType> detection_variant{ object };
+  std::visit(alignment_visitor, detection_variant, std::variant<units::time::second_t>(time));
+  object = std::get<DetectionType>(detection_variant);
 };
 
 }  // namespace cooperative_perception
