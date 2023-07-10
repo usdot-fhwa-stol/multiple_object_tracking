@@ -44,39 +44,6 @@ constexpr Visitor kStatePropagator{ [](auto& object, units::time::second_t time)
 } };
 
 /**
- * @brief Get predicted Detection for specified time
- *
- * @param[in] detection Detection being predicted
- * @param[in] time Prediction time
- * @return DetectionVariant whose state corresponds to the specified time
- */
-auto objectAtTime(const DetectionVariant& detection, units::time::second_t time) -> DetectionVariant
-{
-  DetectionVariant predicted_detection{ detection };
-
-  std::visit(kStatePropagator, predicted_detection, std::variant<units::time::second_t>(time));
-
-  return predicted_detection;
-};
-
-/**
- * @brief Get predicted Detections for specified time
- *
- * @param[in] detections List of DetectionVariants being predicted
- * @param[in] time Prediction time
- * @return List of DetectionVariants, each of whose state corresponds to the specified time
- */
-auto objectsAtTime(const DetectionVariantList& detections, units::time::second_t time) -> DetectionVariantList
-{
-  DetectionVariantList new_detections{ detections };
-
-  std::transform(std::cbegin(new_detections), std::cend(new_detections), std::begin(new_detections),
-                 [time](const auto& detection) { return objectAtTime(detection, time); });
-
-  return new_detections;
-}
-
-/**
  * @brief Temporally align detection to a specific time step
  *
  * @param[in,out] detection DetectionType being predicted
