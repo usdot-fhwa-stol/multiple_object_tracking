@@ -61,8 +61,8 @@ TEST(TestTemporalAlignment, CtrvDetection)
   auto time_step{ 1.0_s };
 
   // Call the functions under test
-  cp::propagateToTime(detection, time_step, cp::ukf_prediction_visitor);
-  auto result_detection = cp::predictToTime(detection, time_step, cp::ukf_prediction_visitor);
+  cp::propagateToTime(detection, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  auto result_detection = cp::predictToTime(detection, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
 
   // Check that function returns expected value
   // Check detection that was modified in place
@@ -110,7 +110,7 @@ TEST(TestTemporalAlignment, CtrvDetectionFiveSeconds)
   auto time_step{ 1.0_s };
 
   // Call the function under test
-  cp::propagateToTime(detection, time_step, cp::ukf_prediction_visitor);
+  cp::propagateToTime(detection, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
@@ -152,7 +152,7 @@ TEST(TestTemporalAlignment, CtraDetection)
   auto time_step{ 1.0_s };
 
   // Call the function under test
-  cp::propagateToTime(detection, time_step, cp::ukf_prediction_visitor);
+  cp::propagateToTime(detection, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
@@ -194,7 +194,7 @@ TEST(TestTemporalAlignment, CtraDetectionFiveSeconds)
   auto time_step{ 1.0_s };
 
   // Call the function under test
-  cp::propagateToTime(detection, time_step, cp::ukf_prediction_visitor);
+  cp::propagateToTime(detection, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(detection.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));
@@ -233,8 +233,8 @@ TEST(TestTemporalAlignment, CtrvTrack)
   auto time_step{ 1.0_s };
 
   // Call the functions under test
-  cp::propagateToTime(track, time_step, cp::ukf_prediction_visitor);
-  auto result_track = cp::predictToTime(track, time_step, cp::ukf_prediction_visitor);
+  cp::propagateToTime(track, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  auto result_track = cp::predictToTime(track, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
 
   // Check that function returns expected value
   // Check track that was modified in place
@@ -285,7 +285,7 @@ TEST(TestTemporalAlignment, CtraTrack)
   auto time_step{ 1.0_s };
 
   // Call the function under test
-  cp::propagateToTime(track, time_step, cp::ukf_prediction_visitor);
+  cp::propagateToTime(track, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
 
   EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(track.state, 4),
                                      cp::utils::roundToDecimalPlace(expected_state, 4)));

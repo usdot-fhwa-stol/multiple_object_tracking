@@ -55,7 +55,7 @@ auto objectAtTime(const DetectionType& object, units::time::second_t time) -> De
   std::visit(state_propagation_visitor, new_object, std::variant<units::time::second_t>(time));
 
   return new_object;
-};
+}
 
 /**
  * @brief Get predicted objects for specified time
@@ -75,56 +75,90 @@ auto objectsAtTime(const DetectionList& objects, units::time::second_t time) -> 
 }
 
 /**
- * @brief UKF prediction visitor
+ * @brief Visitor for performing prediction using Unscented Kalman Filter (UKF).
  *
- * When called, this visitor will predict the visited object's state vector and covariance.
+ * The `UkfPredictionVisitor` class is a callable visitor that performs prediction on an object using the Unscented
+ * Kalman Filter. It applies the prediction algorithm to update the state and covariance of the object based on the
+ * provided parameters.
  */
-constexpr Visitor ukf_prediction_visitor{ [](auto& object, units::time::second_t time) {
-  const auto alpha{ 1.0 };
-  const auto beta{ 2.0 };
-  const auto kappa{ 1.0 };
-  auto [state, covariance] =
-      unscentedKalmanFilterPredict(object.state, object.covariance, time - object.timestamp, alpha, kappa, beta);
-  object.state = state;
-  object.covariance = covariance;
-  object.timestamp = time;
-} };
-
-/**
- * @brief Propagate object to a specific time stamp
- *
- * @param object Object being propagated
- * @param time Propagation time
- * @param alignment_visitor Visitor with implementation for propagating object
- * @return None, object is updated in place
- */
-template <typename ObjectType, typename AlignmentVisitor>
-auto propagateToTime(ObjectType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor) -> void
+class UkfPredictionVisitor
 {
-  calibrateCovariance(object);
-  std::variant<ObjectType> object_variant{ object };
-  std::visit(alignment_visitor, object_variant, std::variant<units::time::second_t>(time));
-  object = std::get<ObjectType>(object_variant);
+public:
+  /**
+   * @brief Constructs a `UkfPredictionVisitor` with the specified parameters.
+   *
+   * @param[in] alpha The scaling parameter for sigma points.
+   * @param[in] beta The secondary scaling parameter for sigma points.
+   * @param[in] kappa A tuning parameter affecting how the points are sampled.
+   */
+  explicit UkfPredictionVisitor(float alpha, float beta, float kappa) : alpha_(alpha), beta_(beta), kappa_(kappa)
+  {
+  }
+
+  /**
+   * @brief Performs prediction on the specified object using the provided time stamp.
+   *
+   * This function applies the Unscented Kalman Filter prediction algorithm to update the state and covariance of the
+   * given object based on the time difference between the object's timestamp and the provided time stamp. The
+   * prediction results are stored in the object itself.
+   *
+   * @tparam ObjectType The type of the object being predicted.
+   * @param[in,out] object The object to be predicted.
+   * @param[in] time The time stamp for prediction.
+   */
+  template <typename ObjectType>
+  auto operator()(ObjectType& object, units::time::second_t time) const -> void
+  {
+    const auto [state, covariance] =
+        unscentedKalmanFilterPredict(object.state, object.covariance, time - object.timestamp, alpha_, kappa_, beta_);
+    object.state = state;
+    object.covariance = covariance;
+    object.timestamp = time;
+  }
+
+private:
+  float alpha_;
+  float beta_;
+  float kappa_;
 };
 
 /**
- * @brief Predict object to a specific time stamp
+ * @brief Propagate the object to a specific time stamp.
  *
- * @param object Object being predicted
- * @param time Prediction time
- * @param alignment_visitor Visitor with implementation for predicting object
- * @return New predicted object
+ * This function calibrates the covariance of the object and applies an alignment visitor to propagate the object's
+ * state to the specified time stamp.
+ *
+ * @param[in,out] object The object being propagated.
+ * @param[in] time The propagation time.
+ * @param[in] alignment_visitor The visitor with the implementation for propagating the object.
+ */
+template <typename ObjectType, typename AlignmentVisitor>
+void propagateToTime(ObjectType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor)
+{
+  calibrateCovariance(object);
+  alignment_visitor(object, time);
+}
+
+/**
+ * @brief Predict the object's state to a specific time stamp and return a new object.
+ *
+ * This function creates a copy of the input object, calibrates the covariance of the new object, and applies an
+ * alignment visitor to predict the state to the specified time stamp. The new predicted object is then returned.
+ *
+ * @param[in] object The object being predicted.
+ * @param[in] time The prediction time.
+ * @param[in] alignment_visitor The visitor with the implementation for predicting the object.
+ * @return The new object with the predicted state.
  */
 template <typename ObjectType, typename AlignmentVisitor>
 auto predictToTime(const ObjectType& object, units::time::second_t time, const AlignmentVisitor& alignment_visitor)
     -> ObjectType
 {
-  calibrateCovariance(object);
-  std::variant<ObjectType> object_variant{ object };
-  std::visit(alignment_visitor, object_variant, std::variant<units::time::second_t>(time));
-  ObjectType new_predicted_object = std::get<ObjectType>(object_variant);
-  return new_predicted_object;
-};
+  ObjectType new_object = object;
+  calibrateCovariance(new_object);
+  alignment_visitor(new_object, time);
+  return new_object;
+}
 
 }  // namespace cooperative_perception
 
