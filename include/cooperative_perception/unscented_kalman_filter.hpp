@@ -79,6 +79,54 @@ inline auto unscentedKalmanFilterPredict(const StateType& state, const Covarianc
   return { std::move(result_state), std::move(result_covariance) };
 }
 
+/**
+ * @brief Visitor for performing prediction using Unscented Kalman Filter (UKF).
+ *
+ * The `UkfPredictionVisitor` class is a callable visitor that performs prediction on an object using the Unscented
+ * Kalman Filter. It applies the prediction algorithm to update the state and covariance of the object based on the
+ * provided parameters.
+ */
+class UkfPredictionVisitor
+{
+public:
+  /**
+   * @brief Constructs a `UkfPredictionVisitor` with the specified parameters.
+   *
+   * @param[in] alpha The scaling parameter for sigma points.
+   * @param[in] beta The secondary scaling parameter for sigma points.
+   * @param[in] kappa A tuning parameter affecting how the points are sampled.
+   */
+  explicit UkfPredictionVisitor(float alpha, float beta, float kappa) : alpha_(alpha), beta_(beta), kappa_(kappa)
+  {
+  }
+
+  /**
+   * @brief Performs prediction on the specified object using the provided time stamp.
+   *
+   * This function applies the Unscented Kalman Filter prediction algorithm to update the state and covariance of the
+   * given object based on the time difference between the object's timestamp and the provided time stamp. The
+   * prediction results are stored in the object itself.
+   *
+   * @tparam ObjectType The type of the object being predicted.
+   * @param[in,out] object The object to be predicted.
+   * @param[in] time The time stamp for prediction.
+   */
+  template <typename ObjectType>
+  auto operator()(ObjectType& object, units::time::second_t time) const -> void
+  {
+    const auto [state, covariance] =
+        unscentedKalmanFilterPredict(object.state, object.covariance, time - object.timestamp, alpha_, kappa_, beta_);
+    object.state = state;
+    object.covariance = covariance;
+    object.timestamp = time;
+  }
+
+private:
+  float alpha_;
+  float beta_;
+  float kappa_;
+};
+
 }  // namespace cooperative_perception
 
 #endif  // COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
