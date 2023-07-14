@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -372,12 +372,12 @@ inline auto mahalanobis_distance(CtrvState mean, CtrvStateCovariance covariance,
 }
 
 /**
- * @brief Prints the values of a CtrvState object to the console
+ * @brief Prints the values of a CtrvState instance to the console
  *
- * This function prints the values of a CtrvState object to the console in a user-friendly format.
+ * This function prints the values of a CtrvState instance to the console in a user-friendly format.
  * The values printed are: position_x, position_y, velocity, yaw angle, and yaw rate.
  *
- * @param[in] state The CtrvState object to print
+ * @param[in] state The CtrvState instance to print
  * @return None
  */
 auto printState(const CtrvState& state) -> void;

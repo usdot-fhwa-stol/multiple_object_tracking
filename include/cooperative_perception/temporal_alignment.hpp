@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,9 @@ namespace cooperative_perception
  * @brief State propagation visitor
  *
  * When called, this visitor will propagate the visited object's state vector and update its timestamp.
+ *
+ * @param[in,out] object Object whose state will be propagated
+ * @param[in] time Time stamp to which the object's state will be propagated
  */
 constexpr Visitor kStatePropagator{ [](auto& object, units::time::second_t time) {
   object.state = nextState(object.state, time - object.timestamp);
@@ -41,53 +44,21 @@ constexpr Visitor kStatePropagator{ [](auto& object, units::time::second_t time)
 } };
 
 /**
- * @brief Get predicted Detection for specified time
+ * @brief Temporally align detection to a specific time step
  *
- * @param object DetectionType being predicted
- * @param time Prediction time
- * @return DetectionType whose state corresponds to the specified time
+ * @param[in,out] detection DetectionType being predicted
+ * @param[in] time Prediction time
+ * @return void; detection is updated in place
  */
-auto objectAtTime(const DetectionType& object, units::time::second_t time) -> DetectionType
+template <typename DetectionType>
+auto alignToTime(DetectionType& detection, units::time::second_t time) -> void
 {
-  DetectionType new_object{ object };
-
-  std::visit(kStatePropagator, new_object, std::variant<units::time::second_t>(time));
-
-  return new_object;
-};
-
-/**
- * @brief Get predicted Detections for specified time
- *
- * @param objects List of DetectionTypes being predicted
- * @param time Prediction time
- * @return List of DetectionTypes, each of whose state corresponds to the specified time
- */
-auto objectsAtTime(const DetectionList& objects, units::time::second_t time) -> DetectionList
-{
-  DetectionList new_objects{ objects };
-
-  std::transform(std::cbegin(new_objects), std::cend(new_objects), std::begin(new_objects),
-                 [time](const DetectionType& object) { return objectAtTime(object, time); });
-
-  return new_objects;
-}
-
-/**
- * @brief Temporally align object to a specific time step
- *
- * @param object DetectionType being predicted
- * @param time Prediction time
- * @return None, object is updated in place
- */
-template <typename Detection>
-auto alignToTime(Detection& object, units::time::second_t time) -> void
-{
-  calibrateCovariance(object);
-  auto [state, covariance] = computeUnscentedTransform(object.state, object.covariance, time - object.timestamp);
-  object.state = state;
-  object.covariance = covariance;
-  object.timestamp = time;
+  calibrateCovariance(detection);
+  auto [state, covariance] =
+      computeUnscentedTransform(detection.state, detection.covariance, time - detection.timestamp);
+  detection.state = state;
+  detection.covariance = covariance;
+  detection.timestamp = time;
 };
 
 }  // namespace cooperative_perception

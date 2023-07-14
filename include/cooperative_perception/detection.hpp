@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,10 @@
 namespace cooperative_perception
 {
 /**
- * @brief Detected object
+ * @brief Detected object (simply, Detection)
  *
- * @tparam StateType State vector type for object's motion model
- * @tparam CovarianceType Covariance matrix type for object's motion model
+ * @tparam StateType State vector type for detection's motion model
+ * @tparam CovarianceType Covariance matrix type for detection's motion model
  */
 template <typename StateType, typename CovarianceType>
 struct Detection
@@ -47,14 +47,14 @@ struct Detection
 };
 
 /**
- * @brief Detection specialization for a vehicle using the CTRV motion model
+ * @brief Detection specialization for a the CTRV motion model
  */
-using CtrvVehicleObject = Detection<CtrvState, CtrvStateCovariance>;
+using CtrvDetection = Detection<CtrvState, CtrvStateCovariance>;
 
 /**
- * @brief Detection specialization for a vehicle using the CTRA motion model.
+ * @brief Detection specialization for a the CTRA motion model
  */
-using CtraVehicleObject = Detection<CtraState, CtraStateCovariance>;
+using CtraDetection = Detection<CtraState, CtraStateCovariance>;
 
 /**
  * @brief Aggregation of all Detection specializations
@@ -62,7 +62,7 @@ using CtraVehicleObject = Detection<CtraState, CtraStateCovariance>;
  * This type contains all the Detection types supported by the library. It can be used to refer
  * generically to any Detection and allows all Detection types to be stored in the same container.
  */
-using DetectionType = std::variant<CtrvVehicleObject, CtraVehicleObject>;
+using DetectionVariant = std::variant<CtrvDetection, CtraDetection>;
 
 /**
  * @brief Maximum number of Detections that can be stored at a time
@@ -75,7 +75,7 @@ inline constexpr auto kMaxDetections{ 200U };
 /**
  * @brief Container for Detection variables
  */
-using DetectionList = boost::container::static_vector<DetectionType, kMaxDetections>;
+using DetectionVariantList = boost::container::static_vector<DetectionVariant, kMaxDetections>;
 
 /**
  * @brief A data store that caches the most recent Detections
@@ -84,7 +84,7 @@ using DetectionList = boost::container::static_vector<DetectionType, kMaxDetecti
  *  a CDA CP interaction. This TemporaryID will be treated as a unique string that is associated
  *  with the most recent Detection with that ID.
  */
-using DetectionCache = std::map<std::string, DetectionType>;
+using DetectionVariantCache = std::map<std::string, DetectionVariant>;
 
 }  // namespace cooperative_perception
 
