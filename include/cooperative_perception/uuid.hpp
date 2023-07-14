@@ -58,7 +58,7 @@ auto get_uuid(const Object& object) -> std::string
 template <typename... Variants>
 auto get_uuid(const std::variant<Variants...>& object) -> std::string
 {
-  return std::visit([](const auto& o) { return o.uuid; }, object);
+  return std::visit([](const auto& o) { return get_uuid(o); }, object);
 }
 
 /**
