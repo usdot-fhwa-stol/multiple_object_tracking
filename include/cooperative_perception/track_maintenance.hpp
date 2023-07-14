@@ -117,7 +117,7 @@ public:
   /**
    * @brief Query if track with specified UUID should be demoted
    *
-   * Promotion means the track's status should change from confirmed to tentative.
+   * Demotion means the track's status should change from confirmed to tentative.
    *
    * @param[in] track_uuid UUID associated with track
    * @return true if the track should be demoted; false otherwise
