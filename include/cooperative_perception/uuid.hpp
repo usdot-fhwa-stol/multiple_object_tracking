@@ -40,7 +40,7 @@ namespace cooperative_perception
  * @return the specified object's UUID
  */
 template <typename Object>
-auto get_uuid(const Object& object) -> std::string
+auto getUuid(const Object& object) -> std::string
 {
   return object.uuid;
 }
@@ -56,9 +56,9 @@ auto get_uuid(const Object& object) -> std::string
  * @return the specified object's UUID
  */
 template <typename... Variants>
-auto get_uuid(const std::variant<Variants...>& object) -> std::string
+auto getUuid(const std::variant<Variants...>& object) -> std::string
 {
-  return std::visit([](const auto& o) { return get_uuid(o); }, object);
+  return std::visit([](const auto& o) { return getUuid(o); }, object);
 }
 
 /**
@@ -71,19 +71,19 @@ auto get_uuid(const std::variant<Variants...>& object) -> std::string
  * @return the specified objects' UUIDs
  */
 template <template <typename...> typename Container, typename... ContainerParams>
-auto get_uuids(const Container<ContainerParams...>& objects) -> Container<std::string>
+auto getUuids(const Container<ContainerParams...>& objects) -> Container<std::string>
 {
   Container<std::string> uuids;
 
   if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>)
   {
     std::ignore = std::transform(std::cbegin(objects), std::cend(objects), std::back_inserter(uuids),
-                                 [](const auto& object) { return get_uuid(object); });
+                                 [](const auto& object) { return getUuid(object); });
   }
   else
   {
     std::ignore = std::transform(std::cbegin(objects), std::cend(objects), std::inserter(uuids, std::end(uuids)),
-                                 [](const auto& object) { return get_uuid(object); });
+                                 [](const auto& object) { return getUuid(object); });
   }
 
   return uuids;
@@ -104,11 +104,11 @@ namespace detail
  * @return void
  */
 template <typename Container, typename OutputIt, typename UnaryPredicate>
-auto get_uuids_if_helper(const Container& objects, OutputIt uuids, const UnaryPredicate& predicate) -> void
+auto getUuidsIfHelper(const Container& objects, OutputIt uuids, const UnaryPredicate& predicate) -> void
 {
   for (const auto& object : objects)
   {
-    const auto uuid{ get_uuid(object) };
+    const auto uuid{ getUuid(object) };
     if (predicate(uuid))
     {
       *uuids = uuid;
@@ -131,18 +131,17 @@ auto get_uuids_if_helper(const Container& objects, OutputIt uuids, const UnaryPr
  * @return UUIDs for object matching the predicate
  */
 template <template <typename...> typename Container, typename UnaryPredicate, typename... ContainerParams>
-auto get_uuids_if(const Container<ContainerParams...>& objects, const UnaryPredicate& predicate)
-    -> Container<std::string>
+auto getUuidsIf(const Container<ContainerParams...>& objects, const UnaryPredicate& predicate) -> Container<std::string>
 {
   Container<std::string> uuids;
 
   if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>)
   {
-    detail::get_uuids_if_helper(objects, std::back_inserter(uuids), predicate);
+    detail::getUuidsIfHelper(objects, std::back_inserter(uuids), predicate);
   }
   else
   {
-    detail::get_uuids_if_helper(objects, std::inserter(uuids, std::end(uuids)), predicate);
+    detail::getUuidsIfHelper(objects, std::inserter(uuids, std::end(uuids)), predicate);
   }
 
   return uuids;
