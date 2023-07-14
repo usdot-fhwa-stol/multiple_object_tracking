@@ -28,8 +28,8 @@
 #include <utility>
 #include <variant>
 
-#include "cooperative_perception/common_visitors.hpp"
 #include "cooperative_perception/visitor.hpp"
+#include "cooperative_perception/uuid.hpp"
 
 namespace cooperative_perception
 {
@@ -89,11 +89,11 @@ auto scoreTracksAndDetections(const std::vector<TrackVariant>& tracks, const std
 
   for (const auto& track : tracks)
   {
-    const auto track_uuid{ std::visit(uuid_visitor, track) };
+    const auto track_uuid{ get_uuid(track) };
 
     for (const auto& detection : detections)
     {
-      const auto detection_uuid{ std::visit(uuid_visitor, detection) };
+      const auto detection_uuid{ get_uuid(detection) };
 
       if (const auto score = std::visit(metric_visitor, track, detection); score.has_value())
       {
