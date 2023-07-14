@@ -201,36 +201,4 @@ inline auto roundToDecimalPlace(const AugmentedState<State, ProcessNoise>& state
 
 }  // namespace cooperative_perception
 
-namespace std
-{
-/**
- * @brief std::hash specialization for AugmentedState
- *
- * This specialization is necessary to use AugmentedState in unordered containers (e.g., std::unordered_set)
- *
- * @tparam State State vector type of AugmentedState being hashed
- * @tparam ProcessNoise Process noise vector type of AugmentedState being hashed
- */
-template <typename State, typename ProcessNoise>
-struct hash<cooperative_perception::AugmentedState<State, ProcessNoise>>
-{
-  /**
-   * @brief Call operator overload
-   *
-   * Computes the has of AugmentedState when called
-   *
-   * @param[in] state AugmentedState being hashed
-   * @return hash corresponding to the AugmentedState
-   */
-  std::size_t operator()(const cooperative_perception::AugmentedState<State, ProcessNoise>& state) const
-  {
-    std::size_t seed = 0;
-    boost::hash_combine(seed, std::hash<State>{}(state.state));
-    boost::hash_combine(seed, std::hash<ProcessNoise>{}(state.process_noise));
-
-    return seed;
-  }
-};
-}  // namespace std
-
 #endif  // COOPERATIVE_PERCEPTION_AUGMENTED_STATE_HPP
