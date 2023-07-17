@@ -24,7 +24,6 @@
 #include <variant>
 #include <units.h>
 #include "cooperative_perception/covariance_calibration.hpp"
-#include "cooperative_perception/detection.hpp"
 #include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception

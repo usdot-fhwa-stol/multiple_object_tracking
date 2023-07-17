@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ TEST(TestUnscentedTransform, GenerateSigmaPoints)
   const auto lambda{ cp::generateLambda(state.kNumVars, alpha, kappa) };
   const auto sigma_points{ cp::generateSigmaPoints(state, covariance, lambda) };
 
-  const std::unordered_set<cp::CtrvState> expected_sigma_points{
+  const std::vector<cp::CtrvState> expected_sigma_points{
     cp::CtrvState{ 5.90472378_m, 1.33143932_m, 2.31696311_mps, cp::Angle(0.41932039_rad), 0.27809126_rad_per_s },
     cp::CtrvState{ 5.58347622_m, 1.42856068_m, 2.09283689_mps, cp::Angle(0.58367961_rad), 0.42750874_rad_per_s },
     cp::CtrvState{ 5.7441_m, 1.58938448_m, 2.26241076_mps, cp::Angle(0.68589429_rad), 0.50740598_rad_per_s },

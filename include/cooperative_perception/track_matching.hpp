@@ -25,6 +25,7 @@
 #include "cooperative_perception/scoring.hpp"
 #include "cooperative_perception/detection.hpp"
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <dlib/optimization/max_cost_assignment.h>

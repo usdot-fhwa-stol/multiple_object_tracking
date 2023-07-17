@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
 #ifndef COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
 #define COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
 
+#include <tuple>
+#include <vector>
+#include <units.h>
 #include "cooperative_perception/unscented_transform.hpp"
 
 namespace cooperative_perception
@@ -62,14 +65,14 @@ inline auto unscentedKalmanFilterPredict(const StateType& state, const Covarianc
 
   // Advance mean and sigma points through the non-linear model
   const auto predicted_mean{ nextState(state, time_step) };
-  std::unordered_set<StateType> predicted_sigma_points;
+  std::vector<StateType> predicted_sigma_points;
   for (const auto& sigma_point : sigma_points)
   {
-    predicted_sigma_points.insert(nextState(sigma_point, time_step));
+    predicted_sigma_points.push_back(nextState(sigma_point, time_step));
   }
 
   // Convert mean and sigma points into Eigen::MatrixXf
-  const auto m_sigma_points{ sigmaSetToMatrixXf(predicted_mean, predicted_sigma_points) };
+  const auto m_sigma_points{ meanAndSigmaPointsToMatrixXf(predicted_mean, predicted_sigma_points) };
 
   // Compute UT based on the sigma points and weights
   const auto [result_state_vector, result_covariance_matrix] = computeUnscentedTransform(m_sigma_points, Wm, Wc);

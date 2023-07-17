@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include <vector>
 #include <units.h>
 #include <Eigen/Dense>
-#include <unordered_set>
 #include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
@@ -70,31 +69,31 @@ inline auto generateWeights(int n, float alpha, float beta, float lambda)
 /**
  * @brief Generate sample points from a state's distribution
  *
- * @tparam State State vector type of state distribution being sampled
- * @tparam StateCovariance Covariance matrix type of state distribution being sampled
+ * @tparam StateType State vector type of state distribution being sampled
+ * @tparam CovarianceType Covariance matrix type of state distribution being sampled
  *
  * @param[in] state Mean state vector of state distribution
  * @param[in] covariance Covariance matrix of state distribution
  * @param[in] num_points Number of points to sample
  * @param[in] lambda A tuning parameter affecting how the points are sampled
- * @return Set of sampled points
+ * @return Vector of sampled points
  */
-template <typename State, typename StateCovariance>
-inline auto generateSigmaPoints(const State& state, const StateCovariance& covariance, const float& lambda)
-    -> std::unordered_set<State>
+template <typename StateType, typename CovarianceType>
+inline auto generateSigmaPoints(const StateType& state, const CovarianceType& covariance, const float& lambda)
+    -> std::vector<StateType>
 {
-  std::unordered_set<State> sigma_pts{};
-  const StateCovariance covariance_sqrt{ covariance.llt().matrixL() };
+  std::vector<StateType> sigma_points{};
+  const CovarianceType covariance_sqrt{ covariance.llt().matrixL() };
   for (const auto& column : covariance_sqrt.colwise())
   {
     const auto result{ std::sqrt(covariance.rows() + lambda) * column };
-    const auto result_state{ State::fromEigenVector(result) };
+    const auto result_state{ StateType::fromEigenVector(result) };
 
-    sigma_pts.insert(state + result_state);
-    sigma_pts.insert(state - result_state);
+    sigma_points.push_back(state + result_state);
+    sigma_points.push_back(state - result_state);
   }
 
-  return sigma_pts;
+  return sigma_points;
 }
 
 /**
@@ -130,39 +129,38 @@ inline auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
 }
 
 /**
- * @brief This function takes a state and a set of sigma points and returns them as a matrix.
- * @tparam State A class representing the state variables.
+ * @brief This function takes a mean and its vector of sigma points and returns them as a matrix.
+ * @tparam StateType A class representing the mean type.
  * @param[in] state The current state variables.
- * @param[in] sigma_points The set of sigma points to be converted into a matrix.
+ * @param[in] sigma_points The vector of sigma points to be converted into a matrix.
  * @return A matrix containing the state and sigma points as rows.
  */
-template <typename State>
-inline auto sigmaSetToMatrixXf(const State& state, const std::unordered_set<State>& sigma_points) -> Eigen::MatrixXf
+template <typename StateType>
+inline auto meanAndSigmaPointsToMatrixXf(const StateType& state, const std::vector<StateType>& sigma_points)
+    -> Eigen::MatrixXf
 {
-  Eigen::MatrixXf matrix(std::size(sigma_points) + 1, State::kNumVars);
-  matrix.row(0) = State::toEigenVector(state).transpose();
-  auto i{ 1 };
-  for (const auto& sigma_point : sigma_points)
+  Eigen::MatrixXf matrix(sigma_points.size() + 1, StateType::kNumVars);
+  matrix.row(0) = StateType::toEigenVector(state).transpose();
+  for (std::size_t i = 0; i < sigma_points.size(); ++i)
   {
-    matrix.row(i) = State::toEigenVector(sigma_point).transpose();
-    i++;
+    matrix.row(i + 1) = StateType::toEigenVector(sigma_points[i]).transpose();
   }
   return matrix;
 }
 
 /**
- *@brief This function performs the unscented transform on a set of sigma points. It computes the weighted mean and
- *covariance of the given sigma points.
+ *@brief This function performs the unscented transform on a matrix of sigma points. It computes the weighted mean and
+ * covariance of the given sigma points.
  *@param[in] sigmas Matrix of sigma points. The first row of sigmas should correspond to the mean of the distribution.
  *@param[in] Wm Vector of weights used to compute the weighted mean of the sigma points.
  *@param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points.
  *@return A tuple containing the weighted mean and weighted covariance of the sigma points.
  */
-inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen::VectorXf& Wm,
+inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigma_points, const Eigen::VectorXf& Wm,
                                       const Eigen::VectorXf& Wc) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
-  Eigen::VectorXf x = Wm.transpose() * sigmas;
-  Eigen::MatrixXf y = sigmas - stackVectorIntoMatrix(x, sigmas.rows());
+  Eigen::VectorXf x = Wm.transpose() * sigma_points;
+  Eigen::MatrixXf y = sigma_points - stackVectorIntoMatrix(x, sigma_points.rows());
   Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
   return { x, P };
 }
@@ -174,8 +172,8 @@ inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen
  * Additionally, it calculates the weights for mean and covariance calculations using the provided alpha, beta, and
  * lambda.
  *
- * @tparam State The type of the state vector.
- * @tparam StateCovariance The type of the covariance matrix.
+ * @tparam StateType The type of the state vector.
+ * @tparam CovarianceType The type of the covariance matrix.
  *
  * @param[in] state The initial state vector.
  * @param[in] covariance The covariance matrix associated with the state.
@@ -189,7 +187,7 @@ inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigmas, const Eigen
 template <typename StateType, typename CovarianceType>
 inline auto generateSigmaPointsAndWeights(const StateType& state, const CovarianceType& covariance, const float alpha,
                                           const float beta, const float kappa)
-    -> std::tuple<std::unordered_set<StateType>, Eigen::VectorXf, Eigen::VectorXf>
+    -> std::tuple<std::vector<StateType>, Eigen::VectorXf, Eigen::VectorXf>
 {
   const auto lambda{ generateLambda(state.kNumVars, alpha, kappa) };
   const auto sigma_points{ generateSigmaPoints(state, covariance, lambda) };

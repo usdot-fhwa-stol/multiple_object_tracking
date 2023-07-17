@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,9 @@ TEST(TestUnscentedKalmanFilter, CtrvPrediction)
   const auto alpha{ 1.0 };
   const auto beta{ 2.0 };
   const auto kappa{ 1.0 };
+  const auto time_step{ 1.0_s };
 
-  const auto transform_res{ cp::unscentedKalmanFilterPredict(state, covariance, 1.0_s, alpha, beta, kappa) };
+  const auto transform_res{ cp::unscentedKalmanFilterPredict(state, covariance, time_step, alpha, beta, kappa) };
   cp::CtrvState result_state{ std::get<0>(transform_res) };
   cp::CtrvStateCovariance result_covariance{ std::get<1>(transform_res) };
 
@@ -79,20 +80,20 @@ TEST(TestUnscentedKalmanFilter, CtraPrediction)
   // Expected values
   const cp::CtraState expected_state{ 7.79562_m,         3.06979_m,     3.20490_mps, cp::Angle(0.85430_rad),
                                       0.35280_rad_per_s, 1.00000_mps_sq };
-  const cp::CtraStateCovariance expected_covariance{ { { 39.64316, 34.85464, 106.24644, -0.06485, -0.03496, 106.36899 },
-                                                       { 34.85464, 32.50104, 96.06596, 0.07105, 0.03515, 96.17529 },
-                                                       { 106.24644, 96.06595, 288.55994, 0.01260, 0.00290, 288.89453 },
-                                                       { -0.06485, 0.07105, 0.01260, 0.04210, 0.02230, 0.01110 },
-                                                       { -0.03496, 0.03515, 0.00290, 0.02230, 0.01230, 0.00210 },
-                                                       { 106.36899, 96.17529, 288.89453, 0.01110, 0.00210,
-                                                         289.23456 } } };
+  const cp::CtraStateCovariance expected_covariance{ { 39.64316, 34.85464, 106.24644, -0.06485, -0.03496, 106.36900 },
+                                                     { 34.85464, 32.50103, 96.06596, 0.07105, 0.03515, 96.17529 },
+                                                     { 106.24644, 96.06596, 288.55994, 0.01260, 0.00290, 288.89456 },
+                                                     { -0.06485, 0.07105, 0.01260, 0.04210, 0.02230, 0.01110 },
+                                                     { -0.03496, 0.03515, 0.00290, 0.02230, 0.01230, 0.00210 },
+                                                     { 106.36899, 96.17529, 288.89453, 0.01110, 0.00210, 289.23456 } };
 
   // Declaring parameters for UKF
   const auto alpha{ 1.0 };
   const auto beta{ 2.0 };
   const auto kappa{ 1.0 };
+  const auto time_step{ 1.0_s };
 
-  const auto transform_res{ cp::unscentedKalmanFilterPredict(state, covariance, 1.0_s, alpha, beta, kappa) };
+  const auto transform_res{ cp::unscentedKalmanFilterPredict(state, covariance, time_step, alpha, beta, kappa) };
   cp::CtraState result_state{ std::get<0>(transform_res) };
   cp::CtraStateCovariance result_covariance{ std::get<1>(transform_res) };
 
