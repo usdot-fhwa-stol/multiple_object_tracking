@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -372,12 +372,12 @@ inline auto mahalanobis_distance(CtrvState mean, CtrvStateCovariance covariance,
 }
 
 /**
- * @brief Prints the values of a CtrvState object to the console
+ * @brief Prints the values of a CtrvState instance to the console
  *
- * This function prints the values of a CtrvState object to the console in a user-friendly format.
+ * This function prints the values of a CtrvState instance to the console in a user-friendly format.
  * The values printed are: position_x, position_y, velocity, yaw angle, and yaw rate.
  *
- * @param[in] state The CtrvState object to print
+ * @param[in] state The CtrvState instance to print
  * @return None
  */
 auto printState(const CtrvState& state) -> void;
@@ -491,63 +491,5 @@ inline auto roundToDecimalPlace(const CtrvProcessNoise& noise, std::size_t decim
 }  // namespace utils
 
 }  // namespace cooperative_perception
-
-namespace std
-{
-/**
- * @brief std::hash specialization for CtrvState
- *
- * This specialization is necessary to use CtrvState in unordered containers (e.g., std::unordered_set)
- */
-template <>
-struct hash<cooperative_perception::CtrvState>
-{
-  /**
-   * @brief Call operator overload
-   *
-   * Computes the has of CtrvState when called
-   *
-   * @param[in] state CtrvState being hashed
-   * @return hash corresponding to the CtrvState
-   */
-  std::size_t operator()(const cooperative_perception::CtrvState& state) const
-  {
-    std::size_t seed = 0;
-    boost::hash_combine(seed, units::unit_cast<double>(state.position_x));
-    boost::hash_combine(seed, units::unit_cast<double>(state.position_y));
-    boost::hash_combine(seed, units::unit_cast<double>(state.velocity));
-    boost::hash_combine(seed, units::unit_cast<double>(state.yaw.get_angle()));
-    boost::hash_combine(seed, units::unit_cast<double>(state.yaw_rate));
-
-    return seed;
-  }
-};
-
-/**
- * @brief std::hash specialization for CtrvProcessNoise
- *
- * This specialization is necessary to use CtrvProcessNoise in unordered containers (e.g., std::unordered_set)
- */
-template <>
-struct hash<cooperative_perception::CtrvProcessNoise>
-{
-  /**
-   * @brief Call operator overload
-   *
-   * Computes the has of CtrvProcessNoise when called
-   *
-   * @param[in] state CtrvProcessNoise being hashed
-   * @return hash corresponding to the CtrvProcessNoise
-   */
-  std::size_t operator()(const cooperative_perception::CtrvProcessNoise& process_noise) const
-  {
-    std::size_t seed = 0;
-    boost::hash_combine(seed, units::unit_cast<double>(process_noise.linear_acceleration));
-    boost::hash_combine(seed, units::unit_cast<double>(process_noise.angular_acceleration));
-
-    return seed;
-  }
-};
-}  // namespace std
 
 #endif  // COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP

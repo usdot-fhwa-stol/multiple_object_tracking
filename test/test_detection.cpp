@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,36 +26,36 @@
 
 namespace cp = cooperative_perception;
 
-TEST(TestDetection, CtrvObjectDefaultConstruction)
+TEST(TestDetection, CtrvDetectionDefaultConstruction)
 {
   using namespace units::literals;
 
-  auto const object = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{
+  auto const detection = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{
     units::time::second_t{ 0 }, cp::CtrvState{ 0_m, 0_m, 0_mps, cp::Angle(0_rad), 0_rad_per_s }
   };
 
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.timestamp), 0.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_x), 0.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_y), 0.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.velocity), 0.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw.get_angle()), 0.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw_rate), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.timestamp), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.position_x), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.position_y), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.velocity), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.yaw.get_angle()), 0.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.yaw_rate), 0.0);
 }
 
-TEST(TestDetection, CtrvObjectCustomConstruction)
+TEST(TestDetection, CtrvDetectionCustomConstruction)
 {
   using namespace units::literals;
 
   // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-  auto const object =
+  auto const detection =
       cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{ units::time::second_t{ 1 },
                                                              cp::CtrvState{ 1_m, 2_m, 3_mps, 4_rad, 5_rad_per_s } };
   // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.timestamp), 1.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_x), 1.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.position_y), 2.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.velocity), 3.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw.get_angle()), 4.0);
-  EXPECT_DOUBLE_EQ(units::unit_cast<double>(object.state.yaw_rate), 5.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.timestamp), 1.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.position_x), 1.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.position_y), 2.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.velocity), 3.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.yaw.get_angle()), 4.0);
+  EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.yaw_rate), 5.0);
 }

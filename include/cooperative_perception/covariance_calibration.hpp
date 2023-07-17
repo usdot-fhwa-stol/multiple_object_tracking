@@ -21,8 +21,6 @@
 #ifndef COOPERATIVE_PERCEPTION_COVARIANCE_CALIBRATION_HPP
 #define COOPERATIVE_PERCEPTION_COVARIANCE_CALIBRATION_HPP
 
-#include "cooperative_perception/detection.hpp"
-
 namespace cooperative_perception
 {
 /**

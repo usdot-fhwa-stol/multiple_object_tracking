@@ -45,8 +45,8 @@ enum class TrackStatus
 /**
  * @brief Tracked object (simply, Track)
  *
- * @tparam StateType State vector type for object's motion model
- * @tparam CovarianceType Covariance matrix type for object's motion model
+ * @tparam StateType State vector type for track's motion model
+ * @tparam CovarianceType Covariance matrix type for track's motion model
  */
 template <typename StateType, typename CovarianceType>
 struct Track
@@ -56,7 +56,7 @@ struct Track
   CovarianceType covariance;
   TrackStatus status;
   std::string uuid;
-  std::vector<std::string> associated_object_ids;
+  std::vector<std::string> associated_detection_ids;
 };
 
 /**
@@ -75,7 +75,7 @@ using CtraTrack = Track<CtraState, CtraStateCovariance>;
  * This type contains all the Track types supported by the library. It can be used to refer
  * generically to any Track and allows all Track types to be stored in the same container.
  */
-using TrackType = std::variant<CtrvTrack, CtraTrack>;
+using TrackVariant = std::variant<CtrvTrack, CtraTrack>;
 
 }  // namespace cooperative_perception
 
