@@ -131,16 +131,16 @@ inline auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
 /**
  * @brief This function takes a mean and its vector of sigma points and returns them as a matrix.
  * @tparam StateType A class representing the mean type.
- * @param[in] state The current state variables.
+ * @param[in] mean The current mean.
  * @param[in] sigma_points The vector of sigma points to be converted into a matrix.
  * @return A matrix containing the state and sigma points as rows.
  */
 template <typename StateType>
-inline auto meanAndSigmaPointsToMatrixXf(const StateType& state, const std::vector<StateType>& sigma_points)
+inline auto meanAndSigmaPointsToMatrixXf(const StateType& mean, const std::vector<StateType>& sigma_points)
     -> Eigen::MatrixXf
 {
   Eigen::MatrixXf matrix(sigma_points.size() + 1, StateType::kNumVars);
-  matrix.row(0) = StateType::toEigenVector(state).transpose();
+  matrix.row(0) = StateType::toEigenVector(mean).transpose();
   for (std::size_t i = 0; i < sigma_points.size(); ++i)
   {
     matrix.row(i + 1) = StateType::toEigenVector(sigma_points[i]).transpose();
