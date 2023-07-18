@@ -34,21 +34,26 @@ namespace cp = cooperative_perception;
 
 TEST(TestFusing, GenerateWeight)
 {
+  // Declaring initial covariances
   Eigen::Matrix3f covariance1;
   covariance1 << 4, 0, 0, 0, 5, 0, 0, 0, 6;
 
   Eigen::Matrix3f covariance2;
   covariance2 << 7, 0, 0, 0, 8, 0, 0, 0, 9;
 
+  // Expected values
   const auto expected_weight{ 0.5895104895104895 };
 
+  // Call the function under test
   const auto result_weight{ cp::generateWeight(covariance1.inverse(), covariance2.inverse()) };
 
+  // Check that function returns expected value
   EXPECT_TRUE(cp::utils::almostEqual(expected_weight, result_weight));
 }
 
 TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
 {
+  // Declaring initial means and covariances
   Eigen::Vector3f mean1(1, 2, 3);
   Eigen::Matrix3f covariance1;
   covariance1 << 4, 0, 0, 0, 5, 0, 0, 0, 6;
@@ -57,22 +62,21 @@ TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
   Eigen::Matrix3f covariance2;
   covariance2 << 7, 0, 0, 0, 8, 0, 0, 0, 9;
 
+  // Expected values
   Eigen::Vector3f expected_mean(1.85392169, 2.90970142, 3.95112071);
   Eigen::Matrix3f expected_covariance;
   expected_covariance << 4.85392169, 0, 0, 0, 5.90970142, 0, 0, 0, 6.95112071;
 
+  // Generate weight for CI function
   const auto weight{ cp::generateWeight(covariance1.inverse(), covariance2.inverse()) };
 
+  // Call the function under test
   const auto [result_mean,
               result_covariance]{ cp::computeCovarianceIntersection(mean1, covariance1, mean2, covariance2, weight) };
 
-  std::cout << "Result mean: \n";
-  std::cout << result_mean << "\n";
-  std::cout << "Result covariance: \n";
-  std::cout << result_covariance << "\n";
-
-  EXPECT_TRUE(cp::utils::almostEqual(result_mean, expected_mean));
-  EXPECT_TRUE(cp::utils::almostEqual(result_covariance, expected_covariance));
+  // Check that function returns expected value
+  EXPECT_TRUE(cp::utils::almostEqual(expected_mean, result_mean));
+  EXPECT_TRUE(cp::utils::almostEqual(expected_covariance, result_covariance));
 }
 
 TEST(TestFusing, Example)
