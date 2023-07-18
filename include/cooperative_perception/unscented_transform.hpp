@@ -24,7 +24,6 @@
 #include <tuple>
 #include <math.h>
 #include <vector>
-#include <units.h>
 #include <Eigen/Dense>
 #include "cooperative_perception/utils.hpp"
 

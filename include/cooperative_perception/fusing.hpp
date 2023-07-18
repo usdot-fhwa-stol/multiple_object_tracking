@@ -21,7 +21,9 @@
 #ifndef COOPERATIVE_PERCEPTION_FUSING_HPP
 #define COOPERATIVE_PERCEPTION_FUSING_HPP
 
+#include <tuple>
 #include <vector>
+#include <Eigen/Dense>
 #include "cooperative_perception/track_matching.hpp"
 
 namespace cooperative_perception
