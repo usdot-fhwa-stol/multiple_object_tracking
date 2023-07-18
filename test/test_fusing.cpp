@@ -28,7 +28,6 @@
 #include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/track_matching.hpp>
-#include <cooperative_perception/unscented_transform.hpp>
 
 namespace cp = cooperative_perception;
 

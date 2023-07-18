@@ -25,7 +25,6 @@
 #include <math.h>
 #include <vector>
 #include <Eigen/Dense>
-#include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
 {
@@ -193,128 +192,6 @@ inline auto generateSigmaPointsAndWeights(const StateType& state, const Covarian
   const auto [Wm, Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
   return { sigma_points, Wm, Wc };
 }
-
-namespace utils
-{
-/**
- * @brief Compares the almost-equality of two vector of floats
- *
- * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
- * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
- *
- * @return True if vectors are almost-equal, false otherwise
- */
-inline auto almostEqual(const std::vector<float>& lhs, const std::vector<float>& rhs) -> bool
-{
-  if (lhs.size() != rhs.size())
-  {
-    return false;
-  }
-
-  for (int i = 0; i < lhs.size(); ++i)
-  {
-    if (!almostEqual(lhs[i], rhs[i]))
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * @brief Compares the almost-equality of two Eigen::VectorXf
- *
- * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
- * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
- *
- * @return True if vectors are almost-equal, false otherwise
- */
-inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs) -> bool
-{
-  if (lhs.size() != rhs.size())
-  {
-    return false;  // vectors are not equal if they have different sizes
-  }
-
-  for (int i = 0; i < lhs.size(); ++i)
-  {
-    if (!almostEqual(lhs[i], rhs[i]))
-    {
-      return false;  // vectors are not equal if any of their elements differ
-    }
-  }
-
-  return true;  // vectors are equal if all their elements are the same
-}
-
-/**
- * @brief Rounds a float to the nearest decimal place. Useful for comparing covariance values
- *
- * @param[in] n float being rounded
- * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
- * (0.001)
- * @return Rounded float
- */
-inline auto roundToDecimalPlace(float n, std::size_t decimal_place) -> float
-{
-  const auto multiplier{ std::pow(10.0f, decimal_place) };
-
-  float x = round(n * multiplier) / multiplier;
-  return x;
-}
-
-/**
- * @brief Rounds a Eigen::MatrixXf to the nearest decimal place. Useful for comparing covariance values
- *
- * @param[in] n Eigen::MatrixXf being rounded
- * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths
- * (0.001)
- * @return Rounded Eigen::MatrixXf
- */
-inline auto roundToDecimalPlace(const Eigen::MatrixXf& n, std::size_t decimal_place) -> Eigen::MatrixXf
-{
-  Eigen::MatrixXf x(n.rows(), n.cols());
-  for (int i = 0; i < n.rows(); ++i)
-  {
-    for (int j = 0; j < n.cols(); ++j)
-    {
-      x(i, j) = roundToDecimalPlace(n(i, j), decimal_place);
-    }
-  }
-  return x;
-}
-
-/**
- * @brief Compares the almost-equality of two Eigen::MatrixXf
- *
- * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
- * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
- *
- * @return True if vectors are almost-equal, false otherwise
- */
-inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs) -> bool
-{
-  if (lhs.rows() != rhs.rows() || lhs.cols() != rhs.cols())
-  {
-    return false;  // matrices are not equal if they have different dimensions
-  }
-
-  for (int i = 0; i < lhs.rows(); ++i)
-  {
-    for (int j = 0; j < lhs.cols(); ++j)
-    {
-      if (!almostEqual(lhs(i, j), rhs(i, j)))
-      {
-        return false;  // matrices are not equal if any of their elements differ
-      }
-    }
-  }
-
-  return true;  // matrices are equal if all their elements are the same
-}
-
-}  // namespace utils
 
 }  // namespace cooperative_perception
 
