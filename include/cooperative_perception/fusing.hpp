@@ -28,6 +28,31 @@
 
 namespace cooperative_perception
 {
+auto computeCovarianceIntersection(const Eigen::VectorXf& mean1, const Eigen::MatrixXf& covariance1,
+                                   const Eigen::VectorXf& mean2, const Eigen::MatrixXf& covariance2, float weight)
+    -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+{
+  Eigen::MatrixXf covariance_inv1 = covariance1.inverse();
+  Eigen::MatrixXf covariance_inv2 = covariance2.inverse();
+  Eigen::MatrixXf covariance_inv_combined = weight * covariance_inv1 + (1 - weight) * covariance_inv2;
+  Eigen::MatrixXf covariance_combined = covariance_inv_combined.inverse();
+  Eigen::VectorXf mean_combined =
+      covariance_combined * (weight * covariance_inv1 * mean1 + (1 - weight) * covariance_inv2 * mean2);
+
+  return { mean_combined, covariance_combined };
+}
+
+auto generateWeight(const Eigen::MatrixXf& inverse_covariance1, const Eigen::MatrixXf& inverse_covariance2) -> float
+{
+  float det_inverse_covariance1 = inverse_covariance1.determinant();
+  float det_inverse_covariance2 = inverse_covariance2.determinant();
+  float det_inverse_covariance_sum = (inverse_covariance1 + inverse_covariance2).determinant();
+
+  float weight = (det_inverse_covariance_sum - det_inverse_covariance2 + det_inverse_covariance1) /
+                 (2 * det_inverse_covariance_sum);
+  return weight;
+}
+
 constexpr Visitor covariance_intersection_visitor{ [](const auto& associations) {
   // Call CI after implementation
 } };

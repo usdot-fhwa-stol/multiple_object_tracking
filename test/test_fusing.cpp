@@ -18,16 +18,62 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
+#include <Eigen/Dense>
 #include <gtest/gtest.h>
 #include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/track.hpp>
+#include <cooperative_perception/utils.hpp>
 #include <cooperative_perception/fusing.hpp>
 #include <cooperative_perception/detection.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/ctra_model.hpp>
+#include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/track_matching.hpp>
+#include <cooperative_perception/unscented_transform.hpp>
 
 namespace cp = cooperative_perception;
+
+TEST(TestFusing, GenerateWeight)
+{
+  Eigen::Matrix3f covariance1;
+  covariance1 << 4, 0, 0, 0, 5, 0, 0, 0, 6;
+
+  Eigen::Matrix3f covariance2;
+  covariance2 << 7, 0, 0, 0, 8, 0, 0, 0, 9;
+
+  const auto expected_weight{ 0.5895104895104895 };
+
+  const auto result_weight{ cp::generateWeight(covariance1.inverse(), covariance2.inverse()) };
+
+  EXPECT_TRUE(cp::utils::almostEqual(expected_weight, result_weight));
+}
+
+TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
+{
+  Eigen::Vector3f mean1(1, 2, 3);
+  Eigen::Matrix3f covariance1;
+  covariance1 << 4, 0, 0, 0, 5, 0, 0, 0, 6;
+
+  Eigen::Vector3f mean2(4, 5, 6);
+  Eigen::Matrix3f covariance2;
+  covariance2 << 7, 0, 0, 0, 8, 0, 0, 0, 9;
+
+  Eigen::Vector3f expected_mean(1.85392169, 2.90970142, 3.95112071);
+  Eigen::Matrix3f expected_covariance;
+  expected_covariance << 4.85392169, 0, 0, 0, 5.90970142, 0, 0, 0, 6.95112071;
+
+  const auto weight{ cp::generateWeight(covariance1.inverse(), covariance2.inverse()) };
+
+  const auto [result_mean,
+              result_covariance]{ cp::computeCovarianceIntersection(mean1, covariance1, mean2, covariance2, weight) };
+
+  std::cout << "Result mean: \n";
+  std::cout << result_mean << "\n";
+  std::cout << "Result covariance: \n";
+  std::cout << result_covariance << "\n";
+
+  EXPECT_TRUE(cp::utils::almostEqual(result_mean, expected_mean));
+  EXPECT_TRUE(cp::utils::almostEqual(result_covariance, expected_covariance));
+}
 
 TEST(TestFusing, Example)
 {
