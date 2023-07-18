@@ -25,6 +25,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_scoring.cpp
   test_track_matching.cpp
   test_gating.cpp
+  test_fusing.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable
