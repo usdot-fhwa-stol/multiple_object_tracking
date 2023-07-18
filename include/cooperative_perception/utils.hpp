@@ -22,6 +22,7 @@
 #define COOPERATIVE_PERCEPTION_UTILS_HPP
 
 #include <cmath>
+#include <vector>
 #include <Eigen/Dense>
 
 namespace cooperative_perception::utils

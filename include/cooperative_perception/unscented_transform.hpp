@@ -22,7 +22,6 @@
 #define COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 
 #include <tuple>
-#include <math.h>
 #include <vector>
 #include <Eigen/Dense>
 
