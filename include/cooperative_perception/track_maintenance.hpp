@@ -161,7 +161,7 @@ auto updateTracks(Container& tracks, const TrackManager& track_manager) -> void
 {
   for (auto& track : tracks)
   {
-    const auto uuid = get_uuid(track);
+    const auto uuid = getUuid(track);
 
     if (track_manager.shouldPromote(uuid))
     {
@@ -174,7 +174,7 @@ auto updateTracks(Container& tracks, const TrackManager& track_manager) -> void
   }
 
   std::remove_if(std::begin(tracks), std::end(tracks),
-                 [track_manager](const auto& track) { return track_manager.shouldRemove(get_uuid(track)); });
+                 [track_manager](const auto& track) { return track_manager.shouldRemove(getUuid(track)); });
 }
 
 }  // namespace cooperative_perception
