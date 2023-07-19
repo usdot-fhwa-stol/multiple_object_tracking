@@ -22,20 +22,17 @@
 #define COOPERATIVE_PERCEPTION_FUSING_HPP
 
 #include <tuple>
-#include <vector>
 #include <variant>
 #include <Eigen/Dense>
-#include "cooperative_perception/track_matching.hpp"
-#include "cooperative_perception/detection.hpp"
 #include "cooperative_perception/track.hpp"
-#include "cooperative_perception/common_visitors.hpp"
 #include "cooperative_perception/visitor.hpp"
+#include "cooperative_perception/common_visitors.hpp"
 
 namespace cooperative_perception
 {
-auto computeCovarianceIntersection(const Eigen::VectorXf& mean1, const Eigen::MatrixXf& inverse_covariance1,
-                                   const Eigen::VectorXf& mean2, const Eigen::MatrixXf& inverse_covariance2,
-                                   float weight) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+inline auto computeCovarianceIntersection(const Eigen::VectorXf& mean1, const Eigen::MatrixXf& inverse_covariance1,
+                                          const Eigen::VectorXf& mean2, const Eigen::MatrixXf& inverse_covariance2,
+                                          float weight) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   const auto inverse_covariance_combined{ weight * inverse_covariance1 + (1 - weight) * inverse_covariance2 };
   const auto covariance_combined{ inverse_covariance_combined.inverse() };
@@ -44,7 +41,8 @@ auto computeCovarianceIntersection(const Eigen::VectorXf& mean1, const Eigen::Ma
   return { mean_combined, covariance_combined };
 }
 
-auto generateWeight(const Eigen::MatrixXf& inverse_covariance1, const Eigen::MatrixXf& inverse_covariance2) -> float
+inline auto generateWeight(const Eigen::MatrixXf& inverse_covariance1, const Eigen::MatrixXf& inverse_covariance2)
+    -> float
 {
   const auto det_inverse_covariance1{ inverse_covariance1.determinant() };
   const auto det_inverse_covariance2{ inverse_covariance2.determinant() };
@@ -74,16 +72,11 @@ constexpr Visitor covariance_intersection_visitor{ [](const auto& track, const a
   return fused_track;
 } };
 
-// template <typename DetectionContainer, typename TrackContainer, typename FusionVisitor>
-// auto fuseAssociations(const AssociationMap& associations, const DetectionContainer& detections,
-//                       const TrackContainer& tracks, const FusionVisitor& fusion_visitor) -> TrackContainer
-
-template <typename FusionVisitor>
-auto fuseAssociations(const AssociationMap& associations, const std::vector<TrackVariant>& tracks,
-                      const std::vector<DetectionVariant>& detections, const FusionVisitor& fusion_visitor)
-    -> std::vector<TrackVariant>
+template <typename AssociationMap, typename TrackContainer, typename DetectionContainer, typename FusionVisitor>
+auto fuseAssociations(const AssociationMap& associations, const TrackContainer& tracks,
+                      const DetectionContainer& detections, const FusionVisitor& fusion_visitor) -> TrackContainer
 {
-  std::vector<TrackVariant> fused_tracks;
+  TrackContainer fused_tracks;
 
   for (const auto& [target_track_uuid, target_detection_uuids] : associations)
   {
@@ -110,23 +103,27 @@ auto fuseAssociations(const AssociationMap& associations, const std::vector<Trac
   return fused_tracks;
 }
 
+namespace utils
+{
+constexpr Visitor print_entity_visitor{ [](const auto& entity) {
+  std::cout << "Timestamp: " << entity.timestamp << "\n";
+  std::cout << "UUID: " << entity.uuid << "\n";
+  printState(entity.state);
+  std::cout << "\nCovariance:\n" << entity.covariance;
+  std::cout << "\n------------------------------------------------------------\n\n";
+} };
+
+template <typename EntityContainer>
+inline auto printContainer(const EntityContainer& entities) -> void
+{
+  for (const auto& entity : entities)
+  {
+    std::visit(print_entity_visitor, entity);
+  }
+}
+
+}  // namespace utils
+
 }  // namespace cooperative_perception
 
 #endif  // COOPERATIVE_PERCEPTION_FUSING_HPP
-
-// template <typename DetectionType, typename TrackType>
-// auto fuseDetectionAndTrack(const DetectionType& detection, const TrackType& matched) -> TrackType
-// {
-//   TrackType fused_track;
-
-//   return fused_track;
-// }
-// std::cout << "weight: " << weight << "\n";
-// std::cout << "State for uuid [" << detection.uuid << "]:\n";
-// printState(detection.state);
-// std::cout << "Track uuid [" << track.uuid << "]:\n";
-// std::cout << "Detection uuid [" << detection.uuid << "]:\n";
-// std::cout << "\nFused state: \n";
-// std::cout << fused_state;
-// std::cout << "\nFused covariance: \n";
-// std::cout << fused_covariance << "\n";

@@ -152,5 +152,8 @@ TEST(TestFusing, Example)
   const auto result_tracks{ cp::fuseAssociations(associations, tracks, detections,
                                                  cp::covariance_intersection_visitor) };
 
+  cp::utils::printContainer(result_tracks);
+  cp::utils::printContainer(detections);
+
   EXPECT_TRUE(true);
 }
