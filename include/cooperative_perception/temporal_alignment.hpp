@@ -24,8 +24,6 @@
 #include <variant>
 #include <units.h>
 #include "cooperative_perception/covariance_calibration.hpp"
-#include "cooperative_perception/unscented_transform.hpp"
-#include "cooperative_perception/detection.hpp"
 #include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception
@@ -38,28 +36,49 @@ namespace cooperative_perception
  * @param[in,out] object Object whose state will be propagated
  * @param[in] time Time stamp to which the object's state will be propagated
  */
-constexpr Visitor kStatePropagator{ [](auto& object, units::time::second_t time) {
+constexpr Visitor state_propagation_visitor{ [](auto& object, units::time::second_t time) {
   object.state = nextState(object.state, time - object.timestamp);
   object.timestamp = time;
 } };
 
 /**
- * @brief Temporally align detection to a specific time step
+ * @brief Propagate the object to a specific time stamp.
  *
- * @param[in,out] detection DetectionType being predicted
- * @param[in] time Prediction time
- * @return void; detection is updated in place
+ * This function calibrates the covariance of the object and applies an prediction visitor to propagate the object's
+ * state to the specified time stamp.
+ *
+ * @param[in,out] object The object being propagated.
+ * @param[in] time The propagation time.
+ * @param[in] prediction_visitor The visitor with the implementation for propagating the object.
  */
-template <typename DetectionType>
-auto alignToTime(DetectionType& detection, units::time::second_t time) -> void
+template <typename ObjectVariant, typename PredictionVisitor>
+auto propagateToTime(ObjectVariant& object, units::time::second_t time, const PredictionVisitor& prediction_visitor)
+    -> void
 {
-  calibrateCovariance(detection);
-  auto [state, covariance] =
-      computeUnscentedTransform(detection.state, detection.covariance, time - detection.timestamp);
-  detection.state = state;
-  detection.covariance = covariance;
-  detection.timestamp = time;
-};
+  calibrateCovariance(object);
+  std::visit(prediction_visitor, object, std::variant<units::time::second_t>(time));
+}
+
+/**
+ * @brief Predict the object's state to a specific time stamp and return a new object.
+ *
+ * This function creates a copy of the input object, calibrates the covariance of the new object, and applies an
+ * prediction visitor to predict the state to the specified time stamp. The new predicted object is then returned.
+ *
+ * @param[in] object The object being predicted.
+ * @param[in] time The prediction time.
+ * @param[in] prediction_visitor The visitor with the implementation for predicting the object.
+ * @return The new object with the predicted state.
+ */
+template <typename ObjectVariant, typename PredictionVisitor>
+auto predictToTime(const ObjectVariant& object, units::time::second_t time, const PredictionVisitor& prediction_visitor)
+    -> ObjectVariant
+{
+  ObjectVariant new_object = object;
+  calibrateCovariance(new_object);
+  std::visit(prediction_visitor, new_object, std::variant<units::time::second_t>(time));
+  return new_object;
+}
 
 }  // namespace cooperative_perception
 

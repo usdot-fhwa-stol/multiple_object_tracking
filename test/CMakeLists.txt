@@ -20,7 +20,8 @@ add_executable(test_cooperative_perceptionExecutable
   test_ctra_model.cpp
   test_detection.cpp
   test_unscented_transform.cpp
-  test_host_object_alignment.cpp
+  test_temporal_alignment.cpp
+  test_unscented_kalman_filter.cpp
   test_scoring.cpp
   test_track_matching.cpp
   test_gating.cpp

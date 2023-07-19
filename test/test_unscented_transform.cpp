@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/unscented_transform.hpp>
 #include <cooperative_perception/utils.hpp>
-#include <cooperative_perception/augmented_state.hpp>
 #include <cooperative_perception/angle.hpp>
 
 namespace cp = cooperative_perception;
@@ -45,7 +44,7 @@ TEST(TestUnscentedTransform, GenerateSigmaPoints)
   const auto lambda{ cp::generateLambda(state.kNumVars, alpha, kappa) };
   const auto sigma_points{ cp::generateSigmaPoints(state, covariance, lambda) };
 
-  const std::unordered_set<cp::CtrvState> expected_sigma_points{
+  const std::vector<cp::CtrvState> expected_sigma_points{
     cp::CtrvState{ 5.90472378_m, 1.33143932_m, 2.31696311_mps, cp::Angle(0.41932039_rad), 0.27809126_rad_per_s },
     cp::CtrvState{ 5.58347622_m, 1.42856068_m, 2.09283689_mps, cp::Angle(0.58367961_rad), 0.42750874_rad_per_s },
     cp::CtrvState{ 5.7441_m, 1.58938448_m, 2.26241076_mps, cp::Angle(0.68589429_rad), 0.50740598_rad_per_s },
@@ -102,7 +101,7 @@ TEST(TestUnscentedTransform, GenerateWeights)
 }
 
 /**
- * Test the unscentedTransform function using purely Eigen matrices and vectors
+ * Test the ComputeUnscentedTransform function using purely Eigen matrices and vectors
  */
 TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
 {
@@ -128,40 +127,10 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
   expected_covariance << 0.0043, -0.0013, 0.003, -0.0022, -0.002, -0.0013, 0.0077, 0.0011, 0.0071, 0.006, 0.003, 0.0011,
       0.0054, 0.0007, 0.0008, -0.0022, 0.0071, 0.0007, 0.0098, 0.01, -0.002, 0.006, 0.0008, 0.01, 0.0123;
 
-  const auto transform_res{ cp::unscentedTransform(sigma_points, Wm, Wc) };
+  const auto transform_res{ cp::computeUnscentedTransform(sigma_points, Wm, Wc) };
   const auto result_state{ std::get<0>(transform_res) };
   const auto result_covariance{ std::get<1>(transform_res) };
 
   EXPECT_TRUE(cp::utils::almostEqual(expected_state, result_state));
   EXPECT_TRUE(cp::utils::almostEqual(expected_covariance, result_covariance));
-}
-
-/**
- * Test the ComputeUnscentedTransform function given a state, covariance and time step
- */
-TEST(TestUnscentedTransform, ComputeUnscentedTransform)
-{
-  using namespace units::literals;
-  // Declaring Initial state and covariance
-  const cp::CtrvState state{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s };
-  const cp::CtrvStateCovariance covariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-                                            { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-                                            { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-                                            { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-                                            { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } };
-  // Expected values
-  const cp::CtrvState expected_state{ 7.43224_m, 2.73933_m, 2.2049_mps, cp::Angle(0.8543_rad), 0.3528_rad_per_s };
-  const cp::CtrvStateCovariance expected_covariance{ { 0.0650073, -0.0670999, 0.00564003, -0.0463523, -0.0240175 },
-                                                     { -0.0670999, 0.11094, 0.00625031, 0.0654438, 0.0333096 },
-                                                     { 0.00564003, 0.00625031, 0.0054, 0.0015, 0.000800002 },
-                                                     { -0.0463523, 0.0654438, 0.0015, 0.0421, 0.0223 },
-                                                     { -0.0240175, 0.0333096, 0.000800002, 0.0223, 0.0123 } };
-
-  const auto transform_res{ cp::computeUnscentedTransform(state, covariance, 1.0_s) };
-  cp::CtrvState result_state{ std::get<0>(transform_res) };
-  cp::CtrvStateCovariance result_covariance{ std::get<1>(transform_res) };
-
-  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(result_state, 4),
-                                     cp::utils::roundToDecimalPlace(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almostEqual(result_covariance, expected_covariance));
 };

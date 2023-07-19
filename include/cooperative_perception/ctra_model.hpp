@@ -173,7 +173,7 @@ inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
 /**
  * @brief Covariance matrix for the CTRA motion model
  */
-using CtraStateCovariance = Eigen::Matrix<float, CtraState::kNumVars, CtraState::kNumVars>;
+using CtraStateCovariance = Eigen::MatrixXf;
 
 /**
  * @brief Process noise vector for the CTRA motion model
@@ -329,6 +329,17 @@ inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance,
 
   return std::sqrt(diff.transpose() * pose_cov.inverse() * diff);
 }
+
+/**
+ * @brief Prints the values of a CtraState object to the console
+ *
+ * This function prints the values of a CtraState object to the console in a user-friendly format.
+ * The values printed are: position_x, position_y, velocity, yaw angle, yaw rate, and acceleration.
+ *
+ * @param[in] state The CtraState object to print
+ * @return None
+ */
+auto printState(const CtraState& state) -> void;
 
 namespace utils
 {

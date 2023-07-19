@@ -85,4 +85,15 @@ auto nextState(const CtraState& state, units::time::second_t time_step, const Ct
   return next_state;
 }
 
+auto printState(const CtraState& state) -> void
+{
+  std::cout << "CtraState: \n";
+  std::cout << "x: " << state.position_x << "\n";
+  std::cout << "y: " << state.position_y << "\n";
+  std::cout << "velocity: " << state.velocity << "\n";
+  std::cout << "yaw: " << state.yaw.get_angle() << "\n";
+  std::cout << "yaw rate: " << state.yaw_rate << "\n";
+  std::cout << "acceleration: " << state.acceleration << "\n";
+}
+
 }  // namespace cooperative_perception
