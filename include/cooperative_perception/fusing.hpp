@@ -24,9 +24,9 @@
 #include <tuple>
 #include <variant>
 #include <Eigen/Dense>
+#include "cooperative_perception/uuid.hpp"
 #include "cooperative_perception/track.hpp"
 #include "cooperative_perception/visitor.hpp"
-#include "cooperative_perception/common_visitors.hpp"
 
 namespace cooperative_perception
 {
@@ -83,12 +83,12 @@ auto fuseAssociations(const AssociationMap& associations, const TrackContainer& 
     // Find the matching detection and track based on their uuids
     for (const auto& track : tracks)
     {
-      const auto track_uuid{ std::visit(uuid_visitor, track) };
+      const auto track_uuid{ getUuid(track) };
       if (track_uuid == target_track_uuid)
       {
         for (const auto& detection : detections)
         {
-          const auto detection_uuid{ std::visit(uuid_visitor, detection) };
+          const auto detection_uuid{ getUuid(detection) };
           if (std::find(target_detection_uuids.begin(), target_detection_uuids.end(), detection_uuid) !=
               target_detection_uuids.end())
           {
