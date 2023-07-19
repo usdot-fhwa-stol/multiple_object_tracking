@@ -66,12 +66,16 @@ TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
   Eigen::Matrix3f expected_covariance;
   expected_covariance << 4.85392169, 0, 0, 0, 5.90970142, 0, 0, 0, 6.95112071;
 
+  // Compute inverse of the covariances
+  const auto inverse_covariance1{ covariance1.inverse() };
+  const auto inverse_covariance2{ covariance2.inverse() };
+
   // Generate weight for CI function
-  const auto weight{ cp::generateWeight(covariance1.inverse(), covariance2.inverse()) };
+  const auto weight{ cp::generateWeight(inverse_covariance1, inverse_covariance2) };
 
   // Call the function under test
-  const auto [result_mean,
-              result_covariance]{ cp::computeCovarianceIntersection(mean1, covariance1, mean2, covariance2, weight) };
+  const auto [result_mean, result_covariance]{ cp::computeCovarianceIntersection(mean1, inverse_covariance1, mean2,
+                                                                                 inverse_covariance2, weight) };
 
   // Check that function returns expected value
   EXPECT_TRUE(cp::utils::almostEqual(expected_mean, result_mean));
@@ -87,6 +91,33 @@ TEST(TestFusing, Example)
                                    { "track3", { "detection1" } } };
 
   // I need detections, tracks
+  std::vector<cp::TrackVariant> tracks{
+    cp::CtrvTrack{ .timestamp{ units::time::second_t{ 0 } },
+                   .state{ cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
+                   .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+                                                         { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+                                                         { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+                                                         { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+                                                         { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } },
+                   .uuid{ "track1" } },
+    cp::CtrvTrack{ .timestamp{ units::time::second_t{ 0 } },
+                   .state{ cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
+                   .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+                                                         { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+                                                         { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+                                                         { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+                                                         { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } },
+                   .uuid{ "track2" } },
+    cp::CtrvTrack{ .timestamp{ units::time::second_t{ 0 } },
+                   .state{ cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
+                   .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
+                                                         { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
+                                                         { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
+                                                         { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
+                                                         { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } },
+                   .uuid{ "track3" } }
+  };
+
   std::vector<cp::DetectionVariant> detections{
     cp::CtrvDetection{
         .timestamp{ units::time::second_t{ 0 } },
@@ -117,36 +148,9 @@ TEST(TestFusing, Example)
         .uuid{ "detection3" } }
   };
 
-  std::vector<cp::TrackVariant> tracks{
-    cp::CtrvTrack{ .timestamp{ units::time::second_t{ 0 } },
-                   .state{ cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
-                   .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-                                                         { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-                                                         { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-                                                         { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-                                                         { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } },
-                   .uuid{ "track1" } },
-    cp::CtrvTrack{ .timestamp{ units::time::second_t{ 0 } },
-                   .state{ cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
-                   .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-                                                         { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-                                                         { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-                                                         { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-                                                         { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } },
-                   .uuid{ "track2" } },
-    cp::CtrvTrack{ .timestamp{ units::time::second_t{ 0 } },
-                   .state{ cp::CtrvState{ 5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s } },
-                   .covariance{ cp::CtrvStateCovariance{ { 0.0043, -0.0013, 0.0030, -0.0022, -0.0020 },
-                                                         { -0.0013, 0.0077, 0.0011, 0.0071, 0.0060 },
-                                                         { 0.0030, 0.0011, 0.0054, 0.0007, 0.0008 },
-                                                         { -0.0022, 0.0071, 0.0007, 0.0098, 0.0100 },
-                                                         { -0.0020, 0.0060, 0.0008, 0.0100, 0.0123 } } },
-                   .uuid{ "track3" } }
-  };
-
   // call function
-  const auto result_tracks =
-      cp::fuseAssociations(associations, detections, tracks, cp::covariance_intersection_visitor);
+  const auto result_tracks{ cp::fuseAssociations(associations, tracks, detections,
+                                                 cp::covariance_intersection_visitor) };
 
   EXPECT_TRUE(true);
 }
