@@ -23,8 +23,13 @@
 
 #include <tuple>
 #include <vector>
+#include <variant>
 #include <Eigen/Dense>
 #include "cooperative_perception/track_matching.hpp"
+#include "cooperative_perception/detection.hpp"
+#include "cooperative_perception/track.hpp"
+#include "cooperative_perception/common_visitors.hpp"
+#include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception
 {
@@ -53,15 +58,55 @@ auto generateWeight(const Eigen::MatrixXf& inverse_covariance1, const Eigen::Mat
   return weight;
 }
 
-constexpr Visitor covariance_intersection_visitor{ [](const auto& associations) {
-  // Call CI after implementation
+template <typename DetectionType, typename TrackType>
+auto fuseDetectionAndTrack(const DetectionType& detection, const TrackType& matched) -> TrackType
+{
+  TrackType fused_track;
+
+  return fused_track;
+}
+
+constexpr Visitor covariance_intersection_visitor{ [](const auto& detection, const auto& track) -> TrackVariant {
+  // code here
+  return track;
 } };
 
-template <typename DetectionContainer, typename TrackContainer, typename FusionVisitor>
-auto fuseAssociations(const AssociationMap& associations, const DetectionContainer& detections,
-                      const TrackContainer& tracks, const FusionVisitor& fusion_visitor) -> TrackContainer
+// template <typename DetectionContainer, typename TrackContainer, typename FusionVisitor>
+// auto fuseAssociations(const AssociationMap& associations, const DetectionContainer& detections,
+//                       const TrackContainer& tracks, const FusionVisitor& fusion_visitor) -> TrackContainer
+
+template <typename TrackVariant, typename DetectionVariant, typename FusionVisitor>
+auto fuseAssociations(const AssociationMap& associations, const std::vector<DetectionVariant>& detections,
+                      const std::vector<TrackVariant>& tracks, const FusionVisitor& fusion_visitor)
+    -> std::vector<TrackVariant>
 {
-  TrackContainer fused_tracks;
+  std::vector<TrackVariant> fused_tracks;
+
+  for (const auto& association : associations)
+  {
+    const std::string& trackId = association.first;
+    const std::vector<std::string>& detectionIds = association.second;
+
+    // Find the matching detection and track based on their IDs
+    for (const auto& track : tracks)
+    {
+      const auto track_uuid{ std::visit(uuid_visitor, track) };
+      if (trackId == track_uuid)
+      {
+        const auto matched_track = track;
+        for (const auto& detection : detections)
+        {
+          const auto detection_uuid{ std::visit(uuid_visitor, detection) };
+          if (std::find(detectionIds.begin(), detectionIds.end(), detection_uuid) != detectionIds.end())
+          {
+            const auto matched_detection = detection;
+            const TrackVariant fused_track = std::visit(fusion_visitor, matched_detection, matched_track);
+            fused_tracks.push_back(fused_track);
+          }
+        }
+      }
+    }
+  }
 
   return fused_tracks;
 }
