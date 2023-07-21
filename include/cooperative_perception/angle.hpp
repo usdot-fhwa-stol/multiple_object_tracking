@@ -24,7 +24,6 @@
 #include <complex>
 #include <units.h>
 #include <boost/math/constants/constants.hpp>
-#include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
 {

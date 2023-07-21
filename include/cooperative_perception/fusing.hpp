@@ -30,6 +30,21 @@
 
 namespace cooperative_perception
 {
+/**
+ * @brief Compute the covariance intersection of two multivariate Gaussian distributions.
+ *
+ * This function takes the mean and inverse covariance of two Gaussian distributions and computes their covariance
+ * intersection. The covariance intersection is a weighted combination of the two inverse covariances, and the weight
+ * determines the influence of each distribution in the resulting covariance. The resulting mean and covariance are
+ * returned as a tuple.
+ *
+ * @param[in] mean1 The mean of the first Gaussian distribution.
+ * @param[in] inverse_covariance1 The inverse covariance of the first Gaussian distribution.
+ * @param[in] mean2 The mean of the second Gaussian distribution.
+ * @param[in] inverse_covariance2 The inverse covariance of the second Gaussian distribution.
+ * @param[in] weight The weight (0 to 1) to combine the two inverse covariances.
+ * @return A tuple containing the combined mean and covariance of the two Gaussian distributions.
+ */
 inline auto computeCovarianceIntersection(const Eigen::VectorXf& mean1, const Eigen::MatrixXf& inverse_covariance1,
                                           const Eigen::VectorXf& mean2, const Eigen::MatrixXf& inverse_covariance2,
                                           float weight) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
@@ -41,6 +56,17 @@ inline auto computeCovarianceIntersection(const Eigen::VectorXf& mean1, const Ei
   return { mean_combined, covariance_combined };
 }
 
+/**
+ * @brief Generate the weight for covariance intersection of two Gaussian distributions.
+ *
+ * This function calculates the weight used in covariance intersection, which determines the influence of each Gaussian
+ * distribution in the resulting covariance. It takes the inverse covariances of the two distributions and computes the
+ * weight based on their determinants. The weight is then returned.
+ *
+ * @param[in] inverse_covariance1 The inverse covariance of the first Gaussian distribution.
+ * @param[in] inverse_covariance2 The inverse covariance of the second Gaussian distribution.
+ * @return The weight (0 to 1) for covariance intersection of the two Gaussian distributions.
+ */
 inline auto generateWeight(const Eigen::MatrixXf& inverse_covariance1, const Eigen::MatrixXf& inverse_covariance2)
     -> float
 {
@@ -52,6 +78,17 @@ inline auto generateWeight(const Eigen::MatrixXf& inverse_covariance1, const Eig
   return weight;
 }
 
+/**
+ * @brief Visitor for covariance intersection fusion of tracks and detections.
+ *
+ * This visitor is used to fuse the state and covariance of a track and a detection using covariance intersection.
+ * It computes the inverse of the covariances, generates the weight for the covariance intersection, and fuses the
+ * states and covariances. The resulting fused track is returned.
+ *
+ * @param[in] track The track object to be fused.
+ * @param[in] detection The detection object to be fused.
+ * @return The fused track with updated state and covariance.
+ */
 constexpr Visitor covariance_intersection_visitor{ [](const auto& track, const auto& detection) -> TrackVariant {
   // Compute inverse of the covariances
   const auto track_inverse_covariance{ track.covariance.inverse() };
@@ -65,6 +102,7 @@ constexpr Visitor covariance_intersection_visitor{ [](const auto& track, const a
       track.state.toEigenVector(track.state), track_inverse_covariance, detection.state.toEigenVector(detection.state),
       detection_inverse_covariance, weight) };
 
+  // Create a new fused track with updated state and covariance
   auto fused_track{ track };
   fused_track.state = track.state.fromEigenVector(fused_state);
   fused_track.covariance = fused_covariance;
@@ -72,6 +110,19 @@ constexpr Visitor covariance_intersection_visitor{ [](const auto& track, const a
   return fused_track;
 } };
 
+/**
+ * @brief Fuse track-detection associations using the provided fusion visitor.
+ *
+ * This function takes a map of track-detection associations, tracks, detections, and a fusion visitor. It iterates
+ * through the associations, finds the matching detection and track based on their UUIDs, and then applies the fusion
+ * visitor to fuse their states and covariances. The resulting fused tracks are collected in a container and returned.
+ *
+ * @param[in] associations The map of track-detection associations.
+ * @param[in] tracks The container of track objects.
+ * @param[in] detections The container of detection objects.
+ * @param[in] fusion_visitor The visitor with the implementation for fusing track and detection objects.
+ * @return A container of fused tracks with updated states and covariances.
+ */
 template <typename AssociationMap, typename TrackContainer, typename DetectionContainer, typename FusionVisitor>
 auto fuseAssociations(const AssociationMap& associations, const TrackContainer& tracks,
                       const DetectionContainer& detections, const FusionVisitor& fusion_visitor) -> TrackContainer
@@ -102,27 +153,6 @@ auto fuseAssociations(const AssociationMap& associations, const TrackContainer& 
 
   return fused_tracks;
 }
-
-namespace utils
-{
-constexpr Visitor print_entity_visitor{ [](const auto& entity) {
-  std::cout << "Timestamp: " << entity.timestamp << "\n";
-  std::cout << "UUID: " << entity.uuid << "\n";
-  printState(entity.state);
-  std::cout << "\nCovariance:\n" << entity.covariance;
-  std::cout << "\n------------------------------------------------------------\n\n";
-} };
-
-template <typename EntityContainer>
-inline auto printContainer(const EntityContainer& entities) -> void
-{
-  for (const auto& entity : entities)
-  {
-    std::visit(print_entity_visitor, entity);
-  }
-}
-
-}  // namespace utils
 
 }  // namespace cooperative_perception
 

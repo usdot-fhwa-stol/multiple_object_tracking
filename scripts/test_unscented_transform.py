@@ -2,7 +2,7 @@ import numpy as np
 
 def generate_lambda(n, alpha, kappa):
     '''
-    Generates lamba parameter for UT and sigma generation
+    Generates lambda parameter for UT and sigma generation
     '''
     return alpha**2 * (n + kappa) - n
 
