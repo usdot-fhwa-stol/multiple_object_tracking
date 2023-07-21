@@ -29,10 +29,6 @@
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/track_matching.hpp>
 
-#include <cooperative_perception/temporal_alignment.hpp>
-#include <cooperative_perception/unscented_kalman_filter.hpp>
-#include <cooperative_perception/visitor.hpp>
-
 namespace cp = cooperative_perception;
 
 /**
