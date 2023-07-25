@@ -20,10 +20,10 @@
 
 #include <algorithm>
 #include <gtest/gtest.h>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/unscented_transform.hpp>
 #include <cooperative_perception/utils.hpp>
 #include <cooperative_perception/angle.hpp>
+#include <cooperative_perception/ctrv_model.hpp>
+#include <cooperative_perception/unscented_transform.hpp>
 
 namespace cp = cooperative_perception;
 

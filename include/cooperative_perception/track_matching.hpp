@@ -46,8 +46,8 @@ using AssociationMap = std::map<std::string, std::vector<std::string>>;
  * @param detection_set Set to store detection UUIDs.
  * @return Score matrix representing the track-detection scores.
  */
-auto scoreMatrixFromScoreMap(const ScoreMap& scores, std::set<std::string>& track_set,
-                             std::set<std::string>& detection_set) -> dlib::matrix<float>
+inline auto scoreMatrixFromScoreMap(const ScoreMap& scores, std::set<std::string>& track_set,
+                                    std::set<std::string>& detection_set) -> dlib::matrix<float>
 {
   std::vector<float> values;
 
@@ -96,7 +96,7 @@ auto scoreMatrixFromScoreMap(const ScoreMap& scores, std::set<std::string>& trac
  * @param score_matrix Score matrix containing track-detection scores.
  * @return Cost matrix representing the costs between tracks and detections.
  */
-auto costMatrixFromScoreMatrix(const dlib::matrix<float>& score_matrix) -> dlib::matrix<int>
+inline auto costMatrixFromScoreMatrix(const dlib::matrix<float>& score_matrix) -> dlib::matrix<int>
 {
   // Determine the dimensions of the score matrix
   const long num_tracks = score_matrix.nr();
@@ -140,7 +140,7 @@ auto costMatrixFromScoreMatrix(const dlib::matrix<float>& score_matrix) -> dlib:
  * @throw std::out_of_range If the index is out of range.
  */
 template <typename T>
-auto getElementAt(const std::set<T>& s, size_t index) -> const T&
+inline auto getElementAt(const std::set<T>& s, size_t index) -> const T&
 {
   // Check if the index is valid
   if (index >= s.size())
@@ -165,9 +165,9 @@ auto getElementAt(const std::set<T>& s, size_t index) -> const T&
  * @param detection_set The set of detection UUIDs.
  * @return The created AssociationMap.
  */
-auto associationMapFromScoreMap(const ScoreMap& scores, const std::vector<long>& assignments,
-                                const std::set<std::string>& track_set, const std::set<std::string>& detection_set)
-    -> AssociationMap
+inline auto associationMapFromScoreMap(const ScoreMap& scores, const std::vector<long>& assignments,
+                                       const std::set<std::string>& track_set,
+                                       const std::set<std::string>& detection_set) -> AssociationMap
 {
   // Create the AssociationMap
   AssociationMap associations;
@@ -194,7 +194,7 @@ auto associationMapFromScoreMap(const ScoreMap& scores, const std::vector<long>&
  * @param scores The ScoreMap containing the scores for each track-detection pair.
  * @return The resulting AssociationMap after track association.
  */
-auto gnnAssociator(const ScoreMap& scores) -> AssociationMap
+inline auto gnnAssociator(const ScoreMap& scores) -> AssociationMap
 {
   std::set<std::string> track_set;
   std::set<std::string> detection_set;
@@ -219,7 +219,7 @@ auto gnnAssociator(const ScoreMap& scores) -> AssociationMap
  *
  * @param associations The AssociationMap to be printed.
  */
-auto printAssociationMap(const AssociationMap& associations) -> void
+inline auto printAssociationMap(const AssociationMap& associations) -> void
 {
   for (const auto& pair : associations)
   {
@@ -258,7 +258,7 @@ constexpr Visitor gnn_association_visitor{ [](const auto& scores) -> Association
  * @return Association map indicating the assigned detections for each track.
  */
 template <typename AssociationVisitor>
-auto associateDetectionsToTracks(const ScoreMap gated_scores, const AssociationVisitor& association_visitor)
+inline auto associateDetectionsToTracks(const ScoreMap gated_scores, const AssociationVisitor& association_visitor)
     -> AssociationMap
 {
   AssociationMap associations = std::visit(association_visitor, std::variant<ScoreMap>(gated_scores));
