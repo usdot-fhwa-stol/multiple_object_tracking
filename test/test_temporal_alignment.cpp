@@ -67,11 +67,11 @@ TEST(TestTemporalAlignment, CtrvDetection)
   std::variant<TestDetection> detection_variant_immutable{ detection };
 
   // Call the functions under test
-  cp::propagateToTime(detection_variant, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  cp::propagate_to_time(detection_variant, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection = std::get<TestDetection>(detection_variant);
 
   auto result_detection_variant =
-      cp::predictToTime(detection_variant_immutable, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+      cp::predict_to_time(detection_variant_immutable, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection_immutable = std::get<TestDetection>(result_detection_variant);
 
   // Check that function returns expected value
@@ -124,11 +124,11 @@ TEST(TestTemporalAlignment, CtrvDetectionFiveSeconds)
   std::variant<TestDetection> detection_variant_immutable{ detection };
 
   // Call the functions under test
-  cp::propagateToTime(detection_variant, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  cp::propagate_to_time(detection_variant, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection = std::get<TestDetection>(detection_variant);
 
   auto result_detection_variant =
-      cp::predictToTime(detection_variant_immutable, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+      cp::predict_to_time(detection_variant_immutable, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection_immutable = std::get<TestDetection>(result_detection_variant);
 
   // Check that function returns expected value
@@ -184,11 +184,11 @@ TEST(TestTemporalAlignment, CtraDetection)
   std::variant<TestDetection> detection_variant_immutable{ detection };
 
   // Call the functions under test
-  cp::propagateToTime(detection_variant, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  cp::propagate_to_time(detection_variant, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection = std::get<TestDetection>(detection_variant);
 
   auto result_detection_variant =
-      cp::predictToTime(detection_variant_immutable, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+      cp::predict_to_time(detection_variant_immutable, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection_immutable = std::get<TestDetection>(result_detection_variant);
 
   // Check that function returns expected value
@@ -246,11 +246,11 @@ TEST(TestTemporalAlignment, CtraDetectionFiveSeconds)
   std::variant<TestDetection> detection_variant_immutable{ detection };
 
   // Call the functions under test
-  cp::propagateToTime(detection_variant, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  cp::propagate_to_time(detection_variant, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection = std::get<TestDetection>(detection_variant);
 
   auto result_detection_variant =
-      cp::predictToTime(detection_variant_immutable, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+      cp::predict_to_time(detection_variant_immutable, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestDetection result_detection_immutable = std::get<TestDetection>(result_detection_variant);
 
   // Check that function returns expected value
@@ -303,11 +303,11 @@ TEST(TestTemporalAlignment, CtrvTrack)
   std::variant<TestTrack> track_variant_immutable{ track };
 
   // Call the functions under test
-  cp::propagateToTime(track_variant, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  cp::propagate_to_time(track_variant, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestTrack result_track = std::get<TestTrack>(track_variant);
 
   auto result_track_variant =
-      cp::predictToTime(track_variant_immutable, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+      cp::predict_to_time(track_variant_immutable, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestTrack result_track_immutable = std::get<TestTrack>(result_track_variant);
 
   // Check that function returns expected value
@@ -363,11 +363,11 @@ TEST(TestTemporalAlignment, CtraTrack)
   std::variant<TestTrack> track_variant_immutable{ track };
 
   // Call the functions under test
-  cp::propagateToTime(track_variant, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+  cp::propagate_to_time(track_variant, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestTrack result_track = std::get<TestTrack>(track_variant);
 
   auto result_track_variant =
-      cp::predictToTime(track_variant_immutable, time_step, cp::UkfPredictionVisitor(1.0, 2.0, 1.0));
+      cp::predict_to_time(track_variant_immutable, time_step, cp::UnscentedTransform{ 1.0, 2.0, 1.0 });
   TestTrack result_track_immutable = std::get<TestTrack>(result_track_variant);
 
   // Check that function returns expected value
