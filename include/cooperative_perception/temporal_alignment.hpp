@@ -22,9 +22,11 @@
 #ifndef COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
 #define COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
 
+#include <units.h>
+
 #include <variant>
 
-#include <units.h>
+#include "cooperative_perception/unscented_kalman_filter.hpp"
 
 namespace cooperative_perception
 {
@@ -50,9 +52,11 @@ struct UnscentedTransform
    * @return void
    */
   template <typename State, typename Covariance>
-  auto operator()(State& state, Covariance& covariance, units::time::second_t duration) const -> void
+  auto operator()(State & state, Covariance & covariance, units::time::second_t duration) const
+    -> void
   {
-    const auto [s, c] = unscentedKalmanFilterPredict(state, covariance, duration, alpha, kappa, beta);
+    const auto [s, c] =
+      unscentedKalmanFilterPredict(state, covariance, duration, alpha, kappa, beta);
     state = s;
     covariance = c;
   }
@@ -73,7 +77,8 @@ struct UnscentedTransform
  * @return void
  */
 template <typename Object, typename Propagator>
-auto propagate_to_time(Object& object, units::time::second_t time, const Propagator& propagator) -> void
+auto propagate_to_time(Object & object, units::time::second_t time, const Propagator & propagator)
+  -> void
 {
   propagator(object.state, object.covariance, time - object.timestamp);
   object.timestamp = time;
@@ -94,11 +99,14 @@ auto propagate_to_time(Object& object, units::time::second_t time, const Propaga
  * @return void
  */
 template <typename Propagator, typename... Alternatives>
-auto propagate_to_time(std::variant<Alternatives...>& object, units::time::second_t time, const Propagator& propagator)
+auto propagate_to_time(
+  std::variant<Alternatives...> & object, units::time::second_t time, const Propagator & propagator)
 {
   std::visit(
-      [&propagator](auto& o, units::time::second_t t) { cooperative_perception::propagate_to_time(o, t, propagator); },
-      object, std::variant<units::time::second_t>{ time });
+    [&propagator](auto & o, units::time::second_t t) {
+      cooperative_perception::propagate_to_time(o, t, propagator);
+    },
+    object, std::variant<units::time::second_t>{time});
 }
 
 /**
@@ -114,7 +122,7 @@ auto propagate_to_time(std::variant<Alternatives...>& object, units::time::secon
  * @return The predicted object
  */
 template <typename Object, typename Propagator>
-auto predict_to_time(Object object, units::time::second_t time, const Propagator& propagator)
+auto predict_to_time(Object object, units::time::second_t time, const Propagator & propagator)
 {
   propagate_to_time(object, time, propagator);
 
