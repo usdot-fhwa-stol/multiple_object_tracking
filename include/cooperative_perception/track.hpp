@@ -32,18 +32,6 @@
 namespace cooperative_perception
 {
 /**
- * @brief Track status
- *
- * Tracks are tentative until they have been perceived beyond a threshold, at
- * which point they become confirmed.
- */
-enum class TrackStatus
-{
-  kConfirmed,
-  kTentative
-};
-
-/**
  * @brief Tracked object (simply, Track)
  *
  * @tparam StateType State vector type for track's motion model
