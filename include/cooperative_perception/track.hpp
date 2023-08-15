@@ -21,12 +21,13 @@
 #ifndef COOPERATIVE_PERCEPTION_TRACK_HPP
 #define COOPERATIVE_PERCEPTION_TRACK_HPP
 
-#include <variant>
-#include <boost/container/static_vector.hpp>
 #include <units.h>
 
-#include "cooperative_perception/ctrv_model.hpp"
+#include <variant>
+
 #include "cooperative_perception/ctra_model.hpp"
+#include "cooperative_perception/ctrv_model.hpp"
+#include "cooperative_perception/detection.hpp"
 
 namespace cooperative_perception
 {
@@ -54,9 +55,14 @@ struct Track
   units::time::second_t timestamp;
   StateType state;
   CovarianceType covariance;
-  TrackStatus status;
   std::string uuid;
   std::vector<std::string> associated_detection_ids;
+
+  static auto fromDetection(const Detection<StateType, CovarianceType> & detection)
+    -> Track<StateType, CovarianceType>
+  {
+    return {detection.timestamp, detection.state, detection.covariance, detection.uuid};
+  }
 };
 
 /**
