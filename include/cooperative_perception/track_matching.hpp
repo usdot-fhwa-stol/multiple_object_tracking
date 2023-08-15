@@ -38,6 +38,48 @@ namespace cooperative_perception
  */
 using AssociationMap = std::map<std::string, std::vector<std::string>>;
 
+class isAssociatedDetection
+{
+public:
+  explicit isAssociatedDetection(const AssociationMap& associations)
+  {
+    for (const auto& [track_uuid, detection_uuids] : associations)
+    {
+      associated_uuids_.insert(std::cbegin(detection_uuids), std::cend(detection_uuids));
+    }
+  }
+
+  template <typename DetectionType>
+  auto operator()(const DetectionType& detection) const noexcept -> bool
+  {
+    return associated_uuids_.count(getUuid(detection)) != 0;
+  }
+
+private:
+  std::unordered_set<std::string> associated_uuids_;
+};
+
+class isAssociatedTrack
+{
+public:
+  explicit isAssociatedTrack(const AssociationMap& associations)
+  {
+    for (const auto& [track_uuid, detection_uuids] : associations)
+    {
+      associated_uuids_.insert(track_uuid);
+    }
+  }
+
+  template <typename TrackType>
+  auto operator()(const TrackType& track) const noexcept -> bool
+  {
+    return associated_uuids_.count(getUuid(track)) != 0;
+  }
+
+private:
+  std::unordered_set<std::string> associated_uuids_;
+};
+
 /**
  * @brief Convert a ScoreMap to a score matrix.
  *
