@@ -70,6 +70,18 @@ using CtraTrack = Track<CtraState, CtraStateCovariance>;
  */
 using TrackVariant = std::variant<CtrvTrack, CtraTrack>;
 
+template <typename Track, typename Detection>
+auto make_track(const Detection & detection) -> Track
+{
+  return Track::fromDetection(detection);
+}
+
+template <typename Track, typename... Alternatives>
+auto make_track(const std::variant<Alternatives...> & detection) -> Track
+{
+  return std::visit([](const auto & d) { return make_track<Track>(d); }, detection);
+}
+
 }  // namespace cooperative_perception
 
 #endif  // COOPERATIVE_PERCEPTION_TRACK_HPP
