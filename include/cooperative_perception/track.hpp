@@ -44,7 +44,6 @@ struct Track
   StateType state;
   CovarianceType covariance;
   std::string uuid;
-  std::vector<std::string> associated_detection_ids;
 
   static auto fromDetection(const Detection<StateType, CovarianceType> & detection)
     -> Track<StateType, CovarianceType>
