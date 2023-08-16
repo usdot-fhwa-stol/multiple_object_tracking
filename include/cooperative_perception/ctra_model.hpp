@@ -21,12 +21,14 @@
 #ifndef COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 #define COOPERATIVE_PERCEPTION_CTRA_MODEL_HPP
 
-#include <cmath>
+#include <units.h>
+
+#include <Eigen/Dense>
 #include <boost/container_hash/hash.hpp>
 #include <boost/math/special_functions/next.hpp>
+#include <cmath>
 #include <functional>
-#include <Eigen/Dense>
-#include <units.h>
+
 #include "cooperative_perception/angle.hpp"
 #include "cooperative_perception/units.hpp"
 
@@ -47,7 +49,7 @@ struct CtraState
   /**
    * @brief Number of elements in CTRA state vector
    */
-  static constexpr auto kNumVars{ 6 };
+  static constexpr auto kNumVars{6};
 
   /**
    * @brief Convert an Eigen::Vector into a CtraState
@@ -55,14 +57,16 @@ struct CtraState
    * @param[in] vec Vector being converted
    * @return CtraState instance
    */
-  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtraState
+  static inline auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+    -> CtraState
   {
-    return CtraState{ .position_x{ units::length::meter_t{ vec(0) } },
-                      .position_y{ units::length::meter_t{ vec(1) } },
-                      .velocity{ units::velocity::meters_per_second_t{ vec(2) } },
-                      .yaw{ units::angle::radian_t{ vec(3) } },
-                      .yaw_rate{ units::angular_velocity::radians_per_second_t{ vec(4) } },
-                      .acceleration{ units::acceleration::meters_per_second_squared_t{ vec(5) } } };
+    return CtraState{
+      .position_x{units::length::meter_t{vec(0)}},
+      .position_y{units::length::meter_t{vec(1)}},
+      .velocity{units::velocity::meters_per_second_t{vec(2)}},
+      .yaw{units::angle::radian_t{vec(3)}},
+      .yaw_rate{units::angular_velocity::radians_per_second_t{vec(4)}},
+      .acceleration{units::acceleration::meters_per_second_squared_t{vec(5)}}};
   }
 
   /**
@@ -72,13 +76,15 @@ struct CtraState
    * @return Eigen::Vector representation of CTRA state
    */
 
-  static inline auto toEigenVector(const CtraState& ctra_state) noexcept -> Eigen::Vector<float, kNumVars>
+  static inline auto to_eigen_vector(const CtraState & ctra_state) noexcept
+    -> Eigen::Vector<float, kNumVars>
   {
-    return Eigen::Vector<float, kNumVars>{
-      units::unit_cast<float>(ctra_state.position_x), units::unit_cast<float>(ctra_state.position_y),
-      units::unit_cast<float>(ctra_state.velocity),   units::unit_cast<float>(ctra_state.yaw.get_angle()),
-      units::unit_cast<float>(ctra_state.yaw_rate),   units::unit_cast<float>(ctra_state.acceleration)
-    };
+    return Eigen::Vector<float, kNumVars>{units::unit_cast<float>(ctra_state.position_x),
+                                          units::unit_cast<float>(ctra_state.position_y),
+                                          units::unit_cast<float>(ctra_state.velocity),
+                                          units::unit_cast<float>(ctra_state.yaw.get_angle()),
+                                          units::unit_cast<float>(ctra_state.yaw_rate),
+                                          units::unit_cast<float>(ctra_state.acceleration)};
   }
 };
 
@@ -91,7 +97,7 @@ struct CtraState
  * @param[in] rhs Right-hand side (rhs) of the add-assignment expression
  * @return Modified left-hand side operand
  */
-inline auto operator+=(CtraState& lhs, const CtraState& rhs) -> CtraState&
+inline auto operator+=(CtraState & lhs, const CtraState & rhs) -> CtraState &
 {
   lhs.position_x += rhs.position_x;
   lhs.position_y += rhs.position_y;
@@ -112,7 +118,7 @@ inline auto operator+=(CtraState& lhs, const CtraState& rhs) -> CtraState&
  * @param[in] rhs Right-hand side (rhs) of the subtract-assignment expression
  * @return Modified left-hand side operand
  */
-inline auto operator-=(CtraState& lhs, const CtraState& rhs) -> CtraState&
+inline auto operator-=(CtraState & lhs, const CtraState & rhs) -> CtraState &
 {
   lhs.position_x -= rhs.position_x;
   lhs.position_y -= rhs.position_y;
@@ -134,10 +140,11 @@ inline auto operator-=(CtraState& lhs, const CtraState& rhs) -> CtraState&
  * @param[in] rhs Right-hand side (rhs) of the equality expression
  * @return True if CtraStates are exactly equal, false otherwise
  */
-inline auto operator==(const CtraState& lhs, const CtraState& rhs) -> bool
+inline auto operator==(const CtraState & lhs, const CtraState & rhs) -> bool
 {
-  return lhs.position_x == rhs.position_x && lhs.position_y == rhs.position_y && lhs.velocity == rhs.velocity &&
-         lhs.yaw == rhs.yaw && lhs.yaw_rate == rhs.yaw_rate && lhs.acceleration == rhs.acceleration;
+  return lhs.position_x == rhs.position_x && lhs.position_y == rhs.position_y &&
+         lhs.velocity == rhs.velocity && lhs.yaw == rhs.yaw && lhs.yaw_rate == rhs.yaw_rate &&
+         lhs.acceleration == rhs.acceleration;
 }
 
 /**
@@ -149,7 +156,7 @@ inline auto operator==(const CtraState& lhs, const CtraState& rhs) -> bool
  * @param[in] rhs Right-hand side (rhs) of the addition expression
  * @return Operation result
  */
-inline auto operator+(CtraState lhs, const CtraState& rhs) -> CtraState
+inline auto operator+(CtraState lhs, const CtraState & rhs) -> CtraState
 {
   lhs += rhs;
   return lhs;
@@ -164,7 +171,7 @@ inline auto operator+(CtraState lhs, const CtraState& rhs) -> CtraState
  * @param[in] rhs Right-hand side (rhs) of the subtraction expression
  * @return Operation result
  */
-inline auto operator-(CtraState lhs, const CtraState& rhs) -> CtraState
+inline auto operator-(CtraState lhs, const CtraState & rhs) -> CtraState
 {
   lhs -= rhs;
   return lhs;
@@ -186,7 +193,7 @@ struct CtraProcessNoise
   /**
    * @brief Number of elements in the process noise state vector
    */
-  static constexpr auto kNumVars{ 2 };
+  static constexpr auto kNumVars{2};
 
   /**
    * @brief Convert an Eigen::Vector into a CtraProcessNoise
@@ -194,11 +201,12 @@ struct CtraProcessNoise
    * @param[in] vec Vector being converted
    * @return CtraProcessNoise instance
    */
-  static inline auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> CtraProcessNoise
+  static inline auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+    -> CtraProcessNoise
   {
-    return CtraProcessNoise{ .linear_acceleration{ units::acceleration::meters_per_second_squared_t{ vec(0) } },
-                             .angular_acceleration{
-                                 units::angular_acceleration::radian_per_second_squared_t{ vec(1) } } };
+    return CtraProcessNoise{
+      .linear_acceleration{units::acceleration::meters_per_second_squared_t{vec(0)}},
+      .angular_acceleration{units::angular_acceleration::radian_per_second_squared_t{vec(1)}}};
   }
 };
 
@@ -211,7 +219,7 @@ struct CtraProcessNoise
  * @param[in] rhs Right-hand side (rhs) of the add-assignment expression
  * @return Modified left-hand side operand
  */
-inline auto operator+=(CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise&
+inline auto operator+=(CtraProcessNoise & lhs, const CtraProcessNoise & rhs) -> CtraProcessNoise &
 {
   lhs.linear_acceleration += rhs.linear_acceleration;
   lhs.angular_acceleration += rhs.angular_acceleration;
@@ -228,7 +236,7 @@ inline auto operator+=(CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> Ct
  * @param[in] rhs Right-hand side (rhs) of the subtract-assignment expression
  * @return Modified left-hand side operand
  */
-inline auto operator-=(CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise&
+inline auto operator-=(CtraProcessNoise & lhs, const CtraProcessNoise & rhs) -> CtraProcessNoise &
 {
   lhs.linear_acceleration -= rhs.linear_acceleration;
   lhs.angular_acceleration -= rhs.angular_acceleration;
@@ -246,9 +254,10 @@ inline auto operator-=(CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> Ct
  * @param[in] rhs Right-hand side (rhs) of the equality expression
  * @return True if CtraProcessNoise are exactly equal, false otherwise
  */
-inline auto operator==(const CtraProcessNoise& lhs, const CtraProcessNoise& rhs) -> bool
+inline auto operator==(const CtraProcessNoise & lhs, const CtraProcessNoise & rhs) -> bool
 {
-  return lhs.linear_acceleration == rhs.linear_acceleration && lhs.angular_acceleration == rhs.angular_acceleration;
+  return lhs.linear_acceleration == rhs.linear_acceleration &&
+         lhs.angular_acceleration == rhs.angular_acceleration;
 }
 
 /**
@@ -260,7 +269,7 @@ inline auto operator==(const CtraProcessNoise& lhs, const CtraProcessNoise& rhs)
  * @param[in] rhs Right-hand side (rhs) of the addition expression
  * @return Operation result
  */
-inline auto operator+(CtraProcessNoise lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise
+inline auto operator+(CtraProcessNoise lhs, const CtraProcessNoise & rhs) -> CtraProcessNoise
 {
   lhs += rhs;
   return lhs;
@@ -275,7 +284,7 @@ inline auto operator+(CtraProcessNoise lhs, const CtraProcessNoise& rhs) -> Ctra
  * @param[in] rhs Right-hand side (rhs) of the subtraction expression
  * @return Operation result
  */
-inline auto operator-(CtraProcessNoise lhs, const CtraProcessNoise& rhs) -> CtraProcessNoise
+inline auto operator-(CtraProcessNoise lhs, const CtraProcessNoise & rhs) -> CtraProcessNoise
 {
   lhs -= rhs;
   return lhs;
@@ -287,7 +296,7 @@ inline auto operator-(CtraProcessNoise lhs, const CtraProcessNoise& rhs) -> Ctra
  * @param[in] time_step Propagation time duration
  * @return CTRA state at end of time step
  */
-auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraState;
+auto get_next_state(const CtraState & state, units::time::second_t time_step) -> CtraState;
 
 /** Calculate next CTRA state based on current state, time step, and process noise
  *
@@ -296,36 +305,40 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
  * @param[in] linear_accel_noise Linear acceleration process noise
  * @param[in] angular_accel_noise Angular acceleration process noise
  */
-auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState;
+auto get_next_state(
+  const CtraState & state, units::time::second_t time_step, const CtraProcessNoise & noise)
+  -> CtraState;
 
-inline auto euclidean_distance(const CtraState& lhs, const CtraState& rhs) -> float
+inline auto euclidean_distance(const CtraState & lhs, const CtraState & rhs) -> float
 {
-  const Eigen::Vector3f lhs_pose =
-      Eigen::Vector3f{ units::unit_cast<float>(lhs.position_x), units::unit_cast<float>(lhs.position_y),
-                       units::unit_cast<float>(lhs.yaw.get_angle()) };
-  const Eigen::Vector3f rhs_pose =
-      Eigen::Vector3f{ units::unit_cast<float>(rhs.position_x), units::unit_cast<float>(rhs.position_y),
-                       units::unit_cast<float>(rhs.yaw.get_angle()) };
+  const Eigen::Vector3f lhs_pose = Eigen::Vector3f{
+    units::unit_cast<float>(lhs.position_x), units::unit_cast<float>(lhs.position_y),
+    units::unit_cast<float>(lhs.yaw.get_angle())};
+  const Eigen::Vector3f rhs_pose = Eigen::Vector3f{
+    units::unit_cast<float>(rhs.position_x), units::unit_cast<float>(rhs.position_y),
+    units::unit_cast<float>(rhs.yaw.get_angle())};
 
   const Eigen::VectorXf diff = lhs_pose - rhs_pose;
 
   return std::sqrt(diff.transpose() * diff);
 }
 
-inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance, CtraState point) -> float
+inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance, CtraState point)
+  -> float
 {
-  const Eigen::Vector3f mean_pose =
-      Eigen::Vector3f{ units::unit_cast<float>(mean.position_x), units::unit_cast<float>(mean.position_y),
-                       units::unit_cast<float>(mean.yaw.get_angle()) };
-  const Eigen::Vector3f point_pose =
-      Eigen::Vector3f{ units::unit_cast<float>(point.position_x), units::unit_cast<float>(point.position_y),
-                       units::unit_cast<float>(point.yaw.get_angle()) };
+  const Eigen::Vector3f mean_pose = Eigen::Vector3f{
+    units::unit_cast<float>(mean.position_x), units::unit_cast<float>(mean.position_y),
+    units::unit_cast<float>(mean.yaw.get_angle())};
+  const Eigen::Vector3f point_pose = Eigen::Vector3f{
+    units::unit_cast<float>(point.position_x), units::unit_cast<float>(point.position_y),
+    units::unit_cast<float>(point.yaw.get_angle())};
 
   const Eigen::VectorXf diff = mean_pose - point_pose;
 
-  const Eigen::MatrixXf pose_cov = Eigen::Matrix3f{ { covariance(0, 0), covariance(0, 1), covariance(0, 3) },
-                                                    { covariance(1, 0), covariance(1, 1), covariance(1, 3) },
-                                                    { covariance(3, 0), covariance(3, 1), covariance(3, 3) } };
+  const Eigen::MatrixXf pose_cov = Eigen::Matrix3f{
+    {covariance(0, 0), covariance(0, 1), covariance(0, 3)},
+    {covariance(1, 0), covariance(1, 1), covariance(1, 3)},
+    {covariance(3, 0), covariance(3, 1), covariance(3, 3)}};
 
   return std::sqrt(diff.transpose() * pose_cov.inverse() * diff);
 }
@@ -339,7 +352,7 @@ inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance,
  * @param[in] state The CtraState object to print
  * @return None
  */
-auto printState(const CtraState& state) -> void;
+auto print_state(const CtraState & state) -> void;
 
 namespace utils
 {
@@ -352,23 +365,25 @@ namespace utils
  *            Distance between integer representation of each vector element must be less than this.
  * @return True if CtraState are almost-equal, false otherwise
  */
-inline auto almostEqual(const CtraState& lhs, const CtraState& rhs, std::size_t ulp_tol = 4) -> bool
+inline auto almost_equal(const CtraState & lhs, const CtraState & rhs, std::size_t ulp_tol = 4)
+  -> bool
 {
-  const auto dist_x{ boost::math::float_distance(units::unit_cast<double>(lhs.position_x),
-                                                 units::unit_cast<double>(rhs.position_x)) };
-  const auto dist_y{ boost::math::float_distance(units::unit_cast<double>(lhs.position_y),
-                                                 units::unit_cast<double>(rhs.position_y)) };
-  const auto dist_vel{ boost::math::float_distance(units::unit_cast<double>(lhs.velocity),
-                                                   units::unit_cast<double>(rhs.velocity)) };
-  const auto dist_yaw{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw.get_angle()),
-                                                   units::unit_cast<double>(rhs.yaw.get_angle())) };
-  const auto dist_yaw_rate{ boost::math::float_distance(units::unit_cast<double>(lhs.yaw_rate),
-                                                        units::unit_cast<double>(rhs.yaw_rate)) };
-  const auto dist_acceleration{ boost::math::float_distance(units::unit_cast<double>(lhs.acceleration),
-                                                            units::unit_cast<double>(rhs.acceleration)) };
+  const auto dist_x{boost::math::float_distance(
+    units::unit_cast<double>(lhs.position_x), units::unit_cast<double>(rhs.position_x))};
+  const auto dist_y{boost::math::float_distance(
+    units::unit_cast<double>(lhs.position_y), units::unit_cast<double>(rhs.position_y))};
+  const auto dist_vel{boost::math::float_distance(
+    units::unit_cast<double>(lhs.velocity), units::unit_cast<double>(rhs.velocity))};
+  const auto dist_yaw{boost::math::float_distance(
+    units::unit_cast<double>(lhs.yaw.get_angle()), units::unit_cast<double>(rhs.yaw.get_angle()))};
+  const auto dist_yaw_rate{boost::math::float_distance(
+    units::unit_cast<double>(lhs.yaw_rate), units::unit_cast<double>(rhs.yaw_rate))};
+  const auto dist_acceleration{boost::math::float_distance(
+    units::unit_cast<double>(lhs.acceleration), units::unit_cast<double>(rhs.acceleration))};
 
-  return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol && std::abs(dist_vel) <= ulp_tol &&
-         std::abs(dist_yaw) <= ulp_tol && std::abs(dist_yaw_rate) <= ulp_tol && std::abs(dist_acceleration) <= ulp_tol;
+  return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol &&
+         std::abs(dist_vel) <= ulp_tol && std::abs(dist_yaw) <= ulp_tol &&
+         std::abs(dist_yaw_rate) <= ulp_tol && std::abs(dist_acceleration) <= ulp_tol;
 }
 
 /**
@@ -378,16 +393,17 @@ inline auto almostEqual(const CtraState& lhs, const CtraState& rhs, std::size_t 
  * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
  * @return Rounded CtraState
  */
-inline auto roundToDecimalPlace(const CtraState& state, std::size_t decimal_place) -> CtraState
+inline auto round_to_decimal_place(const CtraState & state, std::size_t decimal_place) -> CtraState
 {
-  const auto multiplier{ std::pow(10, decimal_place) };
+  const auto multiplier{std::pow(10, decimal_place)};
 
-  CtraState rounded_state{ units::math::round(state.position_x * multiplier) / multiplier,
-                           units::math::round(state.position_y * multiplier) / multiplier,
-                           units::math::round(state.velocity * multiplier) / multiplier,
-                           units::math::round(state.yaw.get_angle() * multiplier) / multiplier,
-                           units::math::round(state.yaw_rate * multiplier) / multiplier,
-                           units::math::round(state.acceleration * multiplier) / multiplier };
+  CtraState rounded_state{
+    units::math::round(state.position_x * multiplier) / multiplier,
+    units::math::round(state.position_y * multiplier) / multiplier,
+    units::math::round(state.velocity * multiplier) / multiplier,
+    units::math::round(state.yaw.get_angle() * multiplier) / multiplier,
+    units::math::round(state.yaw_rate * multiplier) / multiplier,
+    units::math::round(state.acceleration * multiplier) / multiplier};
 
   return rounded_state;
 }
@@ -401,12 +417,15 @@ inline auto roundToDecimalPlace(const CtraState& state, std::size_t decimal_plac
  *            Distance between integer representation of each vector element must be less than this.
  * @return True if CtraProcessNoise are almost-equal, false otherwise
  */
-inline auto almostEqual(const CtraProcessNoise& lhs, const CtraProcessNoise& rhs, std::size_t ulp_tol = 4) -> bool
+inline auto almost_equal(
+  const CtraProcessNoise & lhs, const CtraProcessNoise & rhs, std::size_t ulp_tol = 4) -> bool
 {
-  const auto dist_lin_accel{ boost::math::float_distance(units::unit_cast<double>(lhs.linear_acceleration),
-                                                         units::unit_cast<double>(rhs.linear_acceleration)) };
-  const auto dist_ang_accel{ boost::math::float_distance(units::unit_cast<double>(lhs.angular_acceleration),
-                                                         units::unit_cast<double>(rhs.angular_acceleration)) };
+  const auto dist_lin_accel{boost::math::float_distance(
+    units::unit_cast<double>(lhs.linear_acceleration),
+    units::unit_cast<double>(rhs.linear_acceleration))};
+  const auto dist_ang_accel{boost::math::float_distance(
+    units::unit_cast<double>(lhs.angular_acceleration),
+    units::unit_cast<double>(rhs.angular_acceleration))};
 
   return std::abs(dist_lin_accel) <= ulp_tol && std::abs(dist_ang_accel) <= ulp_tol;
 }
@@ -418,12 +437,14 @@ inline auto almostEqual(const CtraProcessNoise& lhs, const CtraProcessNoise& rhs
  * @param[in] decimal_place Number of decimal placed to round. For example, 3 means round to nearest thousandths (0.001)
  * @return Rounded CtraProcessNoise
  */
-inline auto roundToDecimalPlace(const CtraProcessNoise& noise, std::size_t decimal_place) -> CtraProcessNoise
+inline auto round_to_decimal_place(const CtraProcessNoise & noise, std::size_t decimal_place)
+  -> CtraProcessNoise
 {
-  const auto multiplier{ std::pow(10, decimal_place) };
+  const auto multiplier{std::pow(10, decimal_place)};
 
-  return CtraProcessNoise{ units::math::round(noise.linear_acceleration * multiplier) / multiplier,
-                           units::math::round(noise.angular_acceleration * multiplier) / multiplier };
+  return CtraProcessNoise{
+    units::math::round(noise.linear_acceleration * multiplier) / multiplier,
+    units::math::round(noise.angular_acceleration * multiplier) / multiplier};
 }
 
 }  // namespace utils

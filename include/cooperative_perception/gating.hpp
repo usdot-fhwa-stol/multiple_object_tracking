@@ -28,20 +28,17 @@
 namespace cooperative_perception
 {
 template <typename UnaryPredicate>
-auto pruneTrackAndDetectionScoresIf(ScoreMap& scores, UnaryPredicate should_prune) -> void
+auto prune_track_and_detection_scores_if(ScoreMap & scores, UnaryPredicate should_prune) -> void
 {
   std::vector<std::pair<std::string, std::string>> keys_to_prune;
 
-  for (const auto& [key, score] : scores)
-  {
-    if (should_prune(score))
-    {
+  for (const auto & [key, score] : scores) {
+    if (should_prune(score)) {
       keys_to_prune.emplace_back(key);
     }
   }
 
-  for (const auto& key : keys_to_prune)
-  {
+  for (const auto & key : keys_to_prune) {
     scores.erase(key);
   }
 }

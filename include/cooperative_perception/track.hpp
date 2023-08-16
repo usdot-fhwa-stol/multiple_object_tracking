@@ -45,7 +45,7 @@ struct Track
   CovarianceType covariance;
   std::string uuid;
 
-  static auto fromDetection(const Detection<StateType, CovarianceType> & detection)
+  static auto from_detection(const Detection<StateType, CovarianceType> & detection)
     -> Track<StateType, CovarianceType>
   {
     return {detection.timestamp, detection.state, detection.covariance, detection.uuid};
@@ -73,7 +73,7 @@ using TrackVariant = std::variant<CtrvTrack, CtraTrack>;
 template <typename Track, typename Detection>
 auto make_track(const Detection & detection) -> Track
 {
-  return Track::fromDetection(detection);
+  return Track::from_detection(detection);
 }
 
 template <typename Track, typename... Alternatives>

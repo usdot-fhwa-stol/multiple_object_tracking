@@ -18,11 +18,12 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#include <gtest/gtest.h>
 #include <dlib/optimization/max_cost_assignment.h>
-#include <cooperative_perception/track.hpp>
-#include <cooperative_perception/scoring.hpp>
+#include <gtest/gtest.h>
+
 #include <cooperative_perception/detection.hpp>
+#include <cooperative_perception/scoring.hpp>
+#include <cooperative_perception/track.hpp>
 #include <cooperative_perception/track_matching.hpp>
 
 namespace cp = cooperative_perception;
@@ -45,16 +46,15 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
   // Assignments should be:  [2, 0, 1] which indicates that we should assign
   // the person from the first row of the cost matrix to job 2, the middle row person to
   // job 0, and the bottom row person to job 1.
-  std::vector<long> expected_assignment{ 2, 0, 1 };
+  std::vector<long> expected_assignment{2, 0, 1};
 
   // The optimal cost should be:  16.0
   // which is correct since our optimal assignment is 6+5+5
-  auto expected_optimal_cost{ 16.0 };
+  auto expected_optimal_cost{16.0};
   // Compute optimal cost
-  auto result_optimal_cost{ assignment_cost(cost, result_assignment) };
+  auto result_optimal_cost{assignment_cost(cost, result_assignment)};
 
-  for (unsigned int i = 0; i < result_assignment.size(); i++)
-  {
+  for (unsigned int i = 0; i < result_assignment.size(); i++) {
     EXPECT_EQ(expected_assignment[i], result_assignment[i]);
   }
 
@@ -66,40 +66,39 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
  */
 TEST(TestTrackMatching, GnnAssociator)
 {
-  cp::ScoreMap scores{ { { "track1", "detection1" }, 10 },  { { "track1", "detection2" }, 2.0 },
-                       { { "track1", "detection3" }, 1.0 }, { { "track2", "detection1" }, 2.0 },
-                       { { "track2", "detection2" }, 1.0 }, { { "track2", "detection3" }, 10.0 },
-                       { { "track3", "detection1" }, 3.0 }, { { "track3", "detection2" }, 10.0 },
-                       { { "track3", "detection3" }, 5.0 } };
+  cp::ScoreMap scores{{{"track1", "detection1"}, 10},  {{"track1", "detection2"}, 2.0},
+                      {{"track1", "detection3"}, 1.0}, {{"track2", "detection1"}, 2.0},
+                      {{"track2", "detection2"}, 1.0}, {{"track2", "detection3"}, 10.0},
+                      {{"track3", "detection1"}, 3.0}, {{"track3", "detection2"}, 10.0},
+                      {{"track3", "detection3"}, 5.0}};
 
-  cp::AssociationMap expected_associations{ { "track1", { "detection3" } },
-                                            { "track2", { "detection2" } },
-                                            { "track3", { "detection1" } } };
+  cp::AssociationMap expected_associations{
+    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
-  auto result_associations = cp::associateDetectionsToTracks(scores, cp::gnn_association_visitor);
+  auto result_associations =
+    cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
 
   EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
 
   // Compare expected_associations with result_associations
-  for (const auto& pair : expected_associations)
-  {
-    const std::string& track_uuid = pair.first;
-    const std::vector<std::string>& expected_detections = pair.second;
+  for (const auto & pair : expected_associations) {
+    const std::string & track_uuid = pair.first;
+    const std::vector<std::string> & expected_detections = pair.second;
 
     // Check if track_uuid exists in result_associations
     EXPECT_TRUE(result_associations.count(track_uuid) > 0);
 
     // Get the corresponding vector of detections from result_associations
-    const std::vector<std::string>& result_detections = result_associations[track_uuid];
+    const std::vector<std::string> & result_detections = result_associations[track_uuid];
 
     // Check if the expected and result detections have the same size
     EXPECT_EQ(std::size(expected_detections), std::size(result_detections));
 
     // Check if each detection in expected_detections exists in result_detections
-    for (const auto& detection_uuid : expected_detections)
-    {
-      EXPECT_TRUE(std::find(result_detections.begin(), result_detections.end(), detection_uuid) !=
-                  result_detections.end());
+    for (const auto & detection_uuid : expected_detections) {
+      EXPECT_TRUE(
+        std::find(result_detections.begin(), result_detections.end(), detection_uuid) !=
+        result_detections.end());
     }
   }
 }
@@ -109,38 +108,38 @@ TEST(TestTrackMatching, GnnAssociator)
  */
 TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
 {
-  cp::ScoreMap scores{ { { "track1", "detection3" }, 1.0 },
-                       { { "track2", "detection2" }, 1.0 },
-                       { { "track3", "detection1" }, 1.0 } };
+  cp::ScoreMap scores{
+    {{"track1", "detection3"}, 1.0},
+    {{"track2", "detection2"}, 1.0},
+    {{"track3", "detection1"}, 1.0}};
 
-  cp::AssociationMap expected_associations{ { "track1", { "detection3" } },
-                                            { "track2", { "detection2" } },
-                                            { "track3", { "detection1" } } };
+  cp::AssociationMap expected_associations{
+    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
-  auto result_associations = cp::associateDetectionsToTracks(scores, cp::gnn_association_visitor);
+  auto result_associations =
+    cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
 
   EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
 
   // Compare expected_associations with result_associations
-  for (const auto& pair : expected_associations)
-  {
-    const std::string& track_uuid = pair.first;
-    const std::vector<std::string>& expected_detections = pair.second;
+  for (const auto & pair : expected_associations) {
+    const std::string & track_uuid = pair.first;
+    const std::vector<std::string> & expected_detections = pair.second;
 
     // Check if track_uuid exists in result_associations
     EXPECT_TRUE(result_associations.count(track_uuid) > 0);
 
     // Get the corresponding vector of detections from result_associations
-    const std::vector<std::string>& result_detections = result_associations[track_uuid];
+    const std::vector<std::string> & result_detections = result_associations[track_uuid];
 
     // Check if the expected and result detections have the same size
     EXPECT_EQ(std::size(expected_detections), std::size(result_detections));
 
     // Check if each detection in expected_detections exists in result_detections
-    for (const auto& detection_uuid : expected_detections)
-    {
-      EXPECT_TRUE(std::find(result_detections.begin(), result_detections.end(), detection_uuid) !=
-                  result_detections.end());
+    for (const auto & detection_uuid : expected_detections) {
+      EXPECT_TRUE(
+        std::find(result_detections.begin(), result_detections.end(), detection_uuid) !=
+        result_detections.end());
     }
   }
 }

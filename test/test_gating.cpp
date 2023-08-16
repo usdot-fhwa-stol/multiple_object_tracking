@@ -34,7 +34,7 @@ TEST(TestGating, TestPruning)
   const cp::ScoreMap expected_pruned_scores{ { { "track1", "detection1" }, 10.0 },
                                              { { "track2", "detection2" }, 20.0 } };
 
-  cp::pruneTrackAndDetectionScoresIf(scores, [](const auto& score) { return score > 25.0; });
+  cp::prune_track_and_detection_scores_if(scores, [](const auto& score) { return score > 25.0; });
 
   EXPECT_EQ(std::size(scores), std::size(expected_pruned_scores));
 

@@ -19,68 +19,74 @@
  */
 
 #include <gtest/gtest.h>
+#include <units.h>
+
+#include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/units.hpp>
-#include <cooperative_perception/angle.hpp>
-#include <units.h>
 
 namespace cp = cooperative_perception;
 
 /**
- * Test CTRA nextState function against pure rotation
+ * Test CTRA get_next_state function against pure rotation
  */
 TEST(TestCtraModel, NextStatePureRotation)
 {
   using namespace units::literals;
 
-  const cp::CtraState state{ 0_m, 0_m, 0_mps, cp::Angle(0_rad), 1_rad_per_s, 0_mps_sq };
-  const auto next_state{ cp::nextState(state, 0.5_s) };
-  const cp::CtraState expected_state{ 0_m, 0_m, 0_mps, cp::Angle(0.5_rad), 1_rad_per_s, 0_mps_sq };
+  const cp::CtraState state{0_m, 0_m, 0_mps, cp::Angle(0_rad), 1_rad_per_s, 0_mps_sq};
+  const auto next_state{cp::get_next_state(state, 0.5_s)};
+  const cp::CtraState expected_state{0_m, 0_m, 0_mps, cp::Angle(0.5_rad), 1_rad_per_s, 0_mps_sq};
 
-  EXPECT_TRUE(cp::utils::almostEqual(next_state, expected_state));
+  EXPECT_TRUE(cp::utils::almost_equal(next_state, expected_state));
 }
 
 /**
- * Test CTRA nextState function against pure translation
+ * Test CTRA get_next_state function against pure translation
  */
 TEST(TestCtraModel, NextStatePureTranslation)
 {
   using namespace units::literals;
 
-  const cp::CtraState state{ 0_m, 0_m, 1_mps, cp::Angle(0_rad), 0_rad_per_s, 1_mps_sq };
-  const auto next_state{ cp::nextState(state, 0.5_s) };
-  const cp::CtraState expected_state{ 0.625_m, 0_m, 1.5_mps, cp::Angle(0_rad), 0_rad_per_s, 1_mps_sq };
+  const cp::CtraState state{0_m, 0_m, 1_mps, cp::Angle(0_rad), 0_rad_per_s, 1_mps_sq};
+  const auto next_state{cp::get_next_state(state, 0.5_s)};
+  const cp::CtraState expected_state{0.625_m,          0_m,         1.5_mps,
+                                     cp::Angle(0_rad), 0_rad_per_s, 1_mps_sq};
 
-  EXPECT_TRUE(cp::utils::almostEqual(next_state, expected_state));
+  EXPECT_TRUE(cp::utils::almost_equal(next_state, expected_state));
 }
 
 /**
- * Test CTRA nextState function against mixed rotation and translation
+ * Test CTRA get_next_state function against mixed rotation and translation
  */
 TEST(TestCtraModel, NextStateRotationAndTranslation)
 {
   using namespace units::literals;
 
-  const cp::CtraState state{ 0_m, 0_m, 1_mps, cp::Angle(0_rad), 1_rad_per_s, 1_mps_sq };
-  const auto next_state{ cp::nextState(state, 0.5_s) };
-  const cp::CtraState expected_state{ 0.5967208697966773_m, 0.16305169576864387_m, 1.5_mps,
-                                      cp::Angle(0.5_rad),   1_rad_per_s,           1_mps_sq };
+  const cp::CtraState state{0_m, 0_m, 1_mps, cp::Angle(0_rad), 1_rad_per_s, 1_mps_sq};
+  const auto next_state{cp::get_next_state(state, 0.5_s)};
+  const cp::CtraState expected_state{0.5967208697966773_m, 0.16305169576864387_m, 1.5_mps,
+                                     cp::Angle(0.5_rad),   1_rad_per_s,           1_mps_sq};
 
-  EXPECT_TRUE(cp::utils::almostEqual(cp::utils::roundToDecimalPlace(next_state, 9),
-                                     cp::utils::roundToDecimalPlace(expected_state, 9)));
+  EXPECT_TRUE(cp::utils::almost_equal(
+    cp::utils::round_to_decimal_place(next_state, 9),
+    cp::utils::round_to_decimal_place(expected_state, 9)));
 }
 
 TEST(TestCtraModel, Equality)
 {
   using namespace units::literals;
 
-  const cp::CtraState state1{ 1.23_m, 2.435_m, 5544_mps, cp::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq };
-  const cp::CtraState state2{ 1.23_m, 2.435_m, 5544_mps, cp::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq };
-  const cp::CtraState state3{ 1_m, 2_m, 4_mps, cp::Angle(3_rad), 1.000000000000000000000000001_rad_per_s, 1_mps_sq };
-  const cp::CtraState state4{ 1_m, 2_m, 4_mps, cp::Angle(3_rad), 1_rad_per_s, 1_mps_sq };
+  const cp::CtraState state1{
+    1.23_m, 2.435_m, 5544_mps, cp::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq};
+  const cp::CtraState state2{
+    1.23_m, 2.435_m, 5544_mps, cp::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq};
+  const cp::CtraState state3{
+    1_m, 2_m, 4_mps, cp::Angle(3_rad), 1.000000000000000000000000001_rad_per_s, 1_mps_sq};
+  const cp::CtraState state4{1_m, 2_m, 4_mps, cp::Angle(3_rad), 1_rad_per_s, 1_mps_sq};
 
-  EXPECT_TRUE(cp::utils::almostEqual(state1, state1));
-  EXPECT_TRUE(cp::utils::almostEqual(state1, state2));
-  EXPECT_FALSE(cp::utils::almostEqual(state1, state3));
-  EXPECT_TRUE(cp::utils::almostEqual(state3, state4));
+  EXPECT_TRUE(cp::utils::almost_equal(state1, state1));
+  EXPECT_TRUE(cp::utils::almost_equal(state1, state2));
+  EXPECT_FALSE(cp::utils::almost_equal(state1, state3));
+  EXPECT_TRUE(cp::utils::almost_equal(state3, state4));
 }

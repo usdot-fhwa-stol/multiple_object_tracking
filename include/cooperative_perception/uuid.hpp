@@ -40,7 +40,7 @@ namespace cooperative_perception
  * @return the specified object's UUID
  */
 template <typename Object>
-auto getUuid(const Object& object) -> std::string
+auto get_uuid(const Object & object) -> std::string
 {
   return object.uuid;
 }
@@ -56,9 +56,9 @@ auto getUuid(const Object& object) -> std::string
  * @return the specified object's UUID
  */
 template <typename... Variants>
-auto getUuid(const std::variant<Variants...>& object) -> std::string
+auto get_uuid(const std::variant<Variants...> & object) -> std::string
 {
-  return std::visit([](const auto& o) { return getUuid(o); }, object);
+  return std::visit([](const auto & o) { return get_uuid(o); }, object);
 }
 
 /**
@@ -71,19 +71,18 @@ auto getUuid(const std::variant<Variants...>& object) -> std::string
  * @return the specified objects' UUIDs
  */
 template <template <typename...> typename Container, typename... ContainerParams>
-auto getUuids(const Container<ContainerParams...>& objects) -> Container<std::string>
+auto get_uuids(const Container<ContainerParams...> & objects) -> Container<std::string>
 {
   Container<std::string> uuids;
 
-  if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>)
-  {
-    std::ignore = std::transform(std::cbegin(objects), std::cend(objects), std::back_inserter(uuids),
-                                 [](const auto& object) { return getUuid(object); });
-  }
-  else
-  {
-    std::ignore = std::transform(std::cbegin(objects), std::cend(objects), std::inserter(uuids, std::end(uuids)),
-                                 [](const auto& object) { return getUuid(object); });
+  if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>) {
+    std::ignore = std::transform(
+      std::cbegin(objects), std::cend(objects), std::back_inserter(uuids),
+      [](const auto & object) { return get_uuid(object); });
+  } else {
+    std::ignore = std::transform(
+      std::cbegin(objects), std::cend(objects), std::inserter(uuids, std::end(uuids)),
+      [](const auto & object) { return get_uuid(object); });
   }
 
   return uuids;
@@ -104,14 +103,12 @@ namespace detail
  * @return void
  */
 template <typename Container, typename OutputIt, typename UnaryPredicate>
-auto getUuidsIfHelper(const Container& objects, OutputIt uuids, const UnaryPredicate& predicate) -> void
+auto get_uuids_if_helper(
+  const Container & objects, OutputIt uuids, const UnaryPredicate & predicate) -> void
 {
-  for (const auto& object : objects)
-  {
-    const auto uuid{ getUuid(object) };
-    if (predicate(uuid))
-    {
-      *uuids = uuid;
+  for (const auto & object : objects) {
+    if (predicate(object)) {
+      *uuids = get_uuid(object);
       ++uuids;
     }
   }
@@ -130,18 +127,17 @@ auto getUuidsIfHelper(const Container& objects, OutputIt uuids, const UnaryPredi
  * @param[in] predicate Predicate to decide if each object should have its UUID gotten
  * @return UUIDs for object matching the predicate
  */
-template <template <typename...> typename Container, typename UnaryPredicate, typename... ContainerParams>
-auto getUuidsIf(const Container<ContainerParams...>& objects, const UnaryPredicate& predicate) -> Container<std::string>
+template <
+  template <typename...> typename Container, typename UnaryPredicate, typename... ContainerParams>
+auto get_uuids_if(const Container<ContainerParams...> & objects, const UnaryPredicate & predicate)
+  -> Container<std::string>
 {
   Container<std::string> uuids;
 
-  if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>)
-  {
-    detail::getUuidsIfHelper(objects, std::back_inserter(uuids), predicate);
-  }
-  else
-  {
-    detail::getUuidsIfHelper(objects, std::inserter(uuids, std::end(uuids)), predicate);
+  if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>) {
+    detail::get_uuids_if_helper(objects, std::back_inserter(uuids), predicate);
+  } else {
+    detail::get_uuids_if_helper(objects, std::inserter(uuids, std::end(uuids)), predicate);
   }
 
   return uuids;

@@ -21,9 +21,11 @@
 #ifndef COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
 #define COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
 
+#include <units.h>
+
 #include <tuple>
 #include <vector>
-#include <units.h>
+
 #include "cooperative_perception/unscented_transform.hpp"
 
 namespace cooperative_perception
@@ -41,7 +43,7 @@ namespace cooperative_perception
  * for a given state and state covariance matrix. It generates sigma points and weights, and uses them to compute the
  * mean and covariance of the transformed sigma points through a non-linear model. The function advances the current
  * state of the system through the non-linear model using the specified time step. The Unscented Kalman Filter
- * prediction parameters (alpha, beta, kappa) are provided to generate the sigma points and weights. The nextState()
+ * prediction parameters (alpha, beta, kappa) are provided to generate the sigma points and weights. The get_next_state()
  * function is used to advance the state and sigma points through the non-linear model. The computed mean and sigma
  * points are converted to an Eigen::MatrixXf and used to compute the unscented transform, which returns the predicted
  * state and covariance.
@@ -56,30 +58,32 @@ namespace cooperative_perception
  * @return Tuple containing the resulting state and covariance matrix after the prediction step.
  */
 template <typename StateType, typename CovarianceType>
-inline auto unscentedKalmanFilterPredict(const StateType& state, const CovarianceType& covariance,
-                                         const units::time::second_t time_step, const float alpha, const float beta,
-                                         const float kappa) -> std::tuple<StateType, CovarianceType>
+inline auto unscented_kalman_filter_predict(
+  const StateType & state, const CovarianceType & covariance, const units::time::second_t time_step,
+  const float alpha, const float beta, const float kappa) -> std::tuple<StateType, CovarianceType>
 {
   // Generate sigma points and weights
-  const auto [sigma_points, Wm, Wc] = generateSigmaPointsAndWeights(state, covariance, alpha, beta, kappa);
+  const auto [sigma_points, Wm, Wc] =
+    generate_sigma_points_and_weights(state, covariance, alpha, beta, kappa);
 
   // Advance mean and sigma points through the non-linear model
-  const auto predicted_mean{ nextState(state, time_step) };
+  const auto predicted_mean{get_next_state(state, time_step)};
   std::vector<StateType> predicted_sigma_points;
-  for (const auto& sigma_point : sigma_points)
-  {
-    predicted_sigma_points.push_back(nextState(sigma_point, time_step));
+  for (const auto & sigma_point : sigma_points) {
+    predicted_sigma_points.push_back(get_next_state(sigma_point, time_step));
   }
 
   // Convert mean and sigma points into Eigen::MatrixXf
-  const auto m_sigma_points{ meanAndSigmaPointsToMatrixXf(predicted_mean, predicted_sigma_points) };
+  const auto m_sigma_points{
+    mean_and_sigma_pints_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
   // Compute UT based on the sigma points and weights
-  const auto [result_state_vector, result_covariance_matrix] = computeUnscentedTransform(m_sigma_points, Wm, Wc);
+  const auto [result_state_vector, result_covariance_matrix] =
+    compute_unscented_transform(m_sigma_points, Wm, Wc);
 
-  const auto result_state{ StateType::fromEigenVector(std::move(result_state_vector)) };
-  const CovarianceType result_covariance{ std::move(result_covariance_matrix) };
-  return { std::move(result_state), std::move(result_covariance) };
+  const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
+  const CovarianceType result_covariance{std::move(result_covariance_matrix)};
+  return {std::move(result_state), std::move(result_covariance)};
 }
 
 /**
@@ -99,7 +103,8 @@ public:
    * @param[in] beta The secondary scaling parameter for sigma points.
    * @param[in] kappa A tuning parameter affecting how the points are sampled.
    */
-  explicit UkfPredictionVisitor(float alpha, float beta, float kappa) : alpha_(alpha), beta_(beta), kappa_(kappa)
+  explicit UkfPredictionVisitor(float alpha, float beta, float kappa)
+  : alpha_(alpha), beta_(beta), kappa_(kappa)
   {
   }
 
@@ -115,10 +120,10 @@ public:
    * @param[in] time The time stamp for prediction.
    */
   template <typename ObjectType>
-  auto operator()(ObjectType& object, units::time::second_t time) const -> void
+  auto operator()(ObjectType & object, units::time::second_t time) const -> void
   {
-    const auto [state, covariance] =
-        unscentedKalmanFilterPredict(object.state, object.covariance, time - object.timestamp, alpha_, kappa_, beta_);
+    const auto [state, covariance] = unscented_kalman_filter_predict(
+      object.state, object.covariance, time - object.timestamp, alpha_, kappa_, beta_);
     object.state = state;
     object.covariance = covariance;
     object.timestamp = time;

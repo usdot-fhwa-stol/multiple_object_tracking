@@ -49,11 +49,11 @@ struct AugmentedState
    * @param[in] vec Vector being converted
    * @return AugmentState instance
    */
-  static auto fromEigenVector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> AugmentedState
+  static auto from_eigen_vector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> AugmentedState
   {
     return AugmentedState<State, ProcessNoise>{
-      .state{ State::fromEigenVector(Eigen::Vector<float, State::kNumVars>{ vec(Eigen::seqN(0, State::kNumVars)) }) },
-      .process_noise{ ProcessNoise::fromEigenVector(
+      .state{ State::from_eigen_vector(Eigen::Vector<float, State::kNumVars>{ vec(Eigen::seqN(0, State::kNumVars)) }) },
+      .process_noise{ ProcessNoise::from_eigen_vector(
           Eigen::Vector<float, ProcessNoise::kNumVars>{ vec(Eigen::seqN(State::kNumVars, ProcessNoise::kNumVars)) }) }
     };
   }
@@ -174,10 +174,10 @@ namespace utils
  * @return True if AugmentedState are almost-equal, false otherwise
  */
 template <typename State, typename ProcessNoise>
-inline auto almostEqual(const AugmentedState<State, ProcessNoise>& lhs, const AugmentedState<State, ProcessNoise>& rhs)
+inline auto almost_equal(const AugmentedState<State, ProcessNoise>& lhs, const AugmentedState<State, ProcessNoise>& rhs)
     -> bool
 {
-  return almostEqual(lhs.state, rhs.state) && almostEqual(lhs.process_noise, rhs.process_noise);
+  return almost_equal(lhs.state, rhs.state) && almost_equal(lhs.process_noise, rhs.process_noise);
 }
 
 /**
@@ -191,11 +191,11 @@ inline auto almostEqual(const AugmentedState<State, ProcessNoise>& lhs, const Au
  * @return Rounded AugmentedState
  */
 template <typename State, typename ProcessNoise>
-inline auto roundToDecimalPlace(const AugmentedState<State, ProcessNoise>& state, std::size_t decimal_place)
+inline auto round_to_decimal_place(const AugmentedState<State, ProcessNoise>& state, std::size_t decimal_place)
     -> AugmentedState<State, ProcessNoise>
 {
-  return AugmentedState<State, ProcessNoise>{ roundToDecimalPlace(state.state, decimal_place),
-                                              roundToDecimalPlace(state.process_noise, decimal_place) };
+  return AugmentedState<State, ProcessNoise>{ round_to_decimal_place(state.state, decimal_place),
+                                              round_to_decimal_place(state.process_noise, decimal_place) };
 }
 }  // namespace utils
 

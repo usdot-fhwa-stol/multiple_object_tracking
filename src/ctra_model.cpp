@@ -26,7 +26,7 @@
 
 namespace cooperative_perception
 {
-auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraState
+auto get_next_state(const CtraState& state, units::time::second_t time_step) -> CtraState
 {
   using namespace units::literals;
 
@@ -36,7 +36,7 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
   auto velocity_new = state.velocity + state.acceleration * time_step;
   auto yaw_new = state.yaw + Angle(state.yaw_rate * time_step);
 
-  if (utils::almostEqual(units::unit_cast<double>(state.yaw_rate), 0.0))
+  if (utils::almost_equal(units::unit_cast<double>(state.yaw_rate), 0.0))
   {
     // Yaw rate of zero (no turning) is a special case. The general case is invalid because it divides by the raw rate.
     // You can't divide by zero.
@@ -67,9 +67,9 @@ auto nextState(const CtraState& state, units::time::second_t time_step) -> CtraS
                     state.acceleration };
 }
 
-auto nextState(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState
+auto get_next_state(const CtraState& state, units::time::second_t time_step, const CtraProcessNoise& noise) -> CtraState
 {
-  auto next_state{ nextState(state, time_step) };
+  auto next_state{ get_next_state(state, time_step) };
   const auto time_step_sq{ units::math::pow<2>(time_step) };
   constexpr auto one_half{ 1.0 / 2.0 };
 
@@ -85,7 +85,7 @@ auto nextState(const CtraState& state, units::time::second_t time_step, const Ct
   return next_state;
 }
 
-auto printState(const CtraState& state) -> void
+auto print_state(const CtraState& state) -> void
 {
   std::cout << "CtraState: \n";
   std::cout << "x: " << state.position_x << "\n";

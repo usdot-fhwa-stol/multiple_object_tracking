@@ -56,7 +56,7 @@ struct UnscentedTransform
     -> void
   {
     const auto [s, c] =
-      unscentedKalmanFilterPredict(state, covariance, duration, alpha, kappa, beta);
+      unscented_kalman_filter_predict(state, covariance, duration, alpha, kappa, beta);
     state = s;
     covariance = c;
   }
