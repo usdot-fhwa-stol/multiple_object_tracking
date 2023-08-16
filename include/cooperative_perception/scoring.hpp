@@ -58,10 +58,33 @@ struct euclidean_distance_score_fn
   }
 };
 
+struct mahalanobis_distance_score_fn
+{
+  template <typename Track, typename Detection>
+  auto operator()(const Track & track, const Detection & detection) const -> std::optional<float>
+  {
+    if constexpr (std::is_same_v<decltype(track.state), decltype(detection.state)>) {
+      return mahalanobis_distance(track.state, track.covariance, detection.state);
+    } else {
+      return std::nullopt;
+    }
+  }
+
+  template <typename... TrackAlternatives, typename... DetectionAlternatives>
+  auto operator()(
+    const std::variant<TrackAlternatives...> & track,
+    const std::variant<DetectionAlternatives...> & detection) const -> std::optional<float>
+  {
+    return std::visit(
+      [this](const auto & track, const auto & detection) { return (*this)(track, detection); },
+      track, detection);
+  }
+};
+
 }  // namespace detail
 
 inline constexpr detail::euclidean_distance_score_fn euclidean_distance_score{};
-
+inline constexpr detail::mahalanobis_distance_score_fn mahalanobis_distance_score{};
 
 using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
 

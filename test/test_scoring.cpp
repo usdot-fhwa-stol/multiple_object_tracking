@@ -209,7 +209,7 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
       .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s}, .uuid{"test_detection3"}}};
 
   const auto scores =
-    cp::score_tracks_and_detections(tracks, detections, cp::mahalanobis_distance_visitor);
+    cp::score_tracks_and_detections(tracks, detections, cp::mahalanobis_distance_score);
 
   const cp::ScoreMap expected_scores{
     {std::pair{"test_track1", "test_detection1"}, 122.35757},
