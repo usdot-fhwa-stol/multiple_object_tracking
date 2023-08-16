@@ -41,8 +41,9 @@ TEST(TestScoring, CtrvEuclideanDistance)
   const auto track =
     TestTrack{.state{cp::CtrvState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s}}};
 
-  const auto euclidean_dist = cp::euclidean_distance(detection.state, track.state);
-  EXPECT_FLOAT_EQ(euclidean_dist, 7.0710678118654755F);
+  const auto score = cp::euclidean_distance_score(detection, track);
+  ASSERT_TRUE(score.has_value());
+  EXPECT_FLOAT_EQ(score.value(), 7.0710678118654755F);
 }
 
 TEST(TestScoring, CtrvMahalanobisDistance)
@@ -81,8 +82,9 @@ TEST(TestScoring, CtraEuclideanDistance)
     units::time::second_t{0},
     cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}};
 
-  const auto euclidean_dist = cp::euclidean_distance(detection.state, track.state);
-  EXPECT_FLOAT_EQ(euclidean_dist, 7.0710678118654755);
+  const auto score = cp::euclidean_distance_score(detection, track);
+  ASSERT_TRUE(score.has_value());
+  EXPECT_FLOAT_EQ(score.value(), 7.0710678118654755);
 }
 
 TEST(TestScoring, CtraMahalanobisDistance)
@@ -139,7 +141,7 @@ TEST(TestScoring, TrackToDetectionScoringEuclidean)
       .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s}, .uuid{"test_detection3"}}};
 
   const auto scores =
-    cp::score_tracks_and_detections(tracks, detections, cp::euclidean_distance_visitor);
+    cp::score_tracks_and_detections(tracks, detections, cp::euclidean_distance_score);
 
   const cp::ScoreMap expected_scores{
     {std::pair{"test_track1", "test_detection1"}, 7.0710678},
