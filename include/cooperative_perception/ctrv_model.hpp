@@ -30,6 +30,7 @@
 #include <functional>
 
 #include "cooperative_perception/angle.hpp"
+#include "cooperative_perception/dynamic_object.hpp"
 #include "cooperative_perception/units.hpp"
 
 /**
@@ -386,6 +387,16 @@ inline auto mahalanobis_distance(CtrvState mean, CtrvStateCovariance covariance,
  * @return None
  */
 auto print_state(const CtrvState & state) -> void;
+
+/**
+ * @brief Detection specialization for a the CTRV motion model
+ */
+using CtrvDetection = Detection<CtrvState, CtrvStateCovariance>;
+
+/**
+ * @brief Track specialization for a vehicle using the CTRV motion model
+ */
+using CtrvTrack = Track<CtrvState, CtrvStateCovariance>;
 
 namespace utils
 {

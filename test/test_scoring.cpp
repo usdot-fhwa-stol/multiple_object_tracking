@@ -21,12 +21,15 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
+#include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/detection.hpp>
+#include <cooperative_perception/dynamic_object.hpp>
 #include <cooperative_perception/scoring.hpp>
-#include <cooperative_perception/track.hpp>
 
 namespace cp = cooperative_perception;
+
+using DetectionVariant = std::variant<cp::CtrvDetection, cp::CtraDetection>;
+using TrackVariant = std::variant<cp::CtrvTrack, cp::CtraTrack>;
 
 TEST(TestScoring, CtrvEuclideanDistance)
 {
@@ -120,7 +123,7 @@ TEST(TestScoring, TrackToDetectionScoringEuclidean)
   using TestDetection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
-  const std::vector<cp::TrackVariant> tracks{
+  const std::vector<TrackVariant> tracks{
     TestTrack{
       .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
       .uuid{"test_track1"}},
@@ -130,7 +133,7 @@ TEST(TestScoring, TrackToDetectionScoringEuclidean)
     cp::Track<cp::CtrvState, cp::CtrvStateCovariance>{
       .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s}, .uuid{"test_track3"}}};
 
-  const std::vector<cp::DetectionVariant> detections{
+  const std::vector<DetectionVariant> detections{
     TestDetection{
       .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
       .uuid{"test_detection1"}},
@@ -165,7 +168,7 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
   using TestDetection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
-  const std::vector<cp::TrackVariant> tracks{
+  const std::vector<TrackVariant> tracks{
     TestTrack{
       .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
       .covariance{cp::CtraStateCovariance{
@@ -198,7 +201,7 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
         {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
       .uuid{"test_track3"}}};
 
-  const std::vector<cp::DetectionVariant> detections{
+  const std::vector<DetectionVariant> detections{
     TestDetection{
       .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
       .uuid{"test_detection1"}},

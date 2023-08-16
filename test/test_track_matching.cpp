@@ -21,9 +21,8 @@
 #include <dlib/optimization/max_cost_assignment.h>
 #include <gtest/gtest.h>
 
-#include <cooperative_perception/detection.hpp>
+#include <cooperative_perception/dynamic_object.hpp>
 #include <cooperative_perception/scoring.hpp>
-#include <cooperative_perception/track.hpp>
 #include <cooperative_perception/track_matching.hpp>
 
 namespace cp = cooperative_perception;

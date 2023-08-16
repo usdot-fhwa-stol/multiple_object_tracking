@@ -23,7 +23,6 @@
 
 #include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/detection.hpp>
 
 namespace cp = cooperative_perception;
 

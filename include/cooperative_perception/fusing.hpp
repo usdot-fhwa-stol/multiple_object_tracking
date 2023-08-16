@@ -25,7 +25,7 @@
 #include <tuple>
 #include <variant>
 
-#include "cooperative_perception/track.hpp"
+#include "cooperative_perception/dynamic_object.hpp"
 #include "cooperative_perception/uuid.hpp"
 #include "cooperative_perception/visitor.hpp"
 
@@ -95,7 +95,7 @@ inline auto generate_weight(
  * @return The fused track with updated state and covariance.
  */
 constexpr Visitor covariance_intersection_visitor{
-  [](const auto & track, const auto & detection) -> TrackVariant {
+  [](const auto & track, const auto & detection) -> std::variant<CtrvTrack, CtraTrack> {
     // Compute inverse of the covariances
     const auto track_inverse_covariance{track.covariance.inverse()};
     const auto detection_inverse_covariance{detection.covariance.inverse()};

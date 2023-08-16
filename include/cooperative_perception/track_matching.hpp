@@ -29,9 +29,8 @@
 #include <string>
 #include <vector>
 
-#include "cooperative_perception/detection.hpp"
+#include "cooperative_perception/dynamic_object.hpp"
 #include "cooperative_perception/scoring.hpp"
-#include "cooperative_perception/track.hpp"
 
 namespace cooperative_perception
 {

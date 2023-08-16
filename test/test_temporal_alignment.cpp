@@ -24,9 +24,8 @@
 #include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/detection.hpp>
+#include <cooperative_perception/dynamic_object.hpp>
 #include <cooperative_perception/temporal_alignment.hpp>
-#include <cooperative_perception/track.hpp>
 #include <cooperative_perception/unscented_kalman_filter.hpp>
 #include <cooperative_perception/utils.hpp>
 #include <variant>

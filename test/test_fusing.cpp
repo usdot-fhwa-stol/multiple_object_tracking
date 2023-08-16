@@ -24,13 +24,15 @@
 #include <cooperative_perception/angle.hpp>
 #include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/detection.hpp>
+#include <cooperative_perception/dynamic_object.hpp>
 #include <cooperative_perception/fusing.hpp>
-#include <cooperative_perception/track.hpp>
 #include <cooperative_perception/track_matching.hpp>
 #include <cooperative_perception/utils.hpp>
 
 namespace cp = cooperative_perception;
+
+using DetectionVariant = std::variant<cp::CtrvDetection, cp::CtraDetection>;
+using TrackVariant = std::variant<cp::CtrvTrack, cp::CtraTrack>;
 
 /**
  * Test the generate_weight function
@@ -100,7 +102,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
   cp::AssociationMap associations{
     {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
-  std::vector<cp::TrackVariant> tracks{
+  std::vector<TrackVariant> tracks{
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{1_m, 2_m, 3_mps, cp::Angle(4_rad), 5_rad_per_s}},
@@ -132,7 +134,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {-0.46255, -0.91817, 0.11903, 0.26086, 0.36714}}},
       .uuid{"track3"}}};
 
-  std::vector<cp::DetectionVariant> detections{
+  std::vector<DetectionVariant> detections{
     cp::CtrvDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -168,7 +170,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
       .uuid{"detection3"}}};
 
   // Expected values
-  std::vector<cp::TrackVariant> expected_tracks{
+  std::vector<TrackVariant> expected_tracks{
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -222,7 +224,7 @@ TEST(TestFusing, CtraTracksAndDetections)
   cp::AssociationMap associations{
     {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
-  std::vector<cp::TrackVariant> tracks{
+  std::vector<TrackVariant> tracks{
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(4_rad), 5_rad_per_s, 6_mps_sq}},
@@ -257,7 +259,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
       .uuid{"track3"}}};
 
-  std::vector<cp::DetectionVariant> detections{
+  std::vector<DetectionVariant> detections{
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -296,7 +298,7 @@ TEST(TestFusing, CtraTracksAndDetections)
       .uuid{"detection3"}}};
 
   // Expected values
-  std::vector<cp::TrackVariant> expected_tracks{
+  std::vector<TrackVariant> expected_tracks{
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -356,7 +358,7 @@ TEST(TestFusing, MixedTracksAndDetections)
   cp::AssociationMap associations{
     {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
-  std::vector<cp::TrackVariant> tracks{
+  std::vector<TrackVariant> tracks{
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(4_rad), 5_rad_per_s, 6_mps_sq}},
@@ -390,7 +392,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
       .uuid{"track3"}}};
 
-  std::vector<cp::DetectionVariant> detections{
+  std::vector<DetectionVariant> detections{
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -428,7 +430,7 @@ TEST(TestFusing, MixedTracksAndDetections)
       .uuid{"detection3"}}};
 
   // Expected values
-  std::vector<cp::TrackVariant> expected_tracks{
+  std::vector<TrackVariant> expected_tracks{
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -486,7 +488,7 @@ TEST(TestFusing, UnmatchedAssociations)
   cp::AssociationMap associations{
     {"track1", {"detection4"}}, {"track2", {"detection5"}}, {"track3", {"detection6"}}};
 
-  std::vector<cp::TrackVariant> tracks{
+  std::vector<TrackVariant> tracks{
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(4_rad), 5_rad_per_s, 6_mps_sq}},
@@ -520,7 +522,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
       .uuid{"track3"}}};
 
-  std::vector<cp::DetectionVariant> detections{
+  std::vector<DetectionVariant> detections{
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -558,7 +560,7 @@ TEST(TestFusing, UnmatchedAssociations)
       .uuid{"detection3"}}};
 
   // Expected values
-  std::vector<cp::TrackVariant> expected_tracks;
+  std::vector<TrackVariant> expected_tracks;
 
   // Call the functions under test
   const auto result_tracks{
@@ -579,7 +581,7 @@ TEST(TestFusing, PartialMatchedAssociations)
   cp::AssociationMap associations{
     {"track1", {"detection4"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
-  std::vector<cp::TrackVariant> tracks{
+  std::vector<TrackVariant> tracks{
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(4_rad), 5_rad_per_s, 6_mps_sq}},
@@ -613,7 +615,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
       .uuid{"track3"}}};
 
-  std::vector<cp::DetectionVariant> detections{
+  std::vector<DetectionVariant> detections{
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -651,7 +653,7 @@ TEST(TestFusing, PartialMatchedAssociations)
       .uuid{"detection3"}}};
 
   // Expected values
-  std::vector<cp::TrackVariant> expected_tracks{
+  std::vector<TrackVariant> expected_tracks{
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{

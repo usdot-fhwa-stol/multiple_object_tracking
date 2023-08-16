@@ -30,6 +30,7 @@
 #include <functional>
 
 #include "cooperative_perception/angle.hpp"
+#include "cooperative_perception/dynamic_object.hpp"
 #include "cooperative_perception/units.hpp"
 
 /**
@@ -353,6 +354,16 @@ inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance,
  * @return None
  */
 auto print_state(const CtraState & state) -> void;
+
+/**
+ * @brief Detection specialization for a the CTRA motion model
+ */
+using CtraDetection = Detection<CtraState, CtraStateCovariance>;
+
+/**
+ * @brief Track specialization for a vehicle using the CTRA motion model.
+ */
+using CtraTrack = Track<CtraState, CtraStateCovariance>;
 
 namespace utils
 {
