@@ -17,6 +17,7 @@
 #ifndef COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
 #define COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
 
+#include "cooperative_perception/track_matching.hpp"
 #include "cooperative_perception/uuid.hpp"
 
 namespace cooperative_perception
@@ -39,7 +40,7 @@ public:
   {
   }
 
-  auto update(const cp::AssociationMap & associations) -> void;
+  auto update(const AssociationMap & associations) -> void;
   auto should_promote(const std::string & uuid) const -> bool;
   auto should_demote(const std::string & uuid) const -> bool;
   auto should_remove(const std::string & uuid) const -> bool;
@@ -70,7 +71,7 @@ public:
   {
   }
 
-  auto update_track_lists(const cp::AssociationMap & associations) -> void
+  auto update_track_lists(const AssociationMap & associations) -> void
   {
     management_policy_.update(associations);
 
@@ -135,9 +136,9 @@ public:
 private:
   ManagementPolicy management_policy_;
   std::unordered_map<std::string, TrackType> tracks_;
-  std::unordered_map<std::string, cp::TrackStatus> track_statuses_;
+  std::unordered_map<std::string, TrackStatus> track_statuses_;
 };
 
 }  // namespace cooperative_perception
 
-#endif COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
+#endif  // COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
