@@ -62,6 +62,8 @@ struct UnscentedTransform
   }
 };
 
+inline constexpr UnscentedTransform default_unscented_transform{1.0, 2.0, 1.0};
+
 /**
  * @brief Propagate a Detection or Track to a specific time
  *
