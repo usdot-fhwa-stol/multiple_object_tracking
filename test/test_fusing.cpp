@@ -112,7 +112,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {-0.71805, -0.05412, -0.70058, 0.70838, -0.43610},
         {-0.64773, 0.71184, 0.73016, -0.34521, 0.86354},
         {-0.28654, -0.55006, 0.21601, -0.75024, -0.42627}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{6_m, 7_m, 8_mps, cp::Angle(2.71681_rad), 10_rad_per_s}},
@@ -122,7 +122,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {-0.19319, 0.72714, 0.86701, -0.45098, -0.08517},
         {0.75262, 0.22813, 0.55607, -0.84915, 0.47627},
         {-0.94872, -0.01025, 0.30417, 0.98642, 0.78256}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{11_m, 12_m, 13_mps, cp::Angle(1.43363_rad), 15_rad_per_s}},
@@ -132,7 +132,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {0.51890, 0.33076, -0.90532, -0.26269, 0.16610},
         {-0.08644, 0.42692, 0.33657, -0.64111, 0.61577},
         {-0.46255, -0.91817, 0.11903, 0.26086, 0.36714}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   std::vector<DetectionVariant> detections{
     cp::CtrvDetection{
@@ -145,7 +145,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {0.95801, 1.69035, 1.80191, -0.90369, -1.18957},
         {-0.73548, -1.12470, -0.90369, 0.77966, 0.48729},
         {-0.62768, -1.19955, -1.18957, 0.48729, 1.75366}}},
-      .uuid{"detection1"}},
+      .uuid{cp::Uuid{"detection1"}}},
     cp::CtrvDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -156,7 +156,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {0.50370, -0.23461, 1.31776, -0.30712, 0.43955},
         {-0.34803, 0.44184, -0.30712, 2.04658, -0.45696},
         {0.25890, 0.03177, 0.43955, -0.45696, 2.57812}}},
-      .uuid{"detection2"}},
+      .uuid{cp::Uuid{"detection2"}}},
     cp::CtrvDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -167,7 +167,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {0.41240, 0.49256, 1.00934, 0.00066, 0.08419},
         {-2.36064, 1.63664, 0.00066, 9.05961, -0.54188},
         {0.46715, 0.57979, 0.08419, -0.54188, 1.17590}}},
-      .uuid{"detection3"}}};
+      .uuid{cp::Uuid{"detection3"}}}};
 
   // Expected values
   std::vector<TrackVariant> expected_tracks{
@@ -181,7 +181,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {-0.24708, -0.04796, -0.39811, 0.39406, -0.16223},
         {-0.28802, 0.09621, 0.18434, -0.41292, 0.47857},
         {-0.12247, -0.30455, 0.07302, -0.42005, -0.19994}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -192,7 +192,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {0.03273, 0.05499, 0.14541, 0.02476, 0.09505},
         {0.00668, 0.01778, 0.04269, 0.01321, 0.02387},
         {0.03738, 0.05686, 0.14170, 0.01147, 0.07430}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -203,7 +203,7 @@ TEST(TestFusing, CtrvTracksAndDetections)
         {0.13275, 0.11320, -0.01331, -0.11357, 1.11781},
         {-0.06036, -0.03309, -0.03318, 0.03047, -0.88861},
         {-0.17177, -0.28715, -0.11082, 0.13803, -0.58390}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   // Call the functions under test
   const auto result_tracks{
@@ -235,7 +235,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-0.96353, -0.97986, 0.67010, 0.64093, 0.21063, -0.17695},
         {-0.69443, 0.34330, 0.70980, -0.98922, 0.32312, 0.44862},
         {0.31894, -0.46326, 0.41500, -0.07116, -0.66293, -0.81833}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{7_m, 8_m, 9_mps, cp::Angle(3.71681_rad), 11_rad_per_s, 12_mps_sq}},
@@ -246,7 +246,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-0.35242, 0.56761, 0.25037, 0.65496, 0.17750, -0.26927},
         {0.23392, -0.86756, -0.35558, -0.40433, 0.15967, 0.17871},
         {-0.62065, 0.51657, -0.13082, 0.28166, -0.82731, -0.46933}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{13_m, 14_m, 15_mps, cp::Angle(3.43363_rad), 17_rad_per_s, 18_mps_sq}},
@@ -257,7 +257,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {0.34891, -0.84795, 0.87197, -0.45626, -0.66138, -0.88974},
         {-0.12757, 0.95772, -0.14295, 0.81724, 0.91834, -0.21633},
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   std::vector<DetectionVariant> detections{
     cp::CtraDetection{
@@ -271,7 +271,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection1"}},
+      .uuid{cp::Uuid{"detection1"}}},
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -283,7 +283,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-1.56304, -1.38163, 0.11823, 6.68945, 0.22266, -0.61728},
         {-0.51999, 0.71814, 0.83737, 0.22266, 2.46517, 0.04416},
         {0.71663, -0.28335, 0.42938, -0.61728, 0.04416, 0.86947}}},
-      .uuid{"detection2"}},
+      .uuid{cp::Uuid{"detection2"}}},
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -295,7 +295,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection3"}}};
+      .uuid{cp::Uuid{"detection3"}}}};
 
   // Expected values
   std::vector<TrackVariant> expected_tracks{
@@ -311,7 +311,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-1.67884, -1.11482, 0.65232, 3.04036, 0.56680, 1.93504},
         {-1.13169, 0.21219, 0.14250, 1.43570, 4.29881, 0.94258},
         {0.18998, -0.45901, -0.45852, -0.50814, 0.41576, 0.65043}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -324,7 +324,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-1.54311, 3.14147, -4.75623, -1.60261, -4.63417, -3.90667},
         {1.50061, -3.79495, 5.76920, 2.66764, 6.53137, 4.60193},
         {1.03998, 0.19419, -0.92281, -2.31439, -0.58422, 0.64047}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -337,7 +337,7 @@ TEST(TestFusing, CtraTracksAndDetections)
         {-0.10843, -2.61593, 1.56048, -1.06914, 0.50692, 0.03947},
         {0.16566, 1.54753, -0.42328, 1.06169, 1.29183, -0.76139},
         {-0.43168, -1.63921, 0.89318, -0.64818, 0.93386, 0.67674}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   // Call the functions under test
   const auto result_tracks{
@@ -369,7 +369,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-0.96353, -0.97986, 0.67010, 0.64093, 0.21063, -0.17695},
         {-0.69443, 0.34330, 0.70980, -0.98922, 0.32312, 0.44862},
         {0.31894, -0.46326, 0.41500, -0.07116, -0.66293, -0.81833}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{6_m, 7_m, 8_mps, cp::Angle(2.71681_rad), 10_rad_per_s}},
@@ -379,7 +379,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-0.19319, 0.72714, 0.86701, -0.45098, -0.08517},
         {0.75262, 0.22813, 0.55607, -0.84915, 0.47627},
         {-0.94872, -0.01025, 0.30417, 0.98642, 0.78256}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{13_m, 14_m, 15_mps, cp::Angle(3.43363_rad), 17_rad_per_s, 18_mps_sq}},
@@ -390,7 +390,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {0.34891, -0.84795, 0.87197, -0.45626, -0.66138, -0.88974},
         {-0.12757, 0.95772, -0.14295, 0.81724, 0.91834, -0.21633},
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   std::vector<DetectionVariant> detections{
     cp::CtraDetection{
@@ -404,7 +404,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection1"}},
+      .uuid{cp::Uuid{"detection1"}}},
     cp::CtrvDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -415,7 +415,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {0.50370, -0.23461, 1.31776, -0.30712, 0.43955},
         {-0.34803, 0.44184, -0.30712, 2.04658, -0.45696},
         {0.25890, 0.03177, 0.43955, -0.45696, 2.57812}}},
-      .uuid{"detection2"}},
+      .uuid{cp::Uuid{"detection2"}}},
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -427,7 +427,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection3"}}};
+      .uuid{cp::Uuid{"detection3"}}}};
 
   // Expected values
   std::vector<TrackVariant> expected_tracks{
@@ -443,7 +443,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-1.67884, -1.11482, 0.65232, 3.04036, 0.56680, 1.93504},
         {-1.13169, 0.21219, 0.14250, 1.43570, 4.29881, 0.94258},
         {0.18998, -0.45901, -0.45852, -0.50814, 0.41576, 0.65043}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -454,7 +454,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {0.03273, 0.05499, 0.14541, 0.02476, 0.09505},
         {0.00668, 0.01778, 0.04269, 0.01321, 0.02387},
         {0.03738, 0.05686, 0.14170, 0.01147, 0.07430}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -467,7 +467,7 @@ TEST(TestFusing, MixedTracksAndDetections)
         {-0.10843, -2.61593, 1.56048, -1.06914, 0.50692, 0.03947},
         {0.16566, 1.54753, -0.42328, 1.06169, 1.29183, -0.76139},
         {-0.43168, -1.63921, 0.89318, -0.64818, 0.93386, 0.67674}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   // Call the functions under test
   const auto result_tracks{
@@ -499,7 +499,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {-0.96353, -0.97986, 0.67010, 0.64093, 0.21063, -0.17695},
         {-0.69443, 0.34330, 0.70980, -0.98922, 0.32312, 0.44862},
         {0.31894, -0.46326, 0.41500, -0.07116, -0.66293, -0.81833}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{6_m, 7_m, 8_mps, cp::Angle(2.71681_rad), 10_rad_per_s}},
@@ -509,7 +509,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {-0.19319, 0.72714, 0.86701, -0.45098, -0.08517},
         {0.75262, 0.22813, 0.55607, -0.84915, 0.47627},
         {-0.94872, -0.01025, 0.30417, 0.98642, 0.78256}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{13_m, 14_m, 15_mps, cp::Angle(3.43363_rad), 17_rad_per_s, 18_mps_sq}},
@@ -520,7 +520,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {0.34891, -0.84795, 0.87197, -0.45626, -0.66138, -0.88974},
         {-0.12757, 0.95772, -0.14295, 0.81724, 0.91834, -0.21633},
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   std::vector<DetectionVariant> detections{
     cp::CtraDetection{
@@ -534,7 +534,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection1"}},
+      .uuid{cp::Uuid{"detection1"}}},
     cp::CtrvDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -545,7 +545,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {0.50370, -0.23461, 1.31776, -0.30712, 0.43955},
         {-0.34803, 0.44184, -0.30712, 2.04658, -0.45696},
         {0.25890, 0.03177, 0.43955, -0.45696, 2.57812}}},
-      .uuid{"detection2"}},
+      .uuid{cp::Uuid{"detection2"}}},
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -557,7 +557,7 @@ TEST(TestFusing, UnmatchedAssociations)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection3"}}};
+      .uuid{cp::Uuid{"detection3"}}}};
 
   // Expected values
   std::vector<TrackVariant> expected_tracks;
@@ -592,7 +592,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {-0.96353, -0.97986, 0.67010, 0.64093, 0.21063, -0.17695},
         {-0.69443, 0.34330, 0.70980, -0.98922, 0.32312, 0.44862},
         {0.31894, -0.46326, 0.41500, -0.07116, -0.66293, -0.81833}}},
-      .uuid{"track1"}},
+      .uuid{cp::Uuid{"track1"}}},
     cp::CtrvTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{6_m, 7_m, 8_mps, cp::Angle(2.71681_rad), 10_rad_per_s}},
@@ -602,7 +602,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {-0.19319, 0.72714, 0.86701, -0.45098, -0.08517},
         {0.75262, 0.22813, 0.55607, -0.84915, 0.47627},
         {-0.94872, -0.01025, 0.30417, 0.98642, 0.78256}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{13_m, 14_m, 15_mps, cp::Angle(3.43363_rad), 17_rad_per_s, 18_mps_sq}},
@@ -613,7 +613,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {0.34891, -0.84795, 0.87197, -0.45626, -0.66138, -0.88974},
         {-0.12757, 0.95772, -0.14295, 0.81724, 0.91834, -0.21633},
         {-0.13922, -0.23413, 0.65277, -0.21056, 0.56191, 0.09530}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}};
 
   std::vector<DetectionVariant> detections{
     cp::CtraDetection{
@@ -627,7 +627,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection1"}},
+      .uuid{cp::Uuid{"detection1"}}},
     cp::CtrvDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtrvState{
@@ -638,7 +638,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {0.50370, -0.23461, 1.31776, -0.30712, 0.43955},
         {-0.34803, 0.44184, -0.30712, 2.04658, -0.45696},
         {0.25890, 0.03177, 0.43955, -0.45696, 2.57812}}},
-      .uuid{"detection2"}},
+      .uuid{cp::Uuid{"detection2"}}},
     cp::CtraDetection{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -650,7 +650,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {-3.57288, 2.27956, 0.55992, 8.25950, 1.02821, 0.45153},
         {-0.81460, 0.13771, 0.07005, 1.02821, 3.19971, -1.15597},
         {0.34692, -0.69168, 0.13371, 0.45153, -1.15597, 2.50944}}},
-      .uuid{"detection3"}}};
+      .uuid{cp::Uuid{"detection3"}}}};
 
   // Expected values
   std::vector<TrackVariant> expected_tracks{
@@ -664,7 +664,7 @@ TEST(TestFusing, PartialMatchedAssociations)
         {0.03273, 0.05499, 0.14541, 0.02476, 0.09505},
         {0.00668, 0.01778, 0.04269, 0.01321, 0.02387},
         {0.03738, 0.05686, 0.14170, 0.01147, 0.07430}}},
-      .uuid{"track2"}},
+      .uuid{cp::Uuid{"track2"}}},
     cp::CtraTrack{
       .timestamp{units::time::second_t{0}},
       .state{cp::CtraState{
@@ -677,7 +677,8 @@ TEST(TestFusing, PartialMatchedAssociations)
         {-0.10843, -2.61593, 1.56048, -1.06914, 0.50692, 0.03947},
         {0.16566, 1.54753, -0.42328, 1.06169, 1.29183, -0.76139},
         {-0.43168, -1.63921, 0.89318, -0.64818, 0.93386, 0.67674}}},
-      .uuid{"track3"}}};
+      .uuid{cp::Uuid{"track3"}}}
+  };
 
   // Call the functions under test
   const auto result_tracks{

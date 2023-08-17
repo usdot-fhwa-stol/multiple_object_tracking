@@ -17,7 +17,7 @@ struct DynamicObject
   units::time::second_t timestamp;
   State state;
   StateCovariance covariance;
-  std::string uuid;
+  Uuid uuid;
 };
 
 template <typename Object>
@@ -30,6 +30,38 @@ template <typename... Alternatives>
 auto get_timestamp(const std::variant<Alternatives...> & object) -> units::time::second_t
 {
   return std::visit([](const auto & o) { return get_timestamp(o); }, object);
+}
+
+/**
+ * @brief Get the object's UUID
+ *
+ * This overload works on non-std::variant types.
+ *
+ * @tparam Object Object's type
+ *
+ * @param[in] object Object from which to get the UUID
+ * @return the specified object's UUID
+ */
+template <typename Object>
+auto get_uuid(const Object & object) -> Uuid
+{
+  return object.uuid;
+}
+
+/**
+ * @brief Get the object's UUID
+ *
+ * This overload works on std::variant types.
+ *
+ * @tparam Variants Paramater pack for the types that the variant supports
+ *
+ * @param[in] object Object from which to get the UUID
+ * @return the specified object's UUID
+ */
+template <typename... Variants>
+auto get_uuid(const std::variant<Variants...> & object) -> Uuid
+{
+  return std::visit([](const auto & o) { return get_uuid(o); }, object);
 }
 
 template <typename State, typename StateCovariance>

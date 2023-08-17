@@ -102,7 +102,7 @@ auto score_tracks_and_detections(
       const auto detection_uuid{get_uuid(detection)};
 
       if (const auto score = metric(track, detection); score.has_value()) {
-        scores[{track_uuid, detection_uuid}] = score.value();
+        scores[{track_uuid.value(), detection_uuid.value()}] = score.value();
       }
     }
   }
