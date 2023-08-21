@@ -18,38 +18,40 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#include <cmath>
-#include <units.h>
 #include "cooperative_perception/ctrv_model.hpp"
-#include "cooperative_perception/utils.hpp"
+
+#include <units.h>
+
+#include <cmath>
+
 #include "cooperative_perception/units.hpp"
+#include "cooperative_perception/utils.hpp"
 
 namespace cooperative_perception
 {
-auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvState
+auto get_next_state(const CtrvState & state, units::time::second_t time_step) -> CtrvState
 {
   using namespace units::literals;
 
-  CtrvState next_state{ state };
+  CtrvState next_state{state};
 
-  const auto delta_yaw{ state.yaw_rate * time_step };
+  const auto delta_yaw{state.yaw_rate * time_step};
 
-  if (utils::almostEqual(units::unit_cast<double>(state.yaw_rate), 0.0))
-  {
+  if (utils::almost_equal(units::unit_cast<double>(state.yaw_rate), 0.0)) {
     // Yaw rate of zero (no turning) is a special case. The general case is invalid because it divides by the raw rate.
     // You can't divide by zero.
     next_state.position_x += state.velocity * units::math::cos(state.yaw.get_angle()) * time_step;
     next_state.position_y += state.velocity * units::math::sin(state.yaw.get_angle()) * time_step;
-  }
-  else
-  {
-    const auto vel_over_yaw_rate{ state.velocity / state.yaw_rate };
-    next_state.position_x +=
-        vel_over_yaw_rate *
-        (units::math::sin(state.yaw.get_angle() + delta_yaw) - units::math::sin(state.yaw.get_angle())) * 1_rad;
-    next_state.position_y -=
-        vel_over_yaw_rate *
-        (units::math::cos(state.yaw.get_angle() + delta_yaw) - units::math::cos(state.yaw.get_angle())) * 1_rad;
+  } else {
+    const auto vel_over_yaw_rate{state.velocity / state.yaw_rate};
+    next_state.position_x += vel_over_yaw_rate *
+                             (units::math::sin(state.yaw.get_angle() + delta_yaw) -
+                              units::math::sin(state.yaw.get_angle())) *
+                             1_rad;
+    next_state.position_y -= vel_over_yaw_rate *
+                             (units::math::cos(state.yaw.get_angle() + delta_yaw) -
+                              units::math::cos(state.yaw.get_angle())) *
+                             1_rad;
   }
 
   next_state.yaw += delta_yaw;
@@ -57,17 +59,19 @@ auto nextState(const CtrvState& state, units::time::second_t time_step) -> CtrvS
   return next_state;
 }
 
-auto nextState(const CtrvState& state, units::time::second_t time_step, const CtrvProcessNoise& noise) -> CtrvState
+auto get_next_state(
+  const CtrvState & state, units::time::second_t time_step, const CtrvProcessNoise & noise)
+  -> CtrvState
 {
-  auto next_state{ nextState(state, time_step) };
+  auto next_state{get_next_state(state, time_step)};
 
-  const auto time_step_sq{ units::math::pow<2>(time_step) };
-  constexpr auto one_half{ 1.0 / 2.0 };
+  const auto time_step_sq{units::math::pow<2>(time_step)};
+  constexpr auto one_half{1.0 / 2.0};
 
   next_state.position_x +=
-      one_half * noise.linear_acceleration * units::math::cos(state.yaw.get_angle()) * time_step_sq;
+    one_half * noise.linear_acceleration * units::math::cos(state.yaw.get_angle()) * time_step_sq;
   next_state.position_y +=
-      one_half * noise.linear_acceleration * units::math::sin(state.yaw.get_angle()) * time_step_sq;
+    one_half * noise.linear_acceleration * units::math::sin(state.yaw.get_angle()) * time_step_sq;
   next_state.velocity += noise.linear_acceleration * time_step;
   next_state.yaw += one_half * noise.angular_acceleration * time_step_sq;
   next_state.yaw_rate += noise.angular_acceleration * time_step;
@@ -75,7 +79,7 @@ auto nextState(const CtrvState& state, units::time::second_t time_step, const Ct
   return next_state;
 }
 
-auto printState(const CtrvState& state) -> void
+auto print_state(const CtrvState & state) -> void
 {
   std::cout << "CtrvState: \n";
   std::cout << "x: " << state.position_x << "\n";

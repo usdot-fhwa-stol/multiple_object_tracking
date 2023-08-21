@@ -31,8 +31,8 @@ add_executable(test_cooperative_perceptionExecutable
 target_link_libraries(test_cooperative_perceptionExecutable
   PRIVATE
   cooperative_perception::cooperative_perception
-  GTest::GTest
-  GTest::Main
+  GTest::gtest
+  GTest::gtest_main
 )
 
 include(GoogleTest)

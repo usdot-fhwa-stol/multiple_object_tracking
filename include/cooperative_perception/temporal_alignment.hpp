@@ -15,69 +15,120 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #ifndef COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
 #define COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
 
-#include <variant>
 #include <units.h>
-#include "cooperative_perception/covariance_calibration.hpp"
-#include "cooperative_perception/visitor.hpp"
+
+#include <variant>
+
+#include "cooperative_perception/unscented_kalman_filter.hpp"
 
 namespace cooperative_perception
 {
 /**
- * @brief State propagation visitor
- *
- * When called, this visitor will propagate the visited object's state vector and update its timestamp.
- *
- * @param[in,out] object Object whose state will be propagated
- * @param[in] time Time stamp to which the object's state will be propagated
+ * @brief Function object to predict a system's state and covariance using an unscented transform
  */
-constexpr Visitor state_propagation_visitor{ [](auto& object, units::time::second_t time) {
-  object.state = nextState(object.state, time - object.timestamp);
-  object.timestamp = time;
-} };
+struct UnscentedTransform
+{
+  float alpha; /** A tuning parameter */
+  float beta;  /** A tuning parameter */
+  float kappa; /** A tuning parameter */
+
+  /**
+   * @brief Transform the state and state covariance using an unscented transform
+   *
+   * @tparam State Type of the state being transformed
+   * @tparam Covariance Type of the state covariance being transformed
+   *
+   * @param[in,out] state State being transformed
+   * @param[in,out] covariance State covariance being transformed
+   * @param[in] duration Transformation duration
+   *
+   * @return void
+   */
+  template <typename State, typename Covariance>
+  auto operator()(State & state, Covariance & covariance, units::time::second_t duration) const
+    -> void
+  {
+    const auto [s, c] =
+      unscented_kalman_filter_predict(state, covariance, duration, alpha, kappa, beta);
+    state = s;
+    covariance = c;
+  }
+};
+
+inline constexpr UnscentedTransform default_unscented_transform{1.0, 2.0, 1.0};
 
 /**
- * @brief Propagate the object to a specific time stamp.
+ * @brief Propagate a Detection or Track to a specific time
  *
- * This function calibrates the covariance of the object and applies an prediction visitor to propagate the object's
- * state to the specified time stamp.
+ * This overload operates on non-variant object types.
  *
- * @param[in,out] object The object being propagated.
- * @param[in] time The propagation time.
- * @param[in] prediction_visitor The visitor with the implementation for propagating the object.
+ * @tparam Object The type of object being propagated
+ * @tparam Propagator The type of the function object being used to propagate
+ *
+ * @param[in,out] object The object being propagated
+ * @param[in] time The time that the object will be propagated to
+ * @param[in] propagator The propagation function object that will do the propagation
+ *
+ * @return void
  */
-template <typename ObjectVariant, typename PredictionVisitor>
-auto propagateToTime(ObjectVariant& object, units::time::second_t time, const PredictionVisitor& prediction_visitor)
-    -> void
+template <typename Object, typename Propagator>
+auto propagate_to_time(Object & object, units::time::second_t time, const Propagator & propagator)
+  -> void
 {
-  calibrateCovariance(object);
-  std::visit(prediction_visitor, object, std::variant<units::time::second_t>(time));
+  propagator(object.state, object.covariance, time - object.timestamp);
+  object.timestamp = time;
 }
 
 /**
- * @brief Predict the object's state to a specific time stamp and return a new object.
+ * @brief Propagate a Detection or Track to a specific time
  *
- * This function creates a copy of the input object, calibrates the covariance of the new object, and applies an
- * prediction visitor to predict the state to the specified time stamp. The new predicted object is then returned.
+ * This overload operators on variant types
  *
- * @param[in] object The object being predicted.
- * @param[in] time The prediction time.
- * @param[in] prediction_visitor The visitor with the implementation for predicting the object.
- * @return The new object with the predicted state.
+ * @tparam Propagator The type of the function object being used to propagate
+ * @tparam Alternatives Parameter pack containing the variant's alternative types
+ *
+ * @param[in,out] object The object being propagated
+ * @param[in] time The time that the object will be propagated to
+ * @param[in] propagator The propagation function object that will do the propagation
+ *
+ * @return void
  */
-template <typename ObjectVariant, typename PredictionVisitor>
-auto predictToTime(const ObjectVariant& object, units::time::second_t time, const PredictionVisitor& prediction_visitor)
-    -> ObjectVariant
+template <typename Propagator, typename... Alternatives>
+auto propagate_to_time(
+  std::variant<Alternatives...> & object, units::time::second_t time, const Propagator & propagator)
 {
-  ObjectVariant new_object = object;
-  calibrateCovariance(new_object);
-  std::visit(prediction_visitor, new_object, std::variant<units::time::second_t>(time));
-  return new_object;
+  std::visit(
+    [&propagator](auto & o, units::time::second_t t) {
+      cooperative_perception::propagate_to_time(o, t, propagator);
+    },
+    object, std::variant<units::time::second_t>{time});
+}
+
+/**
+ * @brief Predict a Detection or Track to a specific time
+ *
+ * @tparam Object The type of object being predicted
+ * @tparam Propagator The type of the function object being used to propagate the predicted object
+ *
+ * @param[in] object The object being predicted
+ * @param[in] time The time that the object will be predicted to
+ * @param[in] propagator The propagation function object that will do the propagation
+ *
+ * @return The predicted object
+ */
+template <typename Object, typename Propagator>
+auto predict_to_time(Object object, units::time::second_t time, const Propagator & propagator)
+{
+  propagate_to_time(object, time, propagator);
+
+  return object;
 }
 
 }  // namespace cooperative_perception

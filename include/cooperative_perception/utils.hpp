@@ -21,13 +21,14 @@
 #ifndef COOPERATIVE_PERCEPTION_UTILS_HPP
 #define COOPERATIVE_PERCEPTION_UTILS_HPP
 
-#include <cmath>
-#include <vector>
-#include <variant>
 #include <Eigen/Dense>
-#include "cooperative_perception/visitor.hpp"
+#include <cmath>
+#include <variant>
+#include <vector>
+
 #include "cooperative_perception/ctra_model.hpp"
 #include "cooperative_perception/ctrv_model.hpp"
+#include "cooperative_perception/visitor.hpp"
 
 namespace cooperative_perception::utils
 {
@@ -39,9 +40,9 @@ namespace cooperative_perception::utils
  * @param[in] second Second number
  * @return If the two specified numbers are equal
  */
-constexpr auto almostEqual(double first, double second) -> bool
+constexpr auto almost_equal(double first, double second) -> bool
 {
-  constexpr auto kEpsilon{ 1e-5 };
+  constexpr auto kEpsilon{1e-5};
 
   return std::abs(first - second) < kEpsilon;
 };
@@ -54,17 +55,14 @@ constexpr auto almostEqual(double first, double second) -> bool
  *
  * @return True if vectors are almost-equal, false otherwise
  */
-inline auto almostEqual(const std::vector<float>& lhs, const std::vector<float>& rhs) -> bool
+inline auto almost_equal(const std::vector<float> & lhs, const std::vector<float> & rhs) -> bool
 {
-  if (lhs.size() != rhs.size())
-  {
+  if (lhs.size() != rhs.size()) {
     return false;
   }
 
-  for (int i = 0; i < lhs.size(); ++i)
-  {
-    if (!almostEqual(lhs[i], rhs[i]))
-    {
+  for (int i = 0; i < lhs.size(); ++i) {
+    if (!almost_equal(lhs[i], rhs[i])) {
       return false;
     }
   }
@@ -79,17 +77,14 @@ inline auto almostEqual(const std::vector<float>& lhs, const std::vector<float>&
  *
  * @return True if vectors are almost-equal, false otherwise
  */
-inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs) -> bool
+inline auto almost_equal(const Eigen::VectorXf & lhs, const Eigen::VectorXf & rhs) -> bool
 {
-  if (lhs.size() != rhs.size())
-  {
+  if (lhs.size() != rhs.size()) {
     return false;  // vectors are not equal if they have different sizes
   }
 
-  for (int i = 0; i < lhs.size(); ++i)
-  {
-    if (!almostEqual(lhs[i], rhs[i]))
-    {
+  for (int i = 0; i < lhs.size(); ++i) {
+    if (!almost_equal(lhs[i], rhs[i])) {
       return false;  // vectors are not equal if any of their elements differ
     }
   }
@@ -104,19 +99,15 @@ inline auto almostEqual(const Eigen::VectorXf& lhs, const Eigen::VectorXf& rhs) 
  *
  * @return True if vectors are almost-equal, false otherwise
  */
-inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs) -> bool
+inline auto almost_equal(const Eigen::MatrixXf & lhs, const Eigen::MatrixXf & rhs) -> bool
 {
-  if (lhs.rows() != rhs.rows() || lhs.cols() != rhs.cols())
-  {
+  if (lhs.rows() != rhs.rows() || lhs.cols() != rhs.cols()) {
     return false;  // matrices are not equal if they have different dimensions
   }
 
-  for (int i = 0; i < lhs.rows(); ++i)
-  {
-    for (int j = 0; j < lhs.cols(); ++j)
-    {
-      if (!almostEqual(lhs(i, j), rhs(i, j)))
-      {
+  for (int i = 0; i < lhs.rows(); ++i) {
+    for (int j = 0; j < lhs.cols(); ++j) {
+      if (!almost_equal(lhs(i, j), rhs(i, j))) {
         return false;  // matrices are not equal if any of their elements differ
       }
     }
@@ -132,9 +123,9 @@ inline auto almostEqual(const Eigen::MatrixXf& lhs, const Eigen::MatrixXf& rhs) 
  * (0.001)
  * @return Rounded float
  */
-inline auto roundToDecimalPlace(float n, std::size_t decimal_place) -> float
+inline auto round_to_decimal_place(float n, std::size_t decimal_place) -> float
 {
-  const auto multiplier{ std::pow(10.0f, decimal_place) };
+  const auto multiplier{std::pow(10.0f, decimal_place)};
 
   float x = round(n * multiplier) / multiplier;
   return x;
@@ -148,14 +139,13 @@ inline auto roundToDecimalPlace(float n, std::size_t decimal_place) -> float
  * (0.001)
  * @return Rounded Eigen::MatrixXf
  */
-inline auto roundToDecimalPlace(const Eigen::MatrixXf& n, std::size_t decimal_place) -> Eigen::MatrixXf
+inline auto round_to_decimal_place(const Eigen::MatrixXf & n, std::size_t decimal_place)
+  -> Eigen::MatrixXf
 {
   Eigen::MatrixXf x(n.rows(), n.cols());
-  for (int i = 0; i < n.rows(); ++i)
-  {
-    for (int j = 0; j < n.cols(); ++j)
-    {
-      x(i, j) = roundToDecimalPlace(n(i, j), decimal_place);
+  for (int i = 0; i < n.rows(); ++i) {
+    for (int j = 0; j < n.cols(); ++j) {
+      x(i, j) = round_to_decimal_place(n(i, j), decimal_place);
     }
   }
   return x;
@@ -172,34 +162,31 @@ inline auto roundToDecimalPlace(const Eigen::MatrixXf& n, std::size_t decimal_pl
  * @param[in] decimal_place The precision (number of decimal places) used for comparisons.
  * @return True if entities are almost equal; false otherwise.
  */
-constexpr Visitor almost_equal_visitor{ [](const auto& lhs, const auto& rhs, const auto& decimal_place) -> bool {
-  if constexpr (std::is_same_v<decltype(lhs), decltype(rhs)>)
-  {
-    if (lhs.state.kNumVars != rhs.state.kNumVars)
-    {
-      return false;  // Not equal if the state vector have different sizes
-    }
-    if (lhs.timestamp != rhs.timestamp || lhs.uuid != rhs.uuid)
-    {
-      return false;  // Not equal if objects have different timestamp or uuid
-    }
-    if (!almostEqual(roundToDecimalPlace(lhs.state, decimal_place), roundToDecimalPlace(rhs.state, decimal_place)))
-    {
-      return false;  // Not equal if states are not equal after rounding up
-    }
+constexpr Visitor almost_equal_visitor{
+  [](const auto & lhs, const auto & rhs, const auto & decimal_place) -> bool {
+    if constexpr (std::is_same_v<decltype(lhs), decltype(rhs)>) {
+      if (lhs.state.kNumVars != rhs.state.kNumVars) {
+        return false;  // Not equal if the state vector have different sizes
+      }
+      if (lhs.timestamp != rhs.timestamp || lhs.uuid != rhs.uuid) {
+        return false;  // Not equal if objects have different timestamp or uuid
+      }
+      if (!almost_equal(
+            round_to_decimal_place(lhs.state, decimal_place),
+            round_to_decimal_place(rhs.state, decimal_place))) {
+        return false;  // Not equal if states are not equal after rounding up
+      }
 
-    if (!almostEqual(roundToDecimalPlace(lhs.covariance, decimal_place),
-                     roundToDecimalPlace(rhs.covariance, decimal_place)))
-    {
-      return false;  // Not equal if covariances are not equal after rounding up
+      if (!almost_equal(
+            round_to_decimal_place(lhs.covariance, decimal_place),
+            round_to_decimal_place(rhs.covariance, decimal_place))) {
+        return false;  // Not equal if covariances are not equal after rounding up
+      }
+      return true;
+    } else {
+      return false;  // Not equal if both objects are not the same type
     }
-    return true;
-  }
-  else
-  {
-    return false;  // Not equal if both objects are not the same type
-  }
-} };
+  }};
 
 /**
  * @brief Compare two vectors of entities for almost equality.
@@ -213,17 +200,16 @@ constexpr Visitor almost_equal_visitor{ [](const auto& lhs, const auto& rhs, con
  * @return True if the vectors are almost equal; false otherwise.
  */
 template <typename EntityContainer>
-inline auto almostEqual(const EntityContainer& lhs, const EntityContainer& rhs, std::size_t decimal_place = 5) -> bool
+inline auto almost_equal(
+  const EntityContainer & lhs, const EntityContainer & rhs, std::size_t decimal_place = 5) -> bool
 {
-  if (lhs.size() != rhs.size())
-  {
+  if (lhs.size() != rhs.size()) {
     return false;  // Different number of elements, container are not equal
   }
 
-  for (std::size_t i = 0; i < lhs.size(); ++i)
-  {
-    if (!std::visit(almost_equal_visitor, lhs[i], rhs[i], std::variant<std::size_t>(decimal_place)))
-    {
+  for (std::size_t i = 0; i < lhs.size(); ++i) {
+    if (!std::visit(
+          almost_equal_visitor, lhs[i], rhs[i], std::variant<std::size_t>(decimal_place))) {
       return false;  // Elements differ, vectors are not equal
     }
   }
@@ -237,13 +223,13 @@ inline auto almostEqual(const EntityContainer& lhs, const EntityContainer& rhs, 
  *
  * @param[in] entity The entity object to be printed.
  */
-constexpr Visitor print_entity_visitor{ [](const auto& entity) {
+constexpr Visitor print_entity_visitor{[](const auto & entity) {
   std::cout << "Timestamp: " << entity.timestamp << "\n";
   std::cout << "UUID: " << entity.uuid << "\n";
-  printState(entity.state);
+  print_state(entity.state);
   std::cout << "\nCovariance:\n" << entity.covariance;
   std::cout << "\n------------------------------------------------------------\n\n";
-} };
+}};
 
 /**
  * @brief Print the container of entities.
@@ -253,10 +239,9 @@ constexpr Visitor print_entity_visitor{ [](const auto& entity) {
  * @param[in] entities The container of entities to be printed.
  */
 template <typename EntityContainer>
-inline auto printContainer(const EntityContainer& entities) -> void
+inline auto print_container(const EntityContainer & entities) -> void
 {
-  for (const auto& entity : entities)
-  {
+  for (const auto & entity : entities) {
     std::visit(print_entity_visitor, entity);
   }
 }

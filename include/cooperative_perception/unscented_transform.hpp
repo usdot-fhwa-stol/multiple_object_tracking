@@ -21,9 +21,9 @@
 #ifndef COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 #define COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
 
+#include <Eigen/Dense>
 #include <tuple>
 #include <vector>
-#include <Eigen/Dense>
 
 namespace cooperative_perception
 {
@@ -34,7 +34,7 @@ namespace cooperative_perception
  * @param[in] kappa Secondary scaling parameter for sigma points
  * @return Scaling factor lambda
  */
-inline auto generateLambda(int n, float alpha, float kappa) -> float
+inline auto generate_lambda(int n, float alpha, float kappa) -> float
 {
   return alpha * alpha * (n + kappa) - n;
 }
@@ -48,8 +48,8 @@ inline auto generateLambda(int n, float alpha, float kappa) -> float
  * @return tuple with Wm: vector of weights for mean calculation and
  * Wc: vector of weights for covariance calculation
  */
-inline auto generateWeights(int n, float alpha, float beta, float lambda)
-    -> std::tuple<Eigen::VectorXf, Eigen::VectorXf>
+inline auto generate_weights(int n, float alpha, float beta, float lambda)
+  -> std::tuple<Eigen::VectorXf, Eigen::VectorXf>
 {
   float wm_0 = lambda / (n + lambda);
   float wc_0 = (lambda / (n + lambda)) + (1 - alpha * alpha + beta);
@@ -60,7 +60,7 @@ inline auto generateWeights(int n, float alpha, float beta, float lambda)
   Wc[0] = wc_0;
   Wm.segment(1, 2 * n).setConstant(wm_i);
   Wc.segment(1, 2 * n).setConstant(wm_i);
-  return { Wm, Wc };
+  return {Wm, Wc};
 }
 
 /**
@@ -76,15 +76,15 @@ inline auto generateWeights(int n, float alpha, float beta, float lambda)
  * @return Vector of sampled points
  */
 template <typename StateType, typename CovarianceType>
-inline auto generateSigmaPoints(const StateType& state, const CovarianceType& covariance, const float& lambda)
-    -> std::vector<StateType>
+inline auto generate_sigma_points(
+  const StateType & state, const CovarianceType & covariance, const float & lambda)
+  -> std::vector<StateType>
 {
   std::vector<StateType> sigma_points{};
-  const CovarianceType covariance_sqrt{ covariance.llt().matrixL() };
-  for (const auto& column : covariance_sqrt.colwise())
-  {
-    const auto result{ std::sqrt(covariance.rows() + lambda) * column };
-    const auto result_state{ StateType::fromEigenVector(result) };
+  const CovarianceType covariance_sqrt{covariance.llt().matrixL()};
+  for (const auto & column : covariance_sqrt.colwise()) {
+    const auto result{std::sqrt(covariance.rows() + lambda) * column};
+    const auto result_state{StateType::from_eigen_vector(result)};
 
     sigma_points.push_back(state + result_state);
     sigma_points.push_back(state - result_state);
@@ -99,12 +99,11 @@ inline auto generateSigmaPoints(const StateType& state, const CovarianceType& co
  * @param[in] num_rows The number of rows in the output matrix
  * @return The stacked matrix with the input vector repeated for each row
  */
-inline auto stackVectorIntoMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
+inline auto stack_vector_into_matrix(Eigen::VectorXf vector, int num_rows) -> Eigen::MatrixXf
 {
   int num_cols = vector.size();
   Eigen::MatrixXf result(num_rows, num_cols);
-  for (int i = 0; i < num_rows; i++)
-  {
+  for (int i = 0; i < num_rows; i++) {
     result.row(i) = vector;
   }
   return result;
@@ -115,11 +114,10 @@ inline auto stackVectorIntoMatrix(Eigen::VectorXf vector, int num_rows) -> Eigen
  * @param[in] input The input std::vector of floats to be converted into an Eigen::VectorXf.
  * @return The resulting Eigen::VectorXf that has the same values as the input std::vector.
  */
-inline auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
+inline auto vector_to_vector_xf(const std::vector<float> & input) -> Eigen::VectorXf
 {
   Eigen::VectorXf output(input.size());
-  for (int i = 0; i < input.size(); i++)
-  {
+  for (int i = 0; i < input.size(); i++) {
     output(i) = input[i];
   }
   return output;
@@ -133,14 +131,13 @@ inline auto vectorToVectorXf(const std::vector<float>& input) -> Eigen::VectorXf
  * @return A matrix containing the state and sigma points as rows.
  */
 template <typename StateType>
-inline auto meanAndSigmaPointsToMatrixXf(const StateType& mean, const std::vector<StateType>& sigma_points)
-    -> Eigen::MatrixXf
+inline auto mean_and_sigma_pints_to_matrix_xf(
+  const StateType & mean, const std::vector<StateType> & sigma_points) -> Eigen::MatrixXf
 {
   Eigen::MatrixXf matrix(sigma_points.size() + 1, StateType::kNumVars);
-  matrix.row(0) = StateType::toEigenVector(mean).transpose();
-  for (std::size_t i = 0; i < sigma_points.size(); ++i)
-  {
-    matrix.row(i + 1) = StateType::toEigenVector(sigma_points[i]).transpose();
+  matrix.row(0) = StateType::to_eigen_vector(mean).transpose();
+  for (std::size_t i = 0; i < sigma_points.size(); ++i) {
+    matrix.row(i + 1) = StateType::to_eigen_vector(sigma_points[i]).transpose();
   }
   return matrix;
 }
@@ -153,13 +150,14 @@ inline auto meanAndSigmaPointsToMatrixXf(const StateType& mean, const std::vecto
  *@param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points.
  *@return A tuple containing the weighted mean and weighted covariance of the sigma points.
  */
-inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigma_points, const Eigen::VectorXf& Wm,
-                                      const Eigen::VectorXf& Wc) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+inline auto compute_unscented_transform(
+  const Eigen::MatrixXf & sigma_points, const Eigen::VectorXf & Wm, const Eigen::VectorXf & Wc)
+  -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   Eigen::VectorXf x = Wm.transpose() * sigma_points;
-  Eigen::MatrixXf y = sigma_points - stackVectorIntoMatrix(x, sigma_points.rows());
+  Eigen::MatrixXf y = sigma_points - stack_vector_into_matrix(x, sigma_points.rows());
   Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
-  return { x, P };
+  return {x, P};
 }
 
 /**
@@ -182,14 +180,14 @@ inline auto computeUnscentedTransform(const Eigen::MatrixXf& sigma_points, const
  * covariance calculation.
  */
 template <typename StateType, typename CovarianceType>
-inline auto generateSigmaPointsAndWeights(const StateType& state, const CovarianceType& covariance, const float alpha,
-                                          const float beta, const float kappa)
-    -> std::tuple<std::vector<StateType>, Eigen::VectorXf, Eigen::VectorXf>
+inline auto generate_sigma_points_and_weights(
+  const StateType & state, const CovarianceType & covariance, const float alpha, const float beta,
+  const float kappa) -> std::tuple<std::vector<StateType>, Eigen::VectorXf, Eigen::VectorXf>
 {
-  const auto lambda{ generateLambda(state.kNumVars, alpha, kappa) };
-  const auto sigma_points{ generateSigmaPoints(state, covariance, lambda) };
-  const auto [Wm, Wc] = generateWeights(state.kNumVars, alpha, beta, lambda);
-  return { sigma_points, Wm, Wc };
+  const auto lambda{generate_lambda(state.kNumVars, alpha, kappa)};
+  const auto sigma_points{generate_sigma_points(state, covariance, lambda)};
+  const auto [Wm, Wc] = generate_weights(state.kNumVars, alpha, beta, lambda);
+  return {sigma_points, Wm, Wc};
 }
 
 }  // namespace cooperative_perception

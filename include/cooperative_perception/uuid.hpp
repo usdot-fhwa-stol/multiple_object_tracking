@@ -15,138 +15,81 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #ifndef COOPERATIVE_PERCEPTION_UUID_HPP
 #define COOPERATIVE_PERCEPTION_UUID_HPP
 
-#include <algorithm>
+#include <functional>
+#include <ostream>
 #include <string>
 #include <utility>
-#include <variant>
-#include <vector>
 
 namespace cooperative_perception
 {
-/**
- * @brief Get the object's UUID
- *
- * This overload works on non-std::variant types.
- *
- * @tparam Object Object's type
- *
- * @param[in] object Object from which to get the UUID
- * @return the specified object's UUID
- */
-template <typename Object>
-auto getUuid(const Object& object) -> std::string
+class Uuid
 {
-  return object.uuid;
+public:
+  explicit Uuid(const std::string & uuid) : uuid_{uuid} {}
+  explicit Uuid(std::string && uuid) : uuid_{std::move(uuid)} {}
+
+  auto value() noexcept -> std::string &
+  {
+    return const_cast<std::string &>(std::as_const(*this).value());
+  }
+
+  auto value() const noexcept -> const std::string & { return uuid_; }
+
+private:
+  std::string uuid_;
+};
+
+inline auto operator<<(std::ostream & os, const Uuid & uuid) -> std::ostream &
+{
+  return os << uuid.value();
 }
 
-/**
- * @brief Get the object's UUID
- *
- * This overload works on std::variant types.
- *
- * @tparam Variants Paramater pack for the types that the variant supports
- *
- * @param[in] object Object from which to get the UUID
- * @return the specified object's UUID
- */
-template <typename... Variants>
-auto getUuid(const std::variant<Variants...>& object) -> std::string
+inline auto operator==(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
 {
-  return std::visit([](const auto& o) { return getUuid(o); }, object);
+  return lhs.value() == rhs.value();
 }
 
-/**
- * @brief Get the UUIDs of several objects
- *
- * @tparam Container Container holding the objects
- * @tparam ContainerParams Parameter pack for the container's parameter types
- *
- * @param[in] objects Objects from which to get the UUID
- * @return the specified objects' UUIDs
- */
-template <template <typename...> typename Container, typename... ContainerParams>
-auto getUuids(const Container<ContainerParams...>& objects) -> Container<std::string>
+inline auto operator!=(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
 {
-  Container<std::string> uuids;
-
-  if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>)
-  {
-    std::ignore = std::transform(std::cbegin(objects), std::cend(objects), std::back_inserter(uuids),
-                                 [](const auto& object) { return getUuid(object); });
-  }
-  else
-  {
-    std::ignore = std::transform(std::cbegin(objects), std::cend(objects), std::inserter(uuids, std::end(uuids)),
-                                 [](const auto& object) { return getUuid(object); });
-  }
-
-  return uuids;
+  return !(lhs == rhs);
 }
 
-namespace detail
+inline auto operator<(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
 {
-/**
- * @brief Copy UUIDs of objects matching predicate
- *
- * @tparam Container Container holding the objects
- * @tparam OutputIt Iterator type for the destination container
- * @tparam UnaryPredicate Type of predicate being used
- *
- * @param objects Objects from which to get the UUID
- * @param uuids Output iterator to the destination container holding the UUIDS
- * @param predicate Predicate to decides if each object should have its UUID gotten
- * @return void
- */
-template <typename Container, typename OutputIt, typename UnaryPredicate>
-auto getUuidsIfHelper(const Container& objects, OutputIt uuids, const UnaryPredicate& predicate) -> void
-{
-  for (const auto& object : objects)
-  {
-    const auto uuid{ getUuid(object) };
-    if (predicate(uuid))
-    {
-      *uuids = uuid;
-      ++uuids;
-    }
-  }
+  return lhs.value() < rhs.value();
 }
 
-}  // namespace detail
-
-/**
- * @brief Get the UUIDs of several objects if the match a predicate
- *
- * @tparam Container Container holding the objects
- * @tparam UnaryPredicate Type of predicate being used
- * @tparam ContainerParams Parameter pack for the container's parameter types
- *
- * @param[in] objects Objects from which to get the UUID
- * @param[in] predicate Predicate to decide if each object should have its UUID gotten
- * @return UUIDs for object matching the predicate
- */
-template <template <typename...> typename Container, typename UnaryPredicate, typename... ContainerParams>
-auto getUuidsIf(const Container<ContainerParams...>& objects, const UnaryPredicate& predicate) -> Container<std::string>
+inline auto operator<=(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
 {
-  Container<std::string> uuids;
+  return lhs.value() <= rhs.value();
+}
 
-  if constexpr (std::is_same_v<Container<ContainerParams...>, std::vector<ContainerParams...>>)
-  {
-    detail::getUuidsIfHelper(objects, std::back_inserter(uuids), predicate);
-  }
-  else
-  {
-    detail::getUuidsIfHelper(objects, std::inserter(uuids, std::end(uuids)), predicate);
-  }
+inline auto operator>(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
+{
+  return lhs.value() > rhs.value();
+}
 
-  return uuids;
+inline auto operator>=(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
+{
+  return lhs.value() >= rhs.value();
 }
 
 }  // namespace cooperative_perception
+
+template <>
+struct std::hash<cooperative_perception::Uuid>
+{
+  auto operator()(const cooperative_perception::Uuid & uuid) const noexcept -> std::size_t
+  {
+    return std::hash<std::string>{}(uuid.value());
+  }
+};
 
 #endif  // COOPERATIVE_PERCEPTION_UUID_HPP
