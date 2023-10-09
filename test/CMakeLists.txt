@@ -26,6 +26,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_track_matching.cpp
   test_gating.cpp
   test_fusing.cpp
+  test_json_parsing.cpp
 )
 
 target_link_libraries(test_cooperative_perceptionExecutable
@@ -36,4 +37,6 @@ target_link_libraries(test_cooperative_perceptionExecutable
 )
 
 include(GoogleTest)
-gtest_discover_tests(test_cooperative_perceptionExecutable)
+gtest_discover_tests(test_cooperative_perceptionExecutable
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
+)
