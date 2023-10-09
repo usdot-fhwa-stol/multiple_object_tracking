@@ -32,4 +32,5 @@ target_link_libraries(cooperative_perception_coreLibrary
     Eigen3::Eigen
     units::units
     dlib::dlib
+    nlohmann_json::nlohmann_json
 )
