@@ -14,10 +14,10 @@ struct DynamicObject
   using state_covariance_type = StateCovariance;
   using tag_type = Tag;
 
-  units::time::second_t timestamp;
-  State state;
-  StateCovariance covariance;
-  Uuid uuid;
+  units::time::second_t timestamp{0.0};
+  State state{};
+  StateCovariance covariance{};
+  Uuid uuid{""};
 };
 
 template <typename Object>

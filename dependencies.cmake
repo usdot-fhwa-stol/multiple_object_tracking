@@ -46,7 +46,13 @@ CPMAddPackage(NAME dlib
     "DLIB_USE_FFMPEG FALSE"
 )
 
-CPMAddPackage("gh:nlohmann/json#v3.11.2")
+CPMAddPackage(NAME nlohmann_json
+  GITHUB_REPOSITORY nlohmann/json
+  GIT_TAG v3.11.2
+  OPTIONS
+    "JSON_BuildTests FALSE"
+    "JSON_Install TRUE"
+)
 
 find_package(Boost REQUIRED COMPONENTS container)
 

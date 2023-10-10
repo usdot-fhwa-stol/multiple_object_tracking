@@ -24,7 +24,9 @@
 #include <cooperative_perception/ctra_model.hpp>
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/dynamic_object.hpp>
+#include <cooperative_perception/json_parsing.hpp>
 #include <cooperative_perception/scoring.hpp>
+#include <fstream>
 
 namespace cp = cooperative_perception;
 
@@ -59,14 +61,14 @@ TEST(TestScoring, CtrvMahalanobisDistance)
   const auto detection = TestDetection{
     .state{cp::CtrvState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s}}, .uuid{cp::Uuid{""}}};
 
+  cp::CtrvStateCovariance covariance;
+  covariance << 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, -0.0013, 0.0077, 0.0011, 0.0071, 0.0060,
+    0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, -0.0020,
+    0.0060, 0.0008, 0.0100, 0.0123;
+
   const auto track = TestTrack{
     .state{cp::CtrvState{5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s}},
-    .covariance{cp::CtrvStateCovariance{
-      {0.0043, -0.0013, 0.0030, -0.0022, -0.0020},
-      {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060},
-      {0.0030, 0.0011, 0.0054, 0.0007, 0.0008},
-      {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100},
-      {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
+    .covariance = covariance,
     .uuid{cp::Uuid{""}}};
 
   const auto mahalanobis_dist =
@@ -104,15 +106,15 @@ TEST(TestScoring, CtraMahalanobisDistance)
     .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
     .uuid{cp::Uuid{""}}};
 
+  cp::CtraStateCovariance covariance;
+  covariance << 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5, -0.0013, 0.0077, 0.0011, 0.0071,
+    0.0060, 0.123, 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34, -0.0022, 0.0071, 0.0007, 0.0098,
+    0.0100, 0.009, -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021, 0.5, 0.123, -0.34, 0.009,
+    0.0021, -0.8701;
+
   const auto track = TestTrack{
     .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
-    .covariance{cp::CtraStateCovariance{
-      {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
-      {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
-      {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
-      {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
-      {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
-      {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701}}},
+    .covariance = covariance,
     .uuid{cp::Uuid{""}}};
 
   const auto mahalanobis_dist =
@@ -172,38 +174,42 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
   using TestDetection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
   using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
 
-  const std::vector<TrackVariant> tracks{
-    TestTrack{
-      .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
-      .covariance{cp::CtraStateCovariance{
-        {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
-        {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
-        {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
-        {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
-        {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
-        {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
-      }},
-      .uuid{cp::Uuid{"test_track1"}}},
-    TestTrack{
-      .state{cp::CtraState{8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
-      .covariance{cp::CtraStateCovariance{
-        {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
-        {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
-        {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
-        {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
-        {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
-        {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
-      }},
-      .uuid{cp::Uuid{"test_track2"}}},
-    cp::Track<cp::CtrvState, cp::CtrvStateCovariance>{
-      .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s},
-      .covariance{cp::CtrvStateCovariance{
-        {0.0043, -0.0013, 0.0030, -0.0022, -0.0020},
-        {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060},
-        {0.0030, 0.0011, 0.0054, 0.0007, 0.0008},
-        {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100},
-        {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
-      .uuid{cp::Uuid{"test_track3"}}}};
+  std::ifstream tracks_file{"data/test_scoring_track_to_detection_scoring_mahalanobis_tracks.json"};
+  ASSERT_TRUE(tracks_file);
+  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+
+  // const std::vector<TrackVariant> tracks{
+  //   TestTrack{
+  //     .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
+  //     .covariance{cp::CtraStateCovariance{
+  //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
+  //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
+  //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
+  //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
+  //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
+  //       {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
+  //     }},
+  //     .uuid{cp::Uuid{"test_track1"}}},
+  //   TestTrack{
+  //     .state{cp::CtraState{8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
+  //     .covariance{cp::CtraStateCovariance{
+  //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
+  //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
+  //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
+  //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
+  //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
+  //       {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
+  //     }},
+  //     .uuid{cp::Uuid{"test_track2"}}},
+  //   cp::Track<cp::CtrvState, cp::CtrvStateCovariance>{
+  //     .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s},
+  //     .covariance{cp::CtrvStateCovariance{
+  //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020},
+  //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060},
+  //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008},
+  //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100},
+  //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
+  //     .uuid{cp::Uuid{"test_track3"}}}};
 
   const std::vector<DetectionVariant> detections{
     TestDetection{

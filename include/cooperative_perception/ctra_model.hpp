@@ -40,12 +40,12 @@ namespace cooperative_perception
 {
 struct CtraState
 {
-  units::length::meter_t position_x;
-  units::length::meter_t position_y;
-  units::velocity::meters_per_second_t velocity;
-  Angle yaw;
-  units::angular_velocity::radians_per_second_t yaw_rate;
-  units::acceleration::meters_per_second_squared_t acceleration;
+  units::length::meter_t position_x{0.0};
+  units::length::meter_t position_y{0.0};
+  units::velocity::meters_per_second_t velocity{0.0};
+  Angle yaw{units::angle::radian_t{0.0}};
+  units::angular_velocity::radians_per_second_t yaw_rate{0.0};
+  units::acceleration::meters_per_second_squared_t acceleration{0.0};
 
   /**
    * @brief Number of elements in CTRA state vector
@@ -58,7 +58,7 @@ struct CtraState
    * @param[in] vec Vector being converted
    * @return CtraState instance
    */
-  static inline auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+  static inline auto from_eigen_vector(const Eigen::Matrix<float, kNumVars, 1> & vec) noexcept
     -> CtraState
   {
     return CtraState{
@@ -78,14 +78,16 @@ struct CtraState
    */
 
   static inline auto to_eigen_vector(const CtraState & ctra_state) noexcept
-    -> Eigen::Vector<float, kNumVars>
+    -> Eigen::Matrix<float, kNumVars, 1>
   {
-    return Eigen::Vector<float, kNumVars>{units::unit_cast<float>(ctra_state.position_x),
-                                          units::unit_cast<float>(ctra_state.position_y),
-                                          units::unit_cast<float>(ctra_state.velocity),
-                                          units::unit_cast<float>(ctra_state.yaw.get_angle()),
-                                          units::unit_cast<float>(ctra_state.yaw_rate),
-                                          units::unit_cast<float>(ctra_state.acceleration)};
+    Eigen::Matrix<float, kNumVars, 1> ctra_vector;
+    ctra_vector << units::unit_cast<float>(ctra_state.position_x),
+      units::unit_cast<float>(ctra_state.position_y), units::unit_cast<float>(ctra_state.velocity),
+      units::unit_cast<float>(ctra_state.yaw.get_angle()),
+      units::unit_cast<float>(ctra_state.yaw_rate),
+      units::unit_cast<float>(ctra_state.acceleration);
+
+    return ctra_vector;
   }
 };
 
@@ -202,7 +204,7 @@ struct CtraProcessNoise
    * @param[in] vec Vector being converted
    * @return CtraProcessNoise instance
    */
-  static inline auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+  static inline auto from_eigen_vector(const Eigen::Matrix<float, kNumVars, 1> & vec) noexcept
     -> CtraProcessNoise
   {
     return CtraProcessNoise{
@@ -336,10 +338,9 @@ inline auto mahalanobis_distance(CtraState mean, CtraStateCovariance covariance,
 
   const Eigen::VectorXf diff = mean_pose - point_pose;
 
-  const Eigen::MatrixXf pose_cov = Eigen::Matrix3f{
-    {covariance(0, 0), covariance(0, 1), covariance(0, 3)},
-    {covariance(1, 0), covariance(1, 1), covariance(1, 3)},
-    {covariance(3, 0), covariance(3, 1), covariance(3, 3)}};
+  Eigen::Matrix3f pose_cov;
+  pose_cov << covariance(0, 0), covariance(0, 1), covariance(0, 3), covariance(1, 0),
+    covariance(1, 1), covariance(1, 3), covariance(3, 0), covariance(3, 1), covariance(3, 3);
 
   return std::sqrt(diff.transpose() * pose_cov.inverse() * diff);
 }

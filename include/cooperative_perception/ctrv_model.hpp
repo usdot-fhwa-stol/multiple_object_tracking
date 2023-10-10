@@ -40,11 +40,11 @@ namespace cooperative_perception
 {
 struct CtrvState
 {
-  units::length::meter_t position_x;
-  units::length::meter_t position_y;
-  units::velocity::meters_per_second_t velocity;
-  Angle yaw;
-  units::angular_velocity::radians_per_second_t yaw_rate;
+  units::length::meter_t position_x{0};
+  units::length::meter_t position_y{0};
+  units::velocity::meters_per_second_t velocity{0};
+  Angle yaw{units::angle::radian_t{0}};
+  units::angular_velocity::radians_per_second_t yaw_rate{0};
   /**
    * @brief Number of elements in CTRV state vector
    */
@@ -56,7 +56,7 @@ struct CtrvState
    * @param[in] vec Vector being converted
    * @return CtrvState instance
    */
-  static inline auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+  static inline auto from_eigen_vector(const Eigen::Matrix<float, kNumVars, 1> & vec) noexcept
     -> CtrvState
   {
     return CtrvState{
@@ -74,13 +74,15 @@ struct CtrvState
    * @return CtrvState instance
    */
   static inline auto to_eigen_vector(const CtrvState & ctrv_state) noexcept
-    -> Eigen::Vector<float, kNumVars>
+    -> Eigen::Matrix<float, kNumVars, 1>
   {
-    return Eigen::Vector<float, kNumVars>{
-      units::unit_cast<float>(ctrv_state.position_x),
+    Eigen::Matrix<float, kNumVars, 1> ctrv_vector;
+    ctrv_vector << units::unit_cast<float>(ctrv_state.position_x),
       units::unit_cast<float>(ctrv_state.position_y), units::unit_cast<float>(ctrv_state.velocity),
       units::unit_cast<float>(ctrv_state.yaw.get_angle()),
-      units::unit_cast<float>(ctrv_state.yaw_rate)};
+      units::unit_cast<float>(ctrv_state.yaw_rate);
+
+    return ctrv_vector;
   }
 };
 
@@ -236,7 +238,7 @@ struct CtrvProcessNoise
    * @param[in] vec Vector being converted
    * @return CtrvProcessNoise instance
    */
-  static inline auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+  static inline auto from_eigen_vector(const Eigen::Matrix<float, kNumVars, 1> & vec) noexcept
     -> CtrvProcessNoise
   {
     return CtrvProcessNoise{
@@ -369,10 +371,9 @@ inline auto mahalanobis_distance(CtrvState mean, CtrvStateCovariance covariance,
     units::unit_cast<float>(point.yaw.get_angle())};
   const Eigen::VectorXf diff = mean_pose - point_pose;
 
-  const Eigen::MatrixXf pose_cov = Eigen::Matrix3f{
-    {covariance(0, 0), covariance(0, 1), covariance(0, 3)},
-    {covariance(1, 0), covariance(1, 1), covariance(1, 3)},
-    {covariance(3, 0), covariance(3, 1), covariance(3, 3)}};
+  Eigen::Matrix3f pose_cov;
+  pose_cov << covariance(0, 0), covariance(0, 1), covariance(0, 3), covariance(1, 0),
+    covariance(1, 1), covariance(1, 3), covariance(3, 0), covariance(3, 1), covariance(3, 3);
 
   return std::sqrt(diff.transpose() * pose_cov.inverse() * diff);
 }

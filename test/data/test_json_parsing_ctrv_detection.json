@@ -1,0 +1,16 @@
+{
+  "motion_model": "ctrv",
+  "timestamp_sec": 1.0,
+  "state": {
+    "position_x_m": 2.0,
+    "position_y_m": 3.0,
+    "velocity_mps": 4.0,
+    "yaw_rad": 5.0,
+    "yaw_rate_rad_per_s": 6.0
+  },
+  "covariance": [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+    22, 23, 24, 25
+  ],
+  "uuid": "ABC"
+}
