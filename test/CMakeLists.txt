@@ -29,11 +29,18 @@ add_executable(test_cooperative_perceptionExecutable
   test_json_parsing.cpp
 )
 
+target_include_directories(test_cooperative_perceptionExecutable
+  PRIVATE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test>
+)
+
 target_link_libraries(test_cooperative_perceptionExecutable
   PRIVATE
   cooperative_perception::cooperative_perception
   GTest::gtest
   GTest::gtest_main
+  GTest::gmock
+  GTest::gmock_main
 )
 
 include(GoogleTest)
