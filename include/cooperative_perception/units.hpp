@@ -35,4 +35,13 @@ UNIT_ADD(angular_acceleration, radian_per_second_squared, radians_per_second_squ
 
 }  // namespace units
 
+namespace cooperative_perception
+{
+template <typename Unit>
+constexpr auto remove_units(const units::unit_t<Unit> & value) noexcept
+{
+  return units::unit_cast<typename units::unit_t<Unit>::underlying_type>(value);
+}
+}  // namespace cooperative_perception
+
 #endif
