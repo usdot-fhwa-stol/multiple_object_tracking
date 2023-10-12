@@ -18,6 +18,7 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <Eigen/Dense>
@@ -29,6 +30,8 @@
 #include <cooperative_perception/json_parsing.hpp>
 #include <cooperative_perception/track_matching.hpp>
 #include <cooperative_perception/utils.hpp>
+
+#include "cooperative_perception/test/gmock_matchers.hpp"
 
 namespace cp = cooperative_perception;
 
@@ -54,7 +57,7 @@ TEST(TestFusing, GenerateWeight)
   const auto result_weight{cp::generate_weight(covariance1.inverse(), covariance2.inverse())};
 
   // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(expected_weight, result_weight));
+  EXPECT_FLOAT_EQ(result_weight, expected_weight);
 }
 
 /**
@@ -87,9 +90,10 @@ TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
   const auto [result_mean, result_covariance]{cp::compute_covariance_intersection(
     mean1, inverse_covariance1, mean2, inverse_covariance2, weight)};
 
-  // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(expected_mean, result_mean));
-  EXPECT_TRUE(cp::utils::almost_equal(expected_covariance, result_covariance));
+  static constexpr double tolerance{1.e-6};
+
+  EXPECT_THAT(result_mean, EigenMatrixNear(expected_mean, tolerance));
+  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, tolerance));
 }
 
 /**
@@ -99,7 +103,6 @@ TEST(TestFusing, CtrvTracksAndDetections)
 {
   using namespace units::literals;
 
-  // Declaring initial values
   const cp::AssociationMap associations{
     {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
@@ -116,12 +119,14 @@ TEST(TestFusing, CtrvTracksAndDetections)
   ASSERT_TRUE(expected_tracks_file);
   const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-  // Call the functions under test
   const auto result_tracks{
     cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
 
-  // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(result_tracks, expected_tracks));
+  ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
+
+  using ::testing::Pointwise;
+
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
 }
 
 /**
@@ -131,7 +136,6 @@ TEST(TestFusing, CtraTracksAndDetections)
 {
   using namespace units::literals;
 
-  // Declaring initial values
   cp::AssociationMap associations{
     {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
@@ -148,12 +152,14 @@ TEST(TestFusing, CtraTracksAndDetections)
   ASSERT_TRUE(expected_tracks_file);
   const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-  // Call the functions under test
   const auto result_tracks{
     cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
 
-  // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(result_tracks, expected_tracks));
+  ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
+
+  using ::testing::Pointwise;
+
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
 }
 
 /**
@@ -163,7 +169,6 @@ TEST(TestFusing, MixedTracksAndDetections)
 {
   using namespace units::literals;
 
-  // Declaring initial values
   cp::AssociationMap associations{
     {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
@@ -180,12 +185,12 @@ TEST(TestFusing, MixedTracksAndDetections)
   ASSERT_TRUE(expected_tracks_file);
   const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-  // Call the functions under test
   const auto result_tracks{
     cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
 
-  // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(result_tracks, expected_tracks));
+  using ::testing::Pointwise;
+
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
 }
 
 /**
@@ -207,15 +212,14 @@ TEST(TestFusing, UnmatchedAssociations)
   ASSERT_TRUE(detections_file);
   const auto detections{cp::detections_from_json_file<DetectionVariant>(detections_file)};
 
-  // Expected values
   std::vector<TrackVariant> expected_tracks;
 
-  // Call the functions under test
   const auto result_tracks{
     cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
 
-  // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(result_tracks, expected_tracks));
+  using ::testing::Pointwise;
+
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-5), expected_tracks));
 }
 
 /**
@@ -225,7 +229,6 @@ TEST(TestFusing, PartialMatchedAssociations)
 {
   using namespace units::literals;
 
-  // Declaring initial values
   cp::AssociationMap associations{
     {"track1", {"detection4"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
 
@@ -242,10 +245,10 @@ TEST(TestFusing, PartialMatchedAssociations)
   ASSERT_TRUE(expected_tracks_file);
   const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-  // Call the functions under test
   const auto result_tracks{
     cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
 
-  // Check that function returns expected value
-  EXPECT_TRUE(cp::utils::almost_equal(result_tracks, expected_tracks));
+  using ::testing::Pointwise;
+
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
 };

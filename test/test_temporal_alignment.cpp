@@ -30,6 +30,8 @@
 #include <cooperative_perception/utils.hpp>
 #include <variant>
 
+#include "cooperative_perception/test/gmock_matchers.hpp"
+
 namespace cp = cooperative_perception;
 
 /**
@@ -79,23 +81,14 @@ TEST(TestTemporalAlignment, CtrvDetection)
 
   // Check that function returns expected value
   // Check detection that was modified in place
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.covariance, 4),
-    cp::utils::round_to_decimal_place(expected_covariance, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_detection.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection.state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_detection.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 
   // Check new predicted detection
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.covariance, 4),
-    cp::utils::round_to_decimal_place(expected_covariance, 4)));
-  EXPECT_TRUE(
-    cp::utils::almost_equal(result_detection_immutable.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection_immutable.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection_immutable.state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_detection_immutable.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 }
 
 /**
@@ -143,23 +136,14 @@ TEST(TestTemporalAlignment, CtrvDetectionFiveSeconds)
 
   // Check that function returns expected value
   // Check detection that was modified in place
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.covariance, 4),
-    cp::utils::round_to_decimal_place(expected_covariance, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_detection.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection.state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_detection.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 
   // Check new predicted detection
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.covariance, 4),
-    cp::utils::round_to_decimal_place(expected_covariance, 4)));
-  EXPECT_TRUE(
-    cp::utils::almost_equal(result_detection_immutable.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection_immutable.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection_immutable.state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_detection_immutable.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 }
 
 /**
@@ -210,23 +194,14 @@ TEST(TestTemporalAlignment, CtraDetection)
 
   // Check that function returns expected value
   // Check detection that was modified in place
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_detection.timestamp.value(), time_step.value()));
+    EXPECT_THAT(result_detection.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection.state, CtraStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_detection.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 
   // Check new predicted detection
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
-  EXPECT_TRUE(
-    cp::utils::almost_equal(result_detection_immutable.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection_immutable.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection_immutable.state, CtraStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_detection_immutable.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 }
 
 /**
@@ -278,23 +253,14 @@ TEST(TestTemporalAlignment, CtraDetectionFiveSeconds)
 
   // Check that function returns expected value
   // Check detection that was modified in place
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection.covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_detection.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection.timestamp, DimensionedNear(time_step, 1e-3));
+  EXPECT_THAT(result_detection.state, CtraStateNear(expected_state, 1e-3));
+  EXPECT_THAT(result_detection.covariance, EigenMatrixNear(expected_covariance, 1e-3));
 
   // Check new predicted detection
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_detection_immutable.covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
-  EXPECT_TRUE(
-    cp::utils::almost_equal(result_detection_immutable.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_detection_immutable.timestamp, DimensionedNear(time_step, 1e-3));
+  EXPECT_THAT(result_detection_immutable.state, CtraStateNear(expected_state, 1e-3));
+  EXPECT_THAT(result_detection_immutable.covariance, EigenMatrixNear(expected_covariance, 1e-3));
 }
 
 /**
@@ -344,22 +310,14 @@ TEST(TestTemporalAlignment, CtrvTrack)
 
   // Check that function returns expected value
   // Check track that was modified in place
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track.covariance, 4),
-    cp::utils::round_to_decimal_place(expected_covariance, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_track.timestamp.value(), time_step.value()));
+    EXPECT_THAT(result_track.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_track.state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_track.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 
-  // Check new predicted track
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track_immutable.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track_immutable.covariance, 4),
-    cp::utils::round_to_decimal_place(expected_covariance, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_track_immutable.timestamp.value(), time_step.value()));
+  // Check new predicted detection
+  EXPECT_THAT(result_track_immutable.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_track_immutable.state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_track_immutable.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 }
 
 /**
@@ -410,20 +368,12 @@ TEST(TestTemporalAlignment, CtraTrack)
 
   // Check that function returns expected value
   // Check track that was modified in place
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track.covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_track.timestamp.value(), time_step.value()));
+  EXPECT_THAT(result_track.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_track.state, CtraStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_track.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 
-  // Check new predicted track
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track_immutable.state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_track_immutable.covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
-  EXPECT_TRUE(cp::utils::almost_equal(result_track_immutable.timestamp.value(), time_step.value()));
+  // Check new predicted detection
+  EXPECT_THAT(result_track_immutable.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_track_immutable.state, CtraStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_track_immutable.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 };

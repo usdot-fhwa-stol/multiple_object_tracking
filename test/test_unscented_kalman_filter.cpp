@@ -27,6 +27,8 @@
 #include <cooperative_perception/unscented_kalman_filter.hpp>
 #include <cooperative_perception/utils.hpp>
 
+#include "cooperative_perception/test/gmock_matchers.hpp"
+
 namespace cp = cooperative_perception;
 
 /**
@@ -63,10 +65,8 @@ TEST(TestUnscentedKalmanFilter, CtrvPrediction)
   cp::CtrvState result_state{std::get<0>(transform_res)};
   cp::CtrvStateCovariance result_covariance{std::get<1>(transform_res)};
 
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  // EXPECT_TRUE(cp::utils::almost_equal(result_covariance, expected_covariance));
+  EXPECT_THAT(result_state, CtrvStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, 1e-4));
 }
 
 TEST(TestUnscentedKalmanFilter, CtraPrediction)
@@ -102,10 +102,6 @@ TEST(TestUnscentedKalmanFilter, CtraPrediction)
   cp::CtraState result_state{std::get<0>(transform_res)};
   cp::CtraStateCovariance result_covariance{std::get<1>(transform_res)};
 
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_state, 4),
-    cp::utils::round_to_decimal_place(expected_state, 4)));
-  EXPECT_TRUE(cp::utils::almost_equal(
-    cp::utils::round_to_decimal_place(result_covariance, 5),
-    cp::utils::round_to_decimal_place(expected_covariance, 5)));
+  EXPECT_THAT(result_state, CtraStateNear(expected_state, 1e-4));
+  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, 1e-4));
 };

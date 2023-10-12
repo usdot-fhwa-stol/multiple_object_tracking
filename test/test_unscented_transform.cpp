@@ -26,6 +26,8 @@
 #include <cooperative_perception/unscented_transform.hpp>
 #include <cooperative_perception/utils.hpp>
 
+#include "cooperative_perception/test/gmock_matchers.hpp"
+
 namespace cp = cooperative_perception;
 
 /**
@@ -70,9 +72,7 @@ TEST(TestUnscentedTransform, GenerateSigmaPoints)
     const auto result = std::find_if(
       std::cbegin(expected_sigma_points), std::cend(expected_sigma_points),
       [&point](const auto & expected_point) {
-        return cp::utils::almost_equal(
-          cp::utils::round_to_decimal_place(point, 5),
-          cp::utils::round_to_decimal_place(expected_point, 5));
+        return ::testing::Matches(CtrvStateNear(expected_point, 1e-5))(point);
       });
 
     return result != std::cend(expected_sigma_points);
@@ -106,8 +106,8 @@ TEST(TestUnscentedTransform, GenerateWeights)
   expected_Wc << 2.16666667, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333, 0.08333333,
     0.08333333, 0.08333333, 0.08333333, 0.08333333;
 
-  EXPECT_TRUE(cp::utils::almost_equal(expected_Wm, Wm));
-  EXPECT_TRUE(cp::utils::almost_equal(expected_Wc, Wc));
+  EXPECT_THAT(Wm, EigenMatrixNear(expected_Wm, 1e-5));
+  EXPECT_THAT(Wc, EigenMatrixNear(expected_Wc, 1e-5));
 }
 
 /**
@@ -147,6 +147,6 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
   const auto result_state{std::get<0>(transform_res)};
   const auto result_covariance{std::get<1>(transform_res)};
 
-  EXPECT_TRUE(cp::utils::almost_equal(expected_state, result_state));
-  EXPECT_TRUE(cp::utils::almost_equal(expected_covariance, result_covariance));
+  EXPECT_THAT(result_state, EigenMatrixNear(expected_state, 1e-5));
+  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, 1e-5));
 };
