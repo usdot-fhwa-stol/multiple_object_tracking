@@ -164,23 +164,6 @@ inline auto operator-(AugmentedState<State, ProcessNoise> lhs, const AugmentedSt
 namespace utils
 {
 /**
- * @brief Compares the almost-equality of two AugmentedStates
- *
- * @tparam State State vector type of AugmentedState being almost-equated
- * @tparam ProcessNoise Process noise vector type of AugmentedState being almost-equated
- *
- * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
- * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
- * @return True if AugmentedState are almost-equal, false otherwise
- */
-template <typename State, typename ProcessNoise>
-inline auto almost_equal(const AugmentedState<State, ProcessNoise>& lhs, const AugmentedState<State, ProcessNoise>& rhs)
-    -> bool
-{
-  return almost_equal(lhs.state, rhs.state) && almost_equal(lhs.process_noise, rhs.process_noise);
-}
-
-/**
  * @brief Rounds AugmentedState vector elements to the nearest decimal place
  *
  * @tparam State State vector type of AugmentedState being rounded
