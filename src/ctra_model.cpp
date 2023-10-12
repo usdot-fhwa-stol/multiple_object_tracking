@@ -39,7 +39,8 @@ auto get_next_state(const CtraState & state, units::time::second_t time_step) ->
   auto velocity_new = state.velocity + state.acceleration * time_step;
   auto yaw_new = state.yaw + Angle(state.yaw_rate * time_step);
 
-  if (utils::almost_equal(units::unit_cast<double>(state.yaw_rate), 0.0)) {
+  // Note: units library overloads operator== to use almost-equal semantics
+  if (state.yaw_rate == units::angular_velocity::radians_per_second_t{0.0}) {
     // Yaw rate of zero (no turning) is a special case. The general case is invalid because it divides by the raw rate.
     // You can't divide by zero.
     delta_pos_x = (state.velocity * time_step + (state.acceleration * time_step * time_step) / 2) *
