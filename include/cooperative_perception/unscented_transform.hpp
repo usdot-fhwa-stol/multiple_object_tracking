@@ -82,13 +82,20 @@ inline auto generate_sigma_points(
 {
   std::vector<StateType> sigma_points{};
   const CovarianceType covariance_sqrt{covariance.llt().matrixL()};
-  for (const auto & column : covariance_sqrt.colwise()) {
-    const auto result{std::sqrt(covariance.rows() + lambda) * column};
+  for (auto column{0U}; column < covariance_sqrt.cols(); ++column) {
+    const auto result{std::sqrt(covariance.rows() + lambda) * covariance_sqrt.col(column)};
     const auto result_state{StateType::from_eigen_vector(result)};
 
     sigma_points.push_back(state + result_state);
     sigma_points.push_back(state - result_state);
   }
+  // for (const auto & column : covariance_sqrt.colwise()) {
+  //   const auto result{std::sqrt(covariance.rows() + lambda) * column};
+  //   const auto result_state{StateType::from_eigen_vector(result)};
+
+  //   sigma_points.push_back(state + result_state);
+  //   sigma_points.push_back(state - result_state);
+  // }
 
   return sigma_points;
 }

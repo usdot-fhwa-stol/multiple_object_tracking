@@ -194,7 +194,7 @@ TEST(TestTemporalAlignment, CtraDetection)
 
   // Check that function returns expected value
   // Check detection that was modified in place
-    EXPECT_THAT(result_detection.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_detection.timestamp, DimensionedNear(time_step, 1e-4));
   EXPECT_THAT(result_detection.state, CtraStateNear(expected_state, 1e-4));
   EXPECT_THAT(result_detection.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 
@@ -310,7 +310,7 @@ TEST(TestTemporalAlignment, CtrvTrack)
 
   // Check that function returns expected value
   // Check track that was modified in place
-    EXPECT_THAT(result_track.timestamp, DimensionedNear(time_step, 1e-4));
+  EXPECT_THAT(result_track.timestamp, DimensionedNear(time_step, 1e-4));
   EXPECT_THAT(result_track.state, CtrvStateNear(expected_state, 1e-4));
   EXPECT_THAT(result_track.covariance, EigenMatrixNear(expected_covariance, 1e-4));
 

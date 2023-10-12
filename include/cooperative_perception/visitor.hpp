@@ -23,7 +23,6 @@
 
 namespace cooperative_perception
 {
-
 /**
  * @brief Generic visitor class
  *
@@ -42,7 +41,7 @@ struct Visitor : Base...
  * @brief Type deduction hint for the Visitor constructor
  */
 template <typename... T>
-Visitor(T&&... t) -> Visitor<T...>;
+Visitor(T &&... t) -> Visitor<T...>;
 
 }  // namespace cooperative_perception
 

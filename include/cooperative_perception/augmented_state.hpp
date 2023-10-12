@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ struct AugmentedState
   /**
    * @brief Number of elements in the augmented state vector
    */
-  static constexpr auto kNumVars{ State::kNumVars + ProcessNoise::kNumVars };
+  static constexpr auto kNumVars{State::kNumVars + ProcessNoise::kNumVars};
 
   /**
    * @brief Convert an Eigen::Vector into an AugmentedState
@@ -49,13 +49,14 @@ struct AugmentedState
    * @param[in] vec Vector being converted
    * @return AugmentState instance
    */
-  static auto from_eigen_vector(const Eigen::Vector<float, kNumVars>& vec) noexcept -> AugmentedState
+  static auto from_eigen_vector(const Eigen::Vector<float, kNumVars> & vec) noexcept
+    -> AugmentedState
   {
     return AugmentedState<State, ProcessNoise>{
-      .state{ State::from_eigen_vector(Eigen::Vector<float, State::kNumVars>{ vec(Eigen::seqN(0, State::kNumVars)) }) },
-      .process_noise{ ProcessNoise::from_eigen_vector(
-          Eigen::Vector<float, ProcessNoise::kNumVars>{ vec(Eigen::seqN(State::kNumVars, ProcessNoise::kNumVars)) }) }
-    };
+      .state{State::from_eigen_vector(
+        Eigen::Vector<float, State::kNumVars>{vec(Eigen::seqN(0, State::kNumVars))})},
+      .process_noise{ProcessNoise::from_eigen_vector(Eigen::Vector<float, ProcessNoise::kNumVars>{
+        vec(Eigen::seqN(State::kNumVars, ProcessNoise::kNumVars))})}};
   }
 };
 
@@ -73,8 +74,9 @@ struct AugmentedState
  * @return True if AugmentedState are exactly equal, false otherwise
  */
 template <typename State, typename ProcessNoise>
-inline auto operator==(const AugmentedState<State, ProcessNoise>& lhs, const AugmentedState<State, ProcessNoise>& rhs)
-    -> bool
+inline auto operator==(
+  const AugmentedState<State, ProcessNoise> & lhs, const AugmentedState<State, ProcessNoise> & rhs)
+  -> bool
 {
   return lhs.state == rhs.state && lhs.process_noise == rhs.process_noise;
 }
@@ -92,8 +94,9 @@ inline auto operator==(const AugmentedState<State, ProcessNoise>& lhs, const Aug
  * @return Modified left-hand side operand
  */
 template <typename State, typename ProcessNoise>
-inline auto operator+=(AugmentedState<State, ProcessNoise>& lhs, const AugmentedState<State, ProcessNoise>& rhs)
-    -> AugmentedState<State, ProcessNoise>&
+inline auto operator+=(
+  AugmentedState<State, ProcessNoise> & lhs, const AugmentedState<State, ProcessNoise> & rhs)
+  -> AugmentedState<State, ProcessNoise> &
 {
   lhs.state += rhs.state;
   lhs.process_noise += rhs.process_noise;
@@ -113,8 +116,9 @@ inline auto operator+=(AugmentedState<State, ProcessNoise>& lhs, const Augmented
  * @return Operation result
  */
 template <typename State, typename ProcessNoise>
-inline auto operator+(AugmentedState<State, ProcessNoise> lhs, const AugmentedState<State, ProcessNoise>& rhs)
-    -> AugmentedState<State, ProcessNoise>
+inline auto operator+(
+  AugmentedState<State, ProcessNoise> lhs, const AugmentedState<State, ProcessNoise> & rhs)
+  -> AugmentedState<State, ProcessNoise>
 {
   lhs += rhs;
   return lhs;
@@ -133,8 +137,9 @@ inline auto operator+(AugmentedState<State, ProcessNoise> lhs, const AugmentedSt
  * @return Modified left-hand side operand
  */
 template <typename State, typename ProcessNoise>
-inline auto operator-=(AugmentedState<State, ProcessNoise>& lhs, const AugmentedState<State, ProcessNoise>& rhs)
-    -> AugmentedState<State, ProcessNoise>&
+inline auto operator-=(
+  AugmentedState<State, ProcessNoise> & lhs, const AugmentedState<State, ProcessNoise> & rhs)
+  -> AugmentedState<State, ProcessNoise> &
 {
   lhs.state -= rhs.state;
   lhs.process_noise -= rhs.process_noise;
@@ -154,8 +159,9 @@ inline auto operator-=(AugmentedState<State, ProcessNoise>& lhs, const Augmented
  * @return Operation result
  */
 template <typename State, typename ProcessNoise>
-inline auto operator-(AugmentedState<State, ProcessNoise> lhs, const AugmentedState<State, ProcessNoise>& rhs)
-    -> AugmentedState<State, ProcessNoise>
+inline auto operator-(
+  AugmentedState<State, ProcessNoise> lhs, const AugmentedState<State, ProcessNoise> & rhs)
+  -> AugmentedState<State, ProcessNoise>
 {
   lhs -= rhs;
   return lhs;
@@ -174,11 +180,13 @@ namespace utils
  * @return Rounded AugmentedState
  */
 template <typename State, typename ProcessNoise>
-inline auto round_to_decimal_place(const AugmentedState<State, ProcessNoise>& state, std::size_t decimal_place)
-    -> AugmentedState<State, ProcessNoise>
+inline auto round_to_decimal_place(
+  const AugmentedState<State, ProcessNoise> & state, std::size_t decimal_place)
+  -> AugmentedState<State, ProcessNoise>
 {
-  return AugmentedState<State, ProcessNoise>{ round_to_decimal_place(state.state, decimal_place),
-                                              round_to_decimal_place(state.process_noise, decimal_place) };
+  return AugmentedState<State, ProcessNoise>{
+    round_to_decimal_place(state.state, decimal_place),
+    round_to_decimal_place(state.process_noise, decimal_place)};
 }
 }  // namespace utils
 
