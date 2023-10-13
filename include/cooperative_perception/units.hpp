@@ -30,9 +30,20 @@ namespace units
  *
  * The library does not come with an angular acceleration unit, so we must add one.
  */
-UNIT_ADD(angular_acceleration, radian_per_second_squared, radians_per_second_squared, rad_per_s_sq,
-         units::compound_unit<units::angular_velocity::radians_per_second, units::inverse<units::time::seconds>>)
+UNIT_ADD(
+  angular_acceleration, radian_per_second_squared, radians_per_second_squared, rad_per_s_sq,
+  units::compound_unit<
+    units::angular_velocity::radians_per_second, units::inverse<units::time::seconds>>)
 
 }  // namespace units
+
+namespace cooperative_perception
+{
+template <typename Unit>
+constexpr auto remove_units(const units::unit_t<Unit> & value) noexcept
+{
+  return units::unit_cast<typename units::unit_t<Unit>::underlying_type>(value);
+}
+}  // namespace cooperative_perception
 
 #endif

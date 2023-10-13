@@ -14,35 +14,22 @@
  * limitations under the License.
  */
 
-/*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
- */
+#ifndef COOPERATIVE_PERCEPTION_REMOVE_CVREF_HPP
+#define COOPERATIVE_PERCEPTION_REMOVE_CVREF_HPP
 
-#ifndef COOPERATIVE_PERCEPTION_VISITOR_HPP
-#define COOPERATIVE_PERCEPTION_VISITOR_HPP
+#include <type_traits>
 
 namespace cooperative_perception
 {
-/**
- * @brief Generic visitor class
- *
- * This is a utility class to make it easier to build visitors with lambdas.
- */
-template <typename... Base>
-struct Visitor : Base...
+template <typename T>
+struct remove_cvref
 {
-  /**
-   * @brief Bring base class' operator overloads into this scope
-   */
-  using Base::operator()...;
+  using type = std::remove_cv_t<std::remove_reference_t<T>>;
 };
 
-/**
- * @brief Type deduction hint for the Visitor constructor
- */
-template <typename... T>
-Visitor(T &&... t) -> Visitor<T...>;
+template <typename T>
+using remove_cvref_t = typename remove_cvref<T>::type;
 
 }  // namespace cooperative_perception
 
-#endif  // COOPERATIVE_PERCEPTION_VISITOR_HPP
+#endif  // COOPERATIVE_PERCEPTION_REMOVE_CVREF_HPP

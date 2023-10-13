@@ -25,6 +25,8 @@
 #include <cooperative_perception/ctrv_model.hpp>
 #include <cooperative_perception/units.hpp>
 
+#include "cooperative_perception/test/gmock_matchers.hpp"
+
 namespace cp = cooperative_perception;
 
 /**
@@ -38,7 +40,7 @@ TEST(TestCtrvModel, NextStatePureRotation)
   const auto next_state{cp::get_next_state(state, 0.5_s)};
   const cp::CtrvState expected_state{0_m, 0_m, 0_mps, cp::Angle(0.5_rad), 1_rad_per_s};
 
-  EXPECT_TRUE(cp::utils::almost_equal(next_state, expected_state));
+  EXPECT_THAT(next_state, CtrvStateNear(expected_state, 1e-9));
 }
 
 /**
@@ -52,7 +54,7 @@ TEST(TestCtrvModel, NextStatePureTranslation)
   const auto next_state{cp::get_next_state(state, 0.5_s)};
   const cp::CtrvState expected_state{0.5_m, 0_m, 1_mps, cp::Angle(0_rad), 0_rad_per_s};
 
-  EXPECT_TRUE(cp::utils::almost_equal(next_state, expected_state));
+  EXPECT_THAT(next_state, CtrvStateNear(expected_state, 1e-9));
 }
 
 /**
@@ -67,8 +69,7 @@ TEST(TestCtrvModel, NextStateRotationAndTranslation)
   const cp::CtrvState expected_state{
     0.479425539_m, 0.122417438_m, 1_mps, cp::Angle(0.5_rad), 1_rad_per_s};
 
-  EXPECT_TRUE(
-    cp::utils::almost_equal(cp::utils::round_to_decimal_place(next_state, 9), expected_state));
+  EXPECT_THAT(next_state, CtrvStateNear(expected_state, 1e-9));
 }
 
 TEST(TestCtrvModel, NextStateStochastic)
@@ -81,8 +82,7 @@ TEST(TestCtrvModel, NextStateStochastic)
   const cp::CtrvState expected_state{
     0.604425539_m, 0.122417438_m, 1.5_mps, cp::Angle(0.625_rad), 1.5_rad_per_s};
 
-  EXPECT_TRUE(
-    cp::utils::almost_equal(cp::utils::round_to_decimal_place(next_state, 9), expected_state));
+  EXPECT_THAT(next_state, CtrvStateNear(expected_state, 1e-9));
 }
 
 TEST(TestCtrvModel, Equality)
@@ -96,7 +96,9 @@ TEST(TestCtrvModel, Equality)
     1_m, 2_m, 4_mps, cp::Angle(3_rad), 1.000000000000000000000000001_rad_per_s};
   const cp::CtrvState state4{1_m, 2_m, 4_mps, cp::Angle(3_rad), 1_rad_per_s};
 
-  EXPECT_TRUE(cp::utils::almost_equal(state1, state1));
-  EXPECT_FALSE(cp::utils::almost_equal(state1, state2));
-  EXPECT_TRUE(cp::utils::almost_equal(state3, state4));
+  using ::testing::Not;
+
+  EXPECT_THAT(state1, CtrvStateNear(state1, 1e-9));
+  EXPECT_THAT(state1, Not(CtrvStateNear(state2, 1e-9)));
+  EXPECT_THAT(state3, CtrvStateNear(state4, 1e-9));
 }

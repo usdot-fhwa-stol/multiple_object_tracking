@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Leidos
+ * Copyright 2023 Leidos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -369,36 +369,6 @@ using CtraTrack = Track<CtraState, CtraStateCovariance>;
 namespace utils
 {
 /**
- * @brief Compares the almost-equality of two CtraStates
- *
- * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
- * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
- * @param[in] ulp_tol Units of least precision (ULP) tolerance.
- *            Distance between integer representation of each vector element must be less than this.
- * @return True if CtraState are almost-equal, false otherwise
- */
-inline auto almost_equal(const CtraState & lhs, const CtraState & rhs, std::size_t ulp_tol = 4)
-  -> bool
-{
-  const auto dist_x{boost::math::float_distance(
-    units::unit_cast<double>(lhs.position_x), units::unit_cast<double>(rhs.position_x))};
-  const auto dist_y{boost::math::float_distance(
-    units::unit_cast<double>(lhs.position_y), units::unit_cast<double>(rhs.position_y))};
-  const auto dist_vel{boost::math::float_distance(
-    units::unit_cast<double>(lhs.velocity), units::unit_cast<double>(rhs.velocity))};
-  const auto dist_yaw{boost::math::float_distance(
-    units::unit_cast<double>(lhs.yaw.get_angle()), units::unit_cast<double>(rhs.yaw.get_angle()))};
-  const auto dist_yaw_rate{boost::math::float_distance(
-    units::unit_cast<double>(lhs.yaw_rate), units::unit_cast<double>(rhs.yaw_rate))};
-  const auto dist_acceleration{boost::math::float_distance(
-    units::unit_cast<double>(lhs.acceleration), units::unit_cast<double>(rhs.acceleration))};
-
-  return std::abs(dist_x) <= ulp_tol && std::abs(dist_y) <= ulp_tol &&
-         std::abs(dist_vel) <= ulp_tol && std::abs(dist_yaw) <= ulp_tol &&
-         std::abs(dist_yaw_rate) <= ulp_tol && std::abs(dist_acceleration) <= ulp_tol;
-}
-
-/**
  * @brief Rounds CtraState vector elements to the nearest decimal place
  *
  * @param[in] state CtraState being rounded
@@ -418,28 +388,6 @@ inline auto round_to_decimal_place(const CtraState & state, std::size_t decimal_
     units::math::round(state.acceleration * multiplier) / multiplier};
 
   return rounded_state;
-}
-
-/**
- * @brief Compares the almost-equality of two CtraProcessNoises
- *
- * @param[in] lhs Left-hand side (lhs) of the almost-equal expression
- * @param[in] rhs Right-hand side (rhs) of the almost-equal expression
- * @param[in] ulp_tol Units of least precision (ULP) tolerance.
- *            Distance between integer representation of each vector element must be less than this.
- * @return True if CtraProcessNoise are almost-equal, false otherwise
- */
-inline auto almost_equal(
-  const CtraProcessNoise & lhs, const CtraProcessNoise & rhs, std::size_t ulp_tol = 4) -> bool
-{
-  const auto dist_lin_accel{boost::math::float_distance(
-    units::unit_cast<double>(lhs.linear_acceleration),
-    units::unit_cast<double>(rhs.linear_acceleration))};
-  const auto dist_ang_accel{boost::math::float_distance(
-    units::unit_cast<double>(lhs.angular_acceleration),
-    units::unit_cast<double>(rhs.angular_acceleration))};
-
-  return std::abs(dist_lin_accel) <= ulp_tol && std::abs(dist_ang_accel) <= ulp_tol;
 }
 
 /**
