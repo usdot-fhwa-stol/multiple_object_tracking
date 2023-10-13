@@ -25,13 +25,21 @@ CPMAddPackage(NAME units
 
 CPMAddPackage(NAME Eigen3
   GITLAB_REPOSITORY "libeigen/eigen"
-  GIT_TAG 3.4.0
+  GIT_TAG 3.3.7
+  DOWNLOAD_ONLY TRUE
   OPTIONS
     "EIGEN_BUILD_DOC FALSE"
     "EIGEN_BUILD_TESTING FALSE"
     "BUILD_TESTING FALSE"
     "EIGEN_BUILD_PKGCONFIG FALSE"
 )
+
+if(Eigen3_ADDED)
+  add_library(Eigen3 INTERFACE IMPORTED GLOBAL)
+  add_library(Eigen3::Eigen ALIAS Eigen3)
+
+  target_include_directories(Eigen3 INTERFACE ${Eigen3_SOURCE_DIR})
+endif()
 
 CPMAddPackage(NAME dlib
   GITHUB_REPOSITORY davisking/dlib
