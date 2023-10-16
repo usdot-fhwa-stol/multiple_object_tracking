@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/*
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
+ */
+
 #ifndef COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
 #define COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
 
@@ -135,8 +140,8 @@ public:
 
 private:
   ManagementPolicy management_policy_;
-  std::unordered_map<std::string, TrackType> tracks_;
-  std::unordered_map<std::string, TrackStatus> track_statuses_;
+  std::unordered_map<Uuid, TrackType> tracks_;
+  std::unordered_map<Uuid, TrackStatus> track_statuses_;
 };
 
 }  // namespace cooperative_perception
