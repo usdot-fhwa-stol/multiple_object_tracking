@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #include <gtest/gtest.h>
@@ -153,11 +154,11 @@ TEST(TestScoring, TrackToDetectionScoringEuclidean)
     cp::score_tracks_and_detections(tracks, detections, cp::euclidean_distance_score);
 
   const cp::ScoreMap expected_scores{
-    {std::pair{"test_track1", "test_detection1"}, 7.0710678},
-    {std::pair{"test_track1", "test_detection2"}, 5.7445626},
-    {std::pair{"test_track2", "test_detection1"}, 7.2801099},
-    {std::pair{"test_track2", "test_detection2"}, 6.1644139},
-    {std::pair{"test_track3", "test_detection3"}, 0.0},
+    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection1"}}, 7.0710678},
+    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection2"}}, 5.7445626},
+    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection1"}}, 7.2801099},
+    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection2"}}, 6.1644139},
+    {std::pair{cp::Uuid{"test_track3"}, cp::Uuid{"test_detection3"}}, 0.0},
   };
 
   EXPECT_EQ(std::size(scores), std::size(expected_scores));
@@ -225,11 +226,11 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
     cp::score_tracks_and_detections(tracks, detections, cp::mahalanobis_distance_score);
 
   const cp::ScoreMap expected_scores{
-    {std::pair{"test_track1", "test_detection1"}, 122.35757},
-    {std::pair{"test_track1", "test_detection2"}, 90.688416},
-    {std::pair{"test_track2", "test_detection1"}, 109.70312},
-    {std::pair{"test_track2", "test_detection2"}, 95.243896},
-    {std::pair{"test_track3", "test_detection3"}, 0.0},
+    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection1"}}, 122.35757},
+    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection2"}}, 90.688416},
+    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection1"}}, 109.70312},
+    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection2"}}, 95.243896},
+    {std::pair{cp::Uuid{"test_track3"}, cp::Uuid{"test_detection3"}}, 0.0},
   };
 
   EXPECT_EQ(std::size(scores), std::size(expected_scores));

@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #include <dlib/optimization/max_cost_assignment.h>
@@ -65,14 +66,21 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
  */
 TEST(TestTrackMatching, GnnAssociator)
 {
-  cp::ScoreMap scores{{{"track1", "detection1"}, 10},  {{"track1", "detection2"}, 2.0},
-                      {{"track1", "detection3"}, 1.0}, {{"track2", "detection1"}, 2.0},
-                      {{"track2", "detection2"}, 1.0}, {{"track2", "detection3"}, 10.0},
-                      {{"track3", "detection1"}, 3.0}, {{"track3", "detection2"}, 10.0},
-                      {{"track3", "detection3"}, 5.0}};
+  cp::ScoreMap scores{
+    {{cp::Uuid{"track1"}, cp::Uuid{"detection1"}}, 10},
+    {{cp::Uuid{"track1"}, cp::Uuid{"detection2"}}, 2.0},
+    {{cp::Uuid{"track1"}, cp::Uuid{"detection3"}}, 1.0},
+    {{cp::Uuid{"track2"}, cp::Uuid{"detection1"}}, 2.0},
+    {{cp::Uuid{"track2"}, cp::Uuid{"detection2"}}, 1.0},
+    {{cp::Uuid{"track2"}, cp::Uuid{"detection3"}}, 10.0},
+    {{cp::Uuid{"track3"}, cp::Uuid{"detection1"}}, 3.0},
+    {{cp::Uuid{"track3"}, cp::Uuid{"detection2"}}, 10.0},
+    {{cp::Uuid{"track3"}, cp::Uuid{"detection3"}}, 5.0}};
 
   cp::AssociationMap expected_associations{
-    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
 
   auto result_associations =
     cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
@@ -81,14 +89,14 @@ TEST(TestTrackMatching, GnnAssociator)
 
   // Compare expected_associations with result_associations
   for (const auto & pair : expected_associations) {
-    const std::string & track_uuid = pair.first;
-    const std::vector<std::string> & expected_detections = pair.second;
+    const auto & track_uuid = pair.first;
+    const auto & expected_detections = pair.second;
 
     // Check if track_uuid exists in result_associations
     EXPECT_TRUE(result_associations.count(track_uuid) > 0);
 
     // Get the corresponding vector of detections from result_associations
-    const std::vector<std::string> & result_detections = result_associations[track_uuid];
+    const auto & result_detections = result_associations[track_uuid];
 
     // Check if the expected and result detections have the same size
     EXPECT_EQ(std::size(expected_detections), std::size(result_detections));
@@ -108,12 +116,14 @@ TEST(TestTrackMatching, GnnAssociator)
 TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
 {
   cp::ScoreMap scores{
-    {{"track1", "detection3"}, 1.0},
-    {{"track2", "detection2"}, 1.0},
-    {{"track3", "detection1"}, 1.0}};
+    {{cp::Uuid{"track1"}, cp::Uuid{"detection3"}}, 1.0},
+    {{cp::Uuid{"track2"}, cp::Uuid{"detection2"}}, 1.0},
+    {{cp::Uuid{"track3"}, cp::Uuid{"detection1"}}, 1.0}};
 
   cp::AssociationMap expected_associations{
-    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
 
   auto result_associations =
     cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
@@ -122,14 +132,14 @@ TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
 
   // Compare expected_associations with result_associations
   for (const auto & pair : expected_associations) {
-    const std::string & track_uuid = pair.first;
-    const std::vector<std::string> & expected_detections = pair.second;
+    const auto & track_uuid = pair.first;
+    const auto & expected_detections = pair.second;
 
     // Check if track_uuid exists in result_associations
     EXPECT_TRUE(result_associations.count(track_uuid) > 0);
 
     // Get the corresponding vector of detections from result_associations
-    const std::vector<std::string> & result_detections = result_associations[track_uuid];
+    const auto & result_detections = result_associations[track_uuid];
 
     // Check if the expected and result detections have the same size
     EXPECT_EQ(std::size(expected_detections), std::size(result_detections));

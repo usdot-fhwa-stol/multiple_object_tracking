@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #ifndef COOPERATIVE_PERCEPTION_SCORING_HPP
@@ -86,7 +87,7 @@ struct mahalanobis_distance_score_fn
 inline constexpr detail::euclidean_distance_score_fn euclidean_distance_score{};
 inline constexpr detail::mahalanobis_distance_score_fn mahalanobis_distance_score{};
 
-using ScoreMap = std::map<std::pair<std::string, std::string>, float>;
+using ScoreMap = std::map<std::pair<Uuid, Uuid>, float>;
 
 template <typename Track, typename Detection, typename Metric>
 auto score_tracks_and_detections(
@@ -102,7 +103,7 @@ auto score_tracks_and_detections(
       const auto detection_uuid{get_uuid(detection)};
 
       if (const auto score = metric(track, detection); score.has_value()) {
-        scores[{track_uuid.value(), detection_uuid.value()}] = score.value();
+        scores[{track_uuid, detection_uuid}] = score.value();
       }
     }
   }

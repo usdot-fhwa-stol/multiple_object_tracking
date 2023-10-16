@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #ifndef COOPERATIVE_PERCEPTION_TRACK_MATCHING_HPP
@@ -38,7 +39,7 @@ namespace cooperative_perception
 /**
  * @brief Definition of AssociationMap, which is a mapping of track UUIDs to vectors of detection UUIDs
  */
-using AssociationMap = std::map<std::string, std::vector<std::string>>;
+using AssociationMap = std::map<Uuid, std::vector<Uuid>>;
 
 class isAssociatedDetection
 {
@@ -57,7 +58,7 @@ public:
   }
 
 private:
-  std::unordered_set<std::string> associated_uuids_;
+  std::unordered_set<Uuid> associated_uuids_;
 };
 
 class isAssociatedTrack
@@ -77,7 +78,7 @@ public:
   }
 
 private:
-  std::unordered_set<std::string> associated_uuids_;
+  std::unordered_set<Uuid> associated_uuids_;
 };
 
 /**
@@ -89,7 +90,7 @@ private:
  * @return Score matrix representing the track-detection scores.
  */
 inline auto score_matrix_from_score_map(
-  const ScoreMap & scores, std::set<std::string> & track_set, std::set<std::string> & detection_set)
+  const ScoreMap & scores, std::set<Uuid> & track_set, std::set<Uuid> & detection_set)
   -> dlib::matrix<float>
 {
   std::vector<float> values;
@@ -204,7 +205,7 @@ inline auto get_element_at(const std::set<T> & s, size_t index) -> const T &
  */
 inline auto association_map_from_score_map(
   const ScoreMap & scores, const std::vector<long> & assignments,
-  const std::set<std::string> & track_set, const std::set<std::string> & detection_set)
+  const std::set<Uuid> & track_set, const std::set<Uuid> & detection_set)
   -> AssociationMap
 {
   // Create the AssociationMap
@@ -233,8 +234,8 @@ inline auto association_map_from_score_map(
  */
 inline auto gnn_associator(const ScoreMap & scores) -> AssociationMap
 {
-  std::set<std::string> track_set;
-  std::set<std::string> detection_set;
+  std::set<Uuid> track_set;
+  std::set<Uuid> detection_set;
 
   // Generate the score matrix
   const auto score_matrix = score_matrix_from_score_map(scores, track_set, detection_set);
@@ -260,15 +261,15 @@ inline auto gnn_associator(const ScoreMap & scores) -> AssociationMap
 inline auto print_association_map(const AssociationMap & associations) -> void
 {
   for (const auto & pair : associations) {
-    const std::string & track_uuid = pair.first;
-    const std::vector<std::string> & detection_uuids = pair.second;
+    const Uuid & track_uuid = pair.first;
+    const std::vector<Uuid> & detection_uuids = pair.second;
 
     // Print track UUID
     std::cout << "Track UUID: " << track_uuid << std::endl;
 
     // Print assigned detection UUIDs
     std::cout << "Assigned Detection UUIDs: ";
-    for (const std::string & detection_uuid : detection_uuids) {
+    for (const auto & detection_uuid : detection_uuids) {
       std::cout << detection_uuid << " ";
     }
     std::cout << std::endl << std::endl;

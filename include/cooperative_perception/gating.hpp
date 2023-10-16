@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #ifndef COOPERATIVE_PERCEPTION_GATING_HPP
@@ -30,7 +31,7 @@ namespace cooperative_perception
 template <typename UnaryPredicate>
 auto prune_track_and_detection_scores_if(ScoreMap & scores, UnaryPredicate should_prune) -> void
 {
-  std::vector<std::pair<std::string, std::string>> keys_to_prune;
+  std::vector<std::pair<Uuid, Uuid>> keys_to_prune;
 
   for (const auto & [key, score] : scores) {
     if (should_prune(score)) {

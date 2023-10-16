@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #include <gmock/gmock.h>
@@ -104,7 +105,9 @@ TEST(TestFusing, CtrvTracksAndDetections)
   using namespace units::literals;
 
   const cp::AssociationMap associations{
-    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_ctrv_tracks_and_detections_tracks.json"};
   ASSERT_TRUE(tracks_file);
@@ -137,7 +140,9 @@ TEST(TestFusing, CtraTracksAndDetections)
   using namespace units::literals;
 
   cp::AssociationMap associations{
-    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_ctra_tracks_and_detections_tracks.json"};
   ASSERT_TRUE(tracks_file);
@@ -170,7 +175,9 @@ TEST(TestFusing, MixedTracksAndDetections)
   using namespace units::literals;
 
   cp::AssociationMap associations{
-    {"track1", {"detection3"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_mixed_tracks_and_detections_tracks.json"};
   ASSERT_TRUE(tracks_file);
@@ -202,7 +209,9 @@ TEST(TestFusing, UnmatchedAssociations)
 
   // Declaring initial values
   cp::AssociationMap associations{
-    {"track1", {"detection4"}}, {"track2", {"detection5"}}, {"track3", {"detection6"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection4"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection5"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection6"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_unmatched_associations_tracks.json"};
   ASSERT_TRUE(tracks_file);
@@ -230,7 +239,9 @@ TEST(TestFusing, PartialMatchedAssociations)
   using namespace units::literals;
 
   cp::AssociationMap associations{
-    {"track1", {"detection4"}}, {"track2", {"detection2"}}, {"track3", {"detection1"}}};
+    {cp::Uuid{"track1"}, {cp::Uuid{"detection4"}}},
+    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
+    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_partial_matched_associations_tracks.json"};
   ASSERT_TRUE(tracks_file);

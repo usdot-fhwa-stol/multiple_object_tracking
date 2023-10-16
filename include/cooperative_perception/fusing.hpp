@@ -15,7 +15,8 @@
  */
 
 /*
- * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
+ * Originally developed for Leidos by the Human and Intelligent Vehicle
+ * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
 #ifndef COOPERATIVE_PERCEPTION_FUSING_HPP
@@ -142,13 +143,13 @@ auto fuse_associations(
     // Find the matching detection and track based on their uuids
     for (const auto & track : tracks) {
       const auto track_uuid{get_uuid(track)};
-      if (track_uuid.value() == target_track_uuid) {
+      if (track_uuid == target_track_uuid) {
         for (const auto & detection : detections) {
           const auto detection_uuid{get_uuid(detection)};
           if (
             std::find(
               target_detection_uuids.begin(), target_detection_uuids.end(),
-              detection_uuid.value()) != target_detection_uuids.end()) {
+              detection_uuid) != target_detection_uuids.end()) {
             const auto fused_track{std::visit(fusion_visitor, track, detection)};
             fused_tracks.push_back(fused_track);
           }
