@@ -65,13 +65,17 @@ public:
     for (const auto & [uuid, occurrences] : occurrences_) {
       if (occurrences >= promotion_threshold_.value) {
         statuses_[uuid] = TrackStatus::kConfirmed;
-      } else if (occurrences < promotion_threshold_.value) {
-        statuses_[uuid] = TrackStatus::kTentative;
-      } else if (occurrences <= removal_threshold_.value) {
+        continue;
+      }
+
+      if (occurrences <= removal_threshold_.value) {
         tracks_.erase(uuid);
         statuses_.erase(uuid);
         occurrences_.erase(uuid);
+        continue;
       }
+
+      statuses_[uuid] = TrackStatus::kTentative;
     }
   }
 

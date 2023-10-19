@@ -27,6 +27,7 @@ add_executable(test_cooperative_perceptionExecutable
   test_gating.cpp
   test_fusing.cpp
   test_json_parsing.cpp
+  test_track_management.cpp
 )
 
 target_include_directories(test_cooperative_perceptionExecutable
