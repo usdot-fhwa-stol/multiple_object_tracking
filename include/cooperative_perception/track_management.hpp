@@ -82,10 +82,10 @@ public:
 
     for (const auto & [uuid, track] : tracks_) {
       if (management_policy_.should_promote(uuid)) {
-        track_statuses_[uuid] = "CONFIRMED";
+        track_statuses_[uuid] = TrackStatus::kConfirmed;
 
       } else if (management_policy_.should_demote(uuid)) {
-        track_statuses_[uuid] = "TENTATIVE";
+        track_statuses_[uuid] = TrackStatus::kTentative;
 
       } else if (management_policy_.should_remove(uuid)) {
         tracks_.erase(uuid);
@@ -98,7 +98,7 @@ public:
   {
     const auto uuid = get_uuid(track);
     tracks_[uuid] = track;
-    track_statuses_[uuid] = "TENTATIVE";
+    track_statuses_[uuid] = TrackStatus::kTentative;
   }
 
   auto get_tentative_tracks() const -> std::vector<TrackType>
@@ -106,7 +106,7 @@ public:
     std::vector<TrackType> tracks;
 
     for (const auto & [uuid, track] : tracks_) {
-      if (track_statuses_[uuid] == "TENTATIVE") {
+      if (track_statuses_.at(uuid) == TrackStatus::kTentative) {
         tracks.emplace_back(track);
       }
     }
@@ -119,7 +119,7 @@ public:
     std::vector<TrackType> tracks;
 
     for (const auto & [uuid, track] : tracks_) {
-      if (track_statuses_[uuid] == "CONFIRMED") {
+      if (track_statuses_.at(uuid) == TrackStatus::kConfirmed) {
         tracks.emplace_back(track);
       }
     }
