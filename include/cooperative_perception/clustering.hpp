@@ -101,7 +101,7 @@ template <typename Detection>
 class Cluster
 {
 public:
-  auto is_empty() const noexcept -> bool { return std::size(detections_) == 0; }
+  [[nodiscard]] auto is_empty() const noexcept -> bool { return std::size(detections_) == 0; }
   auto clear() noexcept -> void { detections_.clear(); }
 
   auto add_detection(const Detection & detection)
@@ -116,12 +116,12 @@ public:
     detections_.erase(uuid);
   }
 
-  auto get_detections() const noexcept -> const std::unordered_map<Uuid, Detection> &
+  [[nodiscard]] auto get_detections() const noexcept -> const std::unordered_map<Uuid, Detection> &
   {
     return detections_;
   }
 
-  auto get_centroid() const -> Point
+  [[nodiscard]] auto get_centroid() const -> Point
   {
     if (detections_.empty()) {
       throw std::runtime_error("cluster is empty");
