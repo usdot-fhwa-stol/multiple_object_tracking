@@ -6,8 +6,9 @@ Defined in header `<multiple_object_tracking/clustering.hpp>`
 struct Point;
 ```
 
-This class represents the geometric center of a cluster. It is a sub-vector of `multiple_object_tracking::CtrvState`
-and `multiple_object_tracking::CtraState` containing the common vector elements.
+This class represents a cluster's _centroid_: a point equal to the mean of a cluster's contained members. It is a
+sub-vector of `multiple_object_tracking::CtrvState` and `multiple_object_tracking::CtraState` containing the common
+(mathematical) vector elements.
 
 ## Data members
 

@@ -5,7 +5,8 @@
 auto get_centroid() const -> Point;
 ```
 
-Returns the cluster's geometric center. If the cluster is empty, an exception of type `std::runtime_error` is thrown.
+Returns the cluster's _centroid_: a point equal to the mean of a cluster's contained members. If the cluster is empty,
+an exception of type `std::runtime_error` is thrown.
 
 ## Parameters
 
@@ -13,7 +14,7 @@ Returns the cluster's geometric center. If the cluster is empty, an exception of
 
 ## Return value
 
-The cluster's geometric center.
+The cluster's centroid.
 
 ## Exceptions
 
