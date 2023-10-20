@@ -157,47 +157,159 @@ struct nlohmann::adl_serializer<cooperative_perception::CtraTrack>
 
 namespace cooperative_perception
 {
-template <typename Detection>
-auto detections_from_json_file(std::ifstream & file) -> std::vector<Detection>
+namespace customization
 {
-  const auto data = nlohmann::json::parse(file);
-  std::vector<Detection> detections;
+template <typename T>
+struct do_detections_from_json_file;
 
-  for (const auto & detection : data.at("detections")) {
-    const auto motion_model{detection.at("motion_model").template get<std::string>()};
-
-    if (motion_model == "ctrv") {
-      detections.push_back(detection.template get<cooperative_perception::CtrvDetection>());
-    } else if (motion_model == "ctra") {
-      detections.push_back(detection.template get<cooperative_perception::CtraDetection>());
-    } else {
-      throw std::runtime_error("Unsupported motion model");
-    }
-  }
-
-  return detections;
-}
-
-template <typename Track>
-auto tracks_from_json_file(std::ifstream & file) -> std::vector<Track>
+template <>
+struct do_detections_from_json_file<CtrvDetection>
 {
-  const auto data = nlohmann::json::parse(file);
-  std::vector<Track> tracks;
+  static auto _(std::ifstream & file)
+  {
+    const auto data = nlohmann::json::parse(file);
+    std::vector<CtrvDetection> detections;
 
-  for (const auto & track : data.at("tracks")) {
-    const auto motion_model{track.at("motion_model").template get<std::string>()};
+    for (const auto & detection : data.at("detections")) {
+      const auto motion_model{detection.at("motion_model").template get<std::string>()};
 
-    if (motion_model == "ctrv") {
-      tracks.push_back(track.template get<cooperative_perception::CtrvTrack>());
-    } else if (motion_model == "ctra") {
-      tracks.push_back(track.template get<cooperative_perception::CtraTrack>());
-    } else {
-      throw std::runtime_error("Unsupported motion model");
+      if (motion_model == "ctrv") {
+        detections.push_back(detection.template get<cooperative_perception::CtrvDetection>());
+      } else {
+        throw std::runtime_error("Unsupported motion model");
+      }
     }
-  }
 
-  return tracks;
-}
+    return detections;
+  }
+};
+
+template <>
+struct do_detections_from_json_file<CtraDetection>
+{
+  static auto _(std::ifstream & file)
+  {
+    const auto data = nlohmann::json::parse(file);
+    std::vector<CtraDetection> detections;
+
+    for (const auto & detection : data.at("detections")) {
+      const auto motion_model{detection.at("motion_model").template get<std::string>()};
+
+      if (motion_model == "ctra") {
+        detections.push_back(detection.template get<cooperative_perception::CtraDetection>());
+      } else {
+        throw std::runtime_error("Unsupported motion model");
+      }
+    }
+
+    return detections;
+  }
+};
+
+template <typename... Alternatives>
+struct do_detections_from_json_file<std::variant<Alternatives...>>
+{
+  static auto _(std::ifstream & file)
+  {
+    const auto data = nlohmann::json::parse(file);
+    std::vector<std::variant<Alternatives...>> detections;
+
+    for (const auto & detection : data.at("detections")) {
+      const auto motion_model{detection.at("motion_model").template get<std::string>()};
+
+      if (motion_model == "ctrv") {
+        detections.push_back(detection.template get<cooperative_perception::CtrvDetection>());
+      } else if (motion_model == "ctra") {
+        detections.push_back(detection.template get<cooperative_perception::CtraDetection>());
+      } else {
+        throw std::runtime_error("Unsupported motion model");
+      }
+    }
+
+    return detections;
+  }
+};
+
+template <typename T>
+struct do_tracks_from_json_file;
+
+template <>
+struct do_tracks_from_json_file<CtrvTrack>
+{
+  static auto _(std::ifstream & file)
+  {
+    const auto data = nlohmann::json::parse(file);
+    std::vector<CtrvTrack> tracks;
+
+    for (const auto & track : data.at("tracks")) {
+      const auto motion_model{track.at("motion_model").template get<std::string>()};
+
+      if (motion_model == "ctrv") {
+        tracks.push_back(track.template get<cooperative_perception::CtrvTrack>());
+      } else {
+        throw std::runtime_error("Unsupported motion model");
+      }
+    }
+
+    return tracks;
+  }
+};
+
+template <>
+struct do_tracks_from_json_file<CtraTrack>
+{
+  static auto _(std::ifstream & file)
+  {
+    const auto data = nlohmann::json::parse(file);
+    std::vector<CtraTrack> tracks;
+
+    for (const auto & track : data.at("tracks")) {
+      const auto motion_model{track.at("motion_model").template get<std::string>()};
+
+      if (motion_model == "ctra") {
+        tracks.push_back(track.template get<cooperative_perception::CtraTrack>());
+      } else {
+        throw std::runtime_error("Unsupported motion model");
+      }
+    }
+
+    return tracks;
+  }
+};
+
+template <typename... Alternatives>
+struct do_tracks_from_json_file<std::variant<Alternatives...>>
+{
+  static auto _(std::ifstream & file)
+  {
+    const auto data = nlohmann::json::parse(file);
+    std::vector<std::variant<Alternatives...>> tracks;
+
+    for (const auto & track : data.at("tracks")) {
+      const auto motion_model{track.at("motion_model").template get<std::string>()};
+
+      if (motion_model == "ctrv") {
+        tracks.push_back(track.template get<cooperative_perception::CtrvTrack>());
+      } else if (motion_model == "ctra") {
+        tracks.push_back(track.template get<cooperative_perception::CtraTrack>());
+      } else {
+        throw std::runtime_error("Unsupported motion model");
+      }
+    }
+
+    return tracks;
+  }
+};
+
+}  // namespace customization
+
+template <typename T>
+inline constexpr auto detections_from_json_file =
+  [](std::ifstream & file) { return customization::do_detections_from_json_file<T>::_(file); };
+
+template <typename T>
+inline constexpr auto tracks_from_json_file =
+  [](std::ifstream & file) { return customization::do_tracks_from_json_file<T>::_(file); };
 
 }  // namespace cooperative_perception
 
