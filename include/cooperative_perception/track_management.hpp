@@ -36,77 +36,68 @@ struct TaggedType
 using PromotionThreshold = TaggedType<std::size_t, struct PromotionThresholdTag>;
 using RemovalThreshold = TaggedType<std::size_t, struct RemovalThresholdTag>;
 
-class FixedThresholdManagementPolicy
+template <typename Track>
+class FixedThresholdTrackManager
 {
+  enum class TrackStatus
+  {
+    kConfirmed,
+    kTentative
+  };
+
 public:
-  explicit FixedThresholdManagementPolicy(
+  explicit FixedThresholdTrackManager(
     PromotionThreshold promotion_threshold, RemovalThreshold removal_threshold)
   : promotion_threshold_{promotion_threshold}, removal_threshold_{removal_threshold}
   {
   }
 
-  auto update(const AssociationMap & associations) -> void;
-  auto should_promote(const std::string & uuid) const -> bool;
-  auto should_demote(const std::string & uuid) const -> bool;
-  auto should_remove(const std::string & uuid) const -> bool;
-
-private:
-  PromotionThreshold promotion_threshold_;
-  RemovalThreshold removal_threshold_;
-  std::unordered_map<std::string, std::size_t> occurrence_counts;
-};
-
-/**
- * @brief Track status
- *
- * Tracks are tentative until they have been perceived beyond a threshold, at
- * which point they become confirmed.
- */
-enum class TrackStatus
-{
-  kConfirmed,
-  kTentative
-};
-
-template <typename TrackType, typename ManagementPolicy>
-class TrackManager
-{
-public:
-  explicit TrackManager(ManagementPolicy management_policy) : management_policy_{management_policy}
-  {
-  }
-
   auto update_track_lists(const AssociationMap & associations) -> void
   {
-    management_policy_.update(associations);
-
-    for (const auto & [uuid, track] : tracks_) {
-      if (management_policy_.should_promote(uuid)) {
-        track_statuses_[uuid] = TrackStatus::kConfirmed;
-
-      } else if (management_policy_.should_demote(uuid)) {
-        track_statuses_[uuid] = TrackStatus::kTentative;
-
-      } else if (management_policy_.should_remove(uuid)) {
-        tracks_.erase(uuid);
-        track_statuses_.erase(uuid);
+    for (auto & [uuid, occurrences] : occurrences_) {
+      if (associations.count(uuid) == 0) {
+        --occurrences;
+      } else {
+        ++occurrences;
       }
+    }
+
+    for (const auto & [uuid, occurrences] : occurrences_) {
+      if (occurrences >= promotion_threshold_.value) {
+        statuses_[uuid] = TrackStatus::kConfirmed;
+        continue;
+      }
+
+      if (occurrences <= removal_threshold_.value) {
+        tracks_.erase(uuid);
+        statuses_.erase(uuid);
+        occurrences_.erase(uuid);
+        continue;
+      }
+
+      statuses_[uuid] = TrackStatus::kTentative;
     }
   }
 
-  auto add_tentative_track(const TrackType & track) -> void
+  auto add_tentative_track(const Track & track) -> void
   {
     const auto uuid = get_uuid(track);
+
+    if (tracks_.count(uuid) != 0) {
+      throw std::logic_error("track '" + uuid.value() + "' already exists");
+    }
+
     tracks_[uuid] = track;
-    track_statuses_[uuid] = TrackStatus::kTentative;
+    statuses_[uuid] = TrackStatus::kTentative;
+    occurrences_[uuid] = 1;
   }
 
-  auto get_tentative_tracks() const -> std::vector<TrackType>
+  auto get_tentative_tracks() const -> std::vector<Track>
   {
-    std::vector<TrackType> tracks;
+    std::vector<Track> tracks;
 
     for (const auto & [uuid, track] : tracks_) {
-      if (track_statuses_.at(uuid) == TrackStatus::kTentative) {
+      if (statuses_.at(uuid) == TrackStatus::kTentative) {
         tracks.emplace_back(track);
       }
     }
@@ -114,12 +105,12 @@ public:
     return tracks;
   }
 
-  auto get_confirmed_tracks() const -> std::vector<TrackType>
+  auto get_confirmed_tracks() const -> std::vector<Track>
   {
-    std::vector<TrackType> tracks;
+    std::vector<Track> tracks;
 
     for (const auto & [uuid, track] : tracks_) {
-      if (track_statuses_.at(uuid) == TrackStatus::kConfirmed) {
+      if (statuses_.at(uuid) == TrackStatus::kConfirmed) {
         tracks.emplace_back(track);
       }
     }
@@ -127,9 +118,9 @@ public:
     return tracks;
   }
 
-  auto get_all_tracks() const -> std::vector<TrackType>
+  auto get_all_tracks() const -> std::vector<Track>
   {
-    std::vector<TrackType> tracks;
+    std::vector<Track> tracks;
 
     for (const auto & [uuid, track] : tracks_) {
       tracks.emplace_back(track);
@@ -139,9 +130,11 @@ public:
   }
 
 private:
-  ManagementPolicy management_policy_;
-  std::unordered_map<Uuid, TrackType> tracks_;
-  std::unordered_map<Uuid, TrackStatus> track_statuses_;
+  PromotionThreshold promotion_threshold_;
+  RemovalThreshold removal_threshold_;
+  std::unordered_map<Uuid, Track> tracks_;
+  std::unordered_map<Uuid, TrackStatus> statuses_;
+  std::unordered_map<Uuid, std::size_t> occurrences_;
 };
 
 }  // namespace cooperative_perception
