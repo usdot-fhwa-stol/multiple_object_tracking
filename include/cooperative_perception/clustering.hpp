@@ -196,7 +196,7 @@ auto make_point(const std::variant<Alternatives...> & detection) -> Point
 }  // namespace detail
 
 template <typename Detection>
-auto cluster_detections(std::vector<Detection> detections, double distance_threshold)
+[[nodiscard]] auto cluster_detections(std::vector<Detection> detections, double distance_threshold)
   -> std::vector<Cluster<Detection>>
 {
   std::vector<Cluster<Detection>> clusters;
