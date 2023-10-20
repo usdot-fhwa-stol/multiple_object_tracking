@@ -34,6 +34,7 @@ TEST(TestCluser, Simple)
   EXPECT_EQ(centroid.yaw.get_angle(), units::angle::radian_t{0.0});
   EXPECT_EQ(centroid.yaw_rate, units::angular_velocity::radians_per_second_t{0.0});
 
+  detection.state.position_x = units::length::meter_t{3.0};
   detection.uuid = cp::Uuid{"detection2"};
   cluster.add_detection(detection);
   centroid = cluster.get_centroid();
@@ -45,6 +46,7 @@ TEST(TestCluser, Simple)
   EXPECT_EQ(centroid.yaw.get_angle(), units::angle::radian_t{0.0});
   EXPECT_EQ(centroid.yaw_rate, units::angular_velocity::radians_per_second_t{0.0});
 
+  detection.state.position_x = units::length::meter_t{5.0};
   detection.uuid = cp::Uuid{"detection3"};
   cluster.add_detection(detection);
   centroid = cluster.get_centroid();
