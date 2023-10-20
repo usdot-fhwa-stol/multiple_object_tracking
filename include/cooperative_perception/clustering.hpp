@@ -24,7 +24,7 @@ struct Point
   units::angular_velocity::radians_per_second_t yaw_rate{0};
 };
 
-inline auto operator/(Point point, double scalar) -> Point
+[[nodiscard]] inline auto operator/(Point point, double scalar) -> Point
 {
   point.position_x /= scalar;
   point.position_y /= scalar;
