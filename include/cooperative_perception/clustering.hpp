@@ -167,82 +167,6 @@ struct squared_euclidean_distance_fn
 inline constexpr squared_euclidean_distance_fn squared_euclidean_distance{};
 
 template <typename Detection>
-auto get_closest_mean_index(const std::vector<Point> & means, const Detection & detection)
-  -> std::size_t
-{
-  std::size_t best_index{0U};
-  double best_distance{std::numeric_limits<double>::max()};
-
-  for (auto i{0U}; i < std::size(means); ++i) {
-    const auto dist{squared_euclidean_distance(means.at(i), detection)};
-
-    if (dist < best_distance) {
-      best_distance = dist;
-      best_index = i;
-    }
-  }
-
-  return best_index;
-}
-
-auto initialize_means(std::size_t num_means)
-{
-  std::random_device device;
-  std::default_random_engine engine{device()};
-  std::uniform_real_distribution distribution;
-
-  std::vector<Point> points;
-  for (auto i{0U}; i < num_means; ++i) {
-    Point point;
-
-    point.position_x = units::length::meter_t{distribution(engine)};
-    point.position_y = units::length::meter_t{distribution(engine)};
-    point.velocity = units::velocity::meters_per_second_t{distribution(engine)};
-    point.yaw.set_angle(units::angle::radian_t{distribution(engine)});
-    point.yaw_rate = units::angular_velocity::radians_per_second_t{distribution(engine)};
-
-    points.push_back(std::move(point));
-  }
-
-  return points;
-}
-
-template <typename Detection>
-auto initialize_means(std::size_t num_means, const std::vector<Detection> & detections)
-{
-  std::vector<Point> means(num_means);
-  std::vector<Cluster<Detection>> clusters(num_means);
-
-  for (auto c{0U}; c < std::size(clusters); ++c) {
-    clusters.at(c).add_detection(detections.at(c));
-  }
-
-  for (auto i{0U}; i < std::size(clusters); ++i) {
-    means.at(i) = clusters.at(i).get_centroid();
-    clusters.at(i).clear();
-  }
-
-  return means;
-}
-
-template <typename Detection>
-auto get_cluster_assignments(const std::vector<Cluster<Detection>> & clusters)
-{
-  std::vector<std::vector<Uuid>> assignments;
-
-  for (const auto & cluster : clusters) {
-    std::vector<Uuid> uuids;
-    for (const auto & [uuid, detection] : cluster.get_detections()) {
-      uuids.push_back(uuid);
-    }
-
-    assignments.push_back(std::move(uuids));
-  }
-
-  return assignments;
-}
-
-template <typename Detection>
 auto make_point(const Detection & detection) -> Point
 {
   return Point{
@@ -300,40 +224,6 @@ auto cluster_detections(std::vector<Detection> detections, double distance_thres
 
   return clusters;
 }
-
-// template <typename Detection>
-// auto cluster_detections(const std::vector<Detection> & detections, std::size_t num_clusters)
-//   -> std::vector<Cluster<Detection>>
-// {
-//   if (num_clusters > std::size(detections)) {
-//     throw std::logic_error(
-//       "number of clusters ('" + std::to_string(num_clusters) +
-//       "') must be less than or equal to number of detections ('" +
-//       std::to_string(std::size(detections)) + "')");
-//   }
-
-//   std::vector<Cluster<Detection>> clusters(num_clusters);
-//   auto means{detail::initialize_means(num_clusters, detections)};
-//   auto previous_assignments{detail::get_cluster_assignments(clusters)};
-
-//   do {
-//     previous_assignments = detail::get_cluster_assignments(clusters);
-
-//     for (auto & cluster : clusters) {
-//       cluster.clear();
-//     }
-
-//     for (const auto & detection : detections) {
-//       clusters.at(detail::get_closest_mean_index(means, detection)).add_detection(detection);
-//     }
-
-//     for (auto i{0U}; i < std::size(clusters); ++i) {
-//       means.at(i) = clusters.at(i).get_centroid();
-//     }
-//   } while (detail::get_cluster_assignments(clusters) != previous_assignments);
-
-//   return clusters;
-// }
 
 }  // namespace cooperative_perception
 
