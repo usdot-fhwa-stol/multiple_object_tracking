@@ -1,0 +1,36 @@
+{
+  "detections": [
+    {
+      "motion_model": "ctrv",
+      "timestamp_sec": 0.0,
+      "state": {
+        "position_x_m": 5.0,
+        "position_y_m": 5.0,
+        "velocity_mps": 0.0,
+        "yaw_rad": 0.0,
+        "yaw_rate_rad_per_s": 0.0
+      },
+      "covariance": [
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+      ],
+      "uuid": "detection1"
+    },
+    {
+      "motion_model": "ctrv",
+      "timestamp_sec": 0.0,
+      "state": {
+        "position_x_m": 6.0,
+        "position_y_m": 5.0,
+        "velocity_mps": 0.0,
+        "yaw_rad": 0.0,
+        "yaw_rate_rad_per_s": 0.0
+      },
+      "covariance": [
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+      ],
+      "uuid": "detection2"
+    }
+  ]
+}
