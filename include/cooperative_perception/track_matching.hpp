@@ -242,7 +242,7 @@ inline auto gnn_associator(const ScoreMap & scores) -> AssociationMap
   // Generate the cost matrix
   auto cost_matrix = cost_matrix_from_score_matrix(score_matrix);
 
-  // dlib requires square matrices, so we will padd with phantom tracks
+  // dlib requires square matrices, so we will pad with phantom tracks
   if (cost_matrix.nr() != cost_matrix.nc()) {
     const auto cost_matrix_original{dlib::tmp(cost_matrix)};
     cost_matrix.set_size(cost_matrix.nc(), cost_matrix.nc());
