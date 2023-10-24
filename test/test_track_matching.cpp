@@ -152,3 +152,33 @@ TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
     }
   }
 }
+
+TEST(TestTrackMatching, GnnAssociatorMoreDetectionsThanTracks)
+{
+  const cp::ScoreMap scores{
+    {{cp::Uuid{"track1"}, cp::Uuid{"detection1"}}, 10},
+    {{cp::Uuid{"track1"}, cp::Uuid{"detection2"}}, 2.0}};
+
+  const cp::AssociationMap expected_associations{{cp::Uuid{"track1"}, {cp::Uuid{"detection2"}}}};
+
+  const auto result_associations =
+    cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
+
+  EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
+
+  for (const auto & [expected_track_uuid, expected_detection_uuids] : expected_associations) {
+    EXPECT_GT(result_associations.count(expected_track_uuid), 0);
+
+    const auto & result_detection_uuids = result_associations.at(expected_track_uuid);
+
+    EXPECT_EQ(std::size(expected_detection_uuids), std::size(result_detection_uuids));
+
+    for (const auto & expected_detection_uuid : expected_detection_uuids) {
+      const auto it{std::find(
+        std::cbegin(result_detection_uuids), std::cend(result_detection_uuids),
+        expected_detection_uuid)};
+
+      EXPECT_NE(it, std::cend(result_detection_uuids));
+    }
+  }
+}
