@@ -244,7 +244,7 @@ inline auto gnn_associator(const ScoreMap & scores) -> AssociationMap
 
   // dlib requires square matrices, so we will padd with phantom tracks
   if (cost_matrix.nr() != cost_matrix.nc()) {
-    const auto cost_matrix_original{cost_matrix};
+    const auto cost_matrix_original{dlib::tmp(cost_matrix)};
     cost_matrix.set_size(cost_matrix.nc(), cost_matrix.nc());
 
     for (auto row{0U}; row < cost_matrix_original.nr(); ++row) {

@@ -174,11 +174,11 @@ TEST(TestTrackMatching, GnnAssociatorMoreDetectionsThanTracks)
     EXPECT_EQ(std::size(expected_detection_uuids), std::size(result_detection_uuids));
 
     for (const auto & expected_detection_uuid : expected_detection_uuids) {
-      const auto it{std::find(
-        std::cbegin(result_detection_uuids), std::cend(result_detection_uuids),
-        expected_detection_uuid)};
-
-      EXPECT_NE(it, std::cend(result_detection_uuids));
+      EXPECT_NE(
+        std::find(
+          std::cbegin(result_detection_uuids), std::cend(result_detection_uuids),
+          expected_detection_uuid),
+        std::cend(result_detection_uuids));
     }
   }
 }
