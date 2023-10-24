@@ -204,9 +204,8 @@ inline auto get_element_at(const std::set<T> & s, size_t index) -> const T &
  * @return The created AssociationMap.
  */
 inline auto association_map_from_score_map(
-  const ScoreMap & scores, const std::vector<long> & assignments,
-  const std::set<Uuid> & track_set, const std::set<Uuid> & detection_set)
-  -> AssociationMap
+  const ScoreMap & scores, const std::vector<long> & assignments, const std::set<Uuid> & track_set,
+  const std::set<Uuid> & detection_set) -> AssociationMap
 {
   // Create the AssociationMap
   AssociationMap associations;
@@ -241,10 +240,30 @@ inline auto gnn_associator(const ScoreMap & scores) -> AssociationMap
   const auto score_matrix = score_matrix_from_score_map(scores, track_set, detection_set);
 
   // Generate the cost matrix
-  const auto cost_matrix = cost_matrix_from_score_matrix(score_matrix);
+  auto cost_matrix = cost_matrix_from_score_matrix(score_matrix);
+
+  // dlib requires square matrices, so we will padd with phantom tracks
+  if (cost_matrix.nr() != cost_matrix.nc()) {
+    const auto cost_matrix_original{cost_matrix};
+    cost_matrix.set_size(cost_matrix.nc(), cost_matrix.nc());
+
+    for (auto row{0U}; row < cost_matrix_original.nr(); ++row) {
+      for (auto column{0U}; column < cost_matrix_original.nc(); ++column) {
+        cost_matrix(row, column) = cost_matrix_original(row, column);
+      }
+    }
+
+    for (auto row{cost_matrix_original.nr()}; row < cost_matrix.nr(); ++row) {
+      for (auto column{0U}; column < cost_matrix.nc(); ++column) {
+        cost_matrix(row, column) = std::numeric_limits<int>::lowest();
+      }
+    }
+  }
 
   // Perform max_cost_assignment
-  const std::vector<long> assignments = max_cost_assignment(cost_matrix);
+  const std::vector<long> results = max_cost_assignment(cost_matrix);
+  const std::vector<long> assignments(
+    std::cbegin(results), std::cbegin(results) + std::size(track_set));
 
   // Generate the association map
   const auto associations =
