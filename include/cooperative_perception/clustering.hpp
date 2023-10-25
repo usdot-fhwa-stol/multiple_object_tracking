@@ -229,7 +229,7 @@ template <typename Detection>
     for (auto it{std::begin(detections)}; it != std::end(detections);) {
       if (detail::squared_euclidean_distance(origin_point, *it) < distance_threshold) {
         cluster.add_detection(*it);
-        detections.erase(it);
+        it = detections.erase(it);
       } else {
         ++it;
       }
