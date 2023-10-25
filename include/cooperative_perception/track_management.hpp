@@ -62,20 +62,24 @@ public:
       }
     }
 
-    for (const auto & [uuid, occurrences] : occurrences_) {
-      if (occurrences >= promotion_threshold_.value) {
-        statuses_[uuid] = TrackStatus::kConfirmed;
-        continue;
-      }
+    for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
+      const auto uuid{it->first};
+      const auto occurrences{it->second};
 
       if (occurrences <= removal_threshold_.value) {
         tracks_.erase(uuid);
         statuses_.erase(uuid);
-        occurrences_.erase(uuid);
+        it = occurrences_.erase(it);
         continue;
       }
 
-      statuses_[uuid] = TrackStatus::kTentative;
+      if (occurrences >= promotion_threshold_.value) {
+        statuses_.at(uuid) = TrackStatus::kConfirmed;
+      } else {
+        statuses_.at(uuid) = TrackStatus::kTentative;
+      }
+
+      ++it;
     }
   }
 
