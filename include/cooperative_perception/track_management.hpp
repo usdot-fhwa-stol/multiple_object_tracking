@@ -133,6 +133,46 @@ public:
     return tracks;
   }
 
+  auto set_promotion_threshold_and_update(const PromotionThreshold & threshold) noexcept -> void
+  {
+    promotion_threshold_ = threshold;
+
+    for (auto & [uuid, track] : tracks_) {
+      if (occurrences_[uuid] >= promotion_threshold_.value) {
+        statuses_[uuid] = TrackStatus::kConfirmed;
+      } else if (occurrences_[uuid] < promotion_threshold_.value) {
+        statuses_[uuid] = TrackStatus::kTentative;
+      }
+    }
+  }
+
+  [[nodiscard]] auto get_promotion_threshold() const noexcept -> PromotionThreshold
+  {
+    return promotion_threshold_;
+  }
+
+  auto set_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
+  {
+    removal_threshold_ = threshold;
+
+    for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
+      if (const auto occurrences{it->second}; occurrences <= removal_threshold_.value) {
+        const auto uuid{it->first};
+
+        tracks_.erase(uuid);
+        statuses_.erase(uuid);
+        it = occurrences_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+
+  [[nodiscard]] auto get_removal_threshold() const noexcept -> RemovalThreshold
+  {
+    return removal_threshold_;
+  }
+
 private:
   PromotionThreshold promotion_threshold_;
   RemovalThreshold removal_threshold_;
