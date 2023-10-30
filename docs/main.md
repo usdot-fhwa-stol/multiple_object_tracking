@@ -2,6 +2,12 @@
 
 ## Association (detection-to-track matching)
 
+### Type definitions
+
+| Type                                       | Definition                          |
+| ------------------------------------------ | ----------------------------------- |
+| `multiple_object_tracking::AssociationMap` | `std::map<Uuid, std::vector<Uuid>>` |
+
 ### Predicates
 
 #### [`multiple_object_tracking::HasAssociation`][has_association_doc]
