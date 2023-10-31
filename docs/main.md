@@ -1,5 +1,23 @@
 # Multiple object tracking library
 
+## Association (detection-to-track matching)
+
+### Type definitions
+
+| Type                                       | Definition                          |
+| ------------------------------------------ | ----------------------------------- |
+| `multiple_object_tracking::AssociationMap` | `std::map<Uuid, std::vector<Uuid>>` |
+
+### Predicates
+
+#### [`multiple_object_tracking::HasAssociation`][has_association_doc]
+
+This class is a function object that can be used as a unary predicate to check
+if a specified object (track or detection) has an association within a given
+association map.
+
+[has_association_doc]: track_matching/has_association/main.md
+
 ## Clustering
 
 ### [`multiple_object_tracking::Cluster`][cluster_doc]

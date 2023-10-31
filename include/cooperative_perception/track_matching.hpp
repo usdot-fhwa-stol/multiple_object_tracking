@@ -41,44 +41,25 @@ namespace cooperative_perception
  */
 using AssociationMap = std::map<Uuid, std::vector<Uuid>>;
 
-class isAssociatedDetection
+class HasAssociation
 {
 public:
-  explicit isAssociatedDetection(const AssociationMap & associations)
+  explicit HasAssociation(const AssociationMap & associations)
   {
     for (const auto & [track_uuid, detection_uuids] : associations) {
+      associated_uuids_.insert(track_uuid);
       associated_uuids_.insert(std::cbegin(detection_uuids), std::cend(detection_uuids));
     }
   }
 
-  template <typename DetectionType>
-  auto operator()(const DetectionType & detection) const noexcept -> bool
+  template <typename Object>
+  auto operator()(const Object & object) const noexcept -> bool
   {
-    return associated_uuids_.count(get_uuid(detection)) != 0;
+    return associated_uuids_.count(get_uuid(object)) != 0;
   }
 
 private:
-  std::unordered_set<Uuid> associated_uuids_;
-};
-
-class isAssociatedTrack
-{
-public:
-  explicit isAssociatedTrack(const AssociationMap & associations)
-  {
-    for (const auto & [track_uuid, detection_uuids] : associations) {
-      associated_uuids_.insert(track_uuid);
-    }
-  }
-
-  template <typename TrackType>
-  auto operator()(const TrackType & track) const noexcept -> bool
-  {
-    return associated_uuids_.count(get_uuid(track)) != 0;
-  }
-
-private:
-  std::unordered_set<Uuid> associated_uuids_;
+  std::unordered_set<Uuid> associated_uuids_{};
 };
 
 /**
