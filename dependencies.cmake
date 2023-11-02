@@ -23,23 +23,7 @@ CPMAddPackage(NAME units
     "BUILD_DOCS FALSE"
 )
 
-CPMAddPackage(NAME Eigen3
-  GITLAB_REPOSITORY "libeigen/eigen"
-  GIT_TAG 3.3.7
-  DOWNLOAD_ONLY TRUE
-  OPTIONS
-    "EIGEN_BUILD_DOC FALSE"
-    "EIGEN_BUILD_TESTING FALSE"
-    "BUILD_TESTING FALSE"
-    "EIGEN_BUILD_PKGCONFIG FALSE"
-)
-
-if(Eigen3_ADDED)
-  add_library(Eigen3 INTERFACE IMPORTED GLOBAL)
-  add_library(Eigen3::Eigen ALIAS Eigen3)
-
-  target_include_directories(Eigen3 INTERFACE ${Eigen3_SOURCE_DIR})
-endif()
+find_package(Eigen3 REQUIRED)
 
 CPMAddPackage(NAME dlib
   GITHUB_REPOSITORY davisking/dlib
@@ -52,6 +36,8 @@ CPMAddPackage(NAME dlib
     "DLIB_GIF_SUPPORT FALSE"
     "DLIB_USE_MKL_FFT FALSE"
     "DLIB_USE_FFMPEG FALSE"
+    "DLIB_USE_CUDA FALSE"
+    "DLIB_IN_PROJECT_BUILD FALSE"
 )
 
 CPMAddPackage(NAME nlohmann_json
