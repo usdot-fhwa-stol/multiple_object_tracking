@@ -34,3 +34,32 @@ target_link_libraries(cooperative_perception_coreLibrary
     dlib::dlib
     nlohmann_json::nlohmann_json
 )
+
+set_target_properties(cooperative_perception_coreLibrary PROPERTIES
+  POSITION_INDEPENDENT_CODE TRUE
+)
+
+include(GNUInstallDirs)
+
+install(TARGETS cooperative_perception_coreLibrary
+  EXPORT cooperative_perception_coreTargets
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/cooperative_perception
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING PATTERN *.hpp
+)
+
+install(FILES ${PROJECT_SOURCE_DIR}/cmake/cooperative_perception_coreConfig.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cooperative_perception_core
+)
+
+install(EXPORT cooperative_perception_coreTargets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cooperative_perception_core/cooperative_perception_core
+  FILE cooperative_perception_coreTargets.cmake
+  NAMESPACE cooperative_perception_core::
+)
