@@ -18,14 +18,14 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
-#define COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_UNSCENTED_TRANSFORM_HPP
+#define MULTIPLE_OBJECT_TRACKING_UNSCENTED_TRANSFORM_HPP
 
 #include <Eigen/Dense>
 #include <tuple>
 #include <vector>
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * @brief Generate the scaling factor lambda for generating sigma points
@@ -197,6 +197,6 @@ inline auto generate_sigma_points_and_weights(
   return {sigma_points, Wm, Wc};
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_UNSCENTED_TRANSFORM_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_UNSCENTED_TRANSFORM_HPP

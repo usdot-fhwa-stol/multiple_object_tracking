@@ -21,14 +21,14 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/unscented_transform.hpp>
-#include <cooperative_perception/utils.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/unscented_transform.hpp>
+#include <multiple_object_tracking/utils.hpp>
 
-#include "cooperative_perception/test/gmock_matchers.hpp"
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 /**
  * Test the generate_sigma_points function

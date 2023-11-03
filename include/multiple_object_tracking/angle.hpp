@@ -18,15 +18,15 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_ANGLE_HPP
-#define COOPERATIVE_PERCEPTION_ANGLE_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_ANGLE_HPP
+#define MULTIPLE_OBJECT_TRACKING_ANGLE_HPP
 
 #include <units.h>
 
 #include <boost/math/constants/constants.hpp>
 #include <complex>
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * @brief Angle type for representing and manipulating angles
@@ -123,5 +123,5 @@ inline auto operator/(Angle lhs, double rhs) -> Angle
   return lhs;
 }
 
-}  // namespace cooperative_perception
-#endif  // COOPERATIVE_PERCEPTION_ANGLE_HPP
+}  // namespace multiple_object_tracking
+#endif  // MULTIPLE_OBJECT_TRACKING_ANGLE_HPP

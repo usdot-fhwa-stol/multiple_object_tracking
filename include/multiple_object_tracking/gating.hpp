@@ -19,14 +19,14 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_GATING_HPP
-#define COOPERATIVE_PERCEPTION_GATING_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_GATING_HPP
+#define MULTIPLE_OBJECT_TRACKING_GATING_HPP
 
 #include <vector>
 
-#include "cooperative_perception/scoring.hpp"
+#include "multiple_object_tracking/scoring.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 template <typename UnaryPredicate>
 auto prune_track_and_detection_scores_if(ScoreMap & scores, UnaryPredicate should_prune) -> void
@@ -44,6 +44,6 @@ auto prune_track_and_detection_scores_if(ScoreMap & scores, UnaryPredicate shoul
   }
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_GATING_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_GATING_HPP

@@ -18,13 +18,13 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_AUGMENTED_STATE_HPP
-#define COOPERATIVE_PERCEPTION_AUGMENTED_STATE_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_AUGMENTED_STATE_HPP
+#define MULTIPLE_OBJECT_TRACKING_AUGMENTED_STATE_HPP
 
 #include <cstddef>
 #include <functional>
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * @brief Augmented state vector containing a motion model's state vector and its process noise vector
@@ -190,6 +190,6 @@ inline auto round_to_decimal_place(
 }
 }  // namespace utils
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_AUGMENTED_STATE_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_AUGMENTED_STATE_HPP

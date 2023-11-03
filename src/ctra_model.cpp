@@ -18,16 +18,16 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#include "cooperative_perception/ctra_model.hpp"
+#include "multiple_object_tracking/ctra_model.hpp"
 
 #include <units.h>
 
 #include <cmath>
 
-#include "cooperative_perception/units.hpp"
-#include "cooperative_perception/utils.hpp"
+#include "multiple_object_tracking/units.hpp"
+#include "multiple_object_tracking/utils.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 auto get_next_state(const CtraState & state, units::time::second_t time_step) -> CtraState
 {
@@ -100,4 +100,4 @@ auto print_state(const CtraState & state) -> void
   std::cout << "acceleration: " << state.acceleration << "\n";
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking

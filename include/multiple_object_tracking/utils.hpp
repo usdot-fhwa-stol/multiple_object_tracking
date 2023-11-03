@@ -18,19 +18,19 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_UTILS_HPP
-#define COOPERATIVE_PERCEPTION_UTILS_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_UTILS_HPP
+#define MULTIPLE_OBJECT_TRACKING_UTILS_HPP
 
 #include <Eigen/Dense>
 #include <cmath>
 #include <variant>
 #include <vector>
 
-#include "cooperative_perception/ctra_model.hpp"
-#include "cooperative_perception/ctrv_model.hpp"
-#include "cooperative_perception/visitor.hpp"
+#include "multiple_object_tracking/ctra_model.hpp"
+#include "multiple_object_tracking/ctrv_model.hpp"
+#include "multiple_object_tracking/visitor.hpp"
 
-namespace cooperative_perception::utils
+namespace multiple_object_tracking::utils
 {
 /**
  * @brief Rounds a float to the nearest decimal place. Useful for comparing covariance values
@@ -98,6 +98,6 @@ inline auto print_container(const EntityContainer & entities) -> void
   }
 }
 
-}  // namespace cooperative_perception::utils
+}  // namespace multiple_object_tracking::utils
 
-#endif  // COOPERATIVE_PERCEPTION_UTILS_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_UTILS_HPP

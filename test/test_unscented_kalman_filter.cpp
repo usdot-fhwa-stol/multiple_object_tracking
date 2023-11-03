@@ -21,15 +21,15 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/unscented_kalman_filter.hpp>
-#include <cooperative_perception/utils.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/unscented_kalman_filter.hpp>
+#include <multiple_object_tracking/utils.hpp>
 
-#include "cooperative_perception/test/gmock_matchers.hpp"
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 /**
  * Test the ComputeUnscentedTransform function given a CTRV state, covariance and time step

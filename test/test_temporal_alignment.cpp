@@ -21,18 +21,18 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/dynamic_object.hpp>
-#include <cooperative_perception/temporal_alignment.hpp>
-#include <cooperative_perception/unscented_kalman_filter.hpp>
-#include <cooperative_perception/utils.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/dynamic_object.hpp>
+#include <multiple_object_tracking/temporal_alignment.hpp>
+#include <multiple_object_tracking/unscented_kalman_filter.hpp>
+#include <multiple_object_tracking/utils.hpp>
 #include <variant>
 
-#include "cooperative_perception/test/gmock_matchers.hpp"
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 /**
  * Test the temporal alignment for a CTRV Detection at one second into the future

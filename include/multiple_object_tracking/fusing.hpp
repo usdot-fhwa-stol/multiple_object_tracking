@@ -19,18 +19,18 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_FUSING_HPP
-#define COOPERATIVE_PERCEPTION_FUSING_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_FUSING_HPP
+#define MULTIPLE_OBJECT_TRACKING_FUSING_HPP
 
 #include <Eigen/Dense>
 #include <tuple>
 #include <variant>
 
-#include "cooperative_perception/dynamic_object.hpp"
-#include "cooperative_perception/uuid.hpp"
-#include "cooperative_perception/visitor.hpp"
+#include "multiple_object_tracking/dynamic_object.hpp"
+#include "multiple_object_tracking/uuid.hpp"
+#include "multiple_object_tracking/visitor.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * @brief Compute the covariance intersection of two multivariate Gaussian distributions.
@@ -161,6 +161,6 @@ auto fuse_associations(
   return fused_tracks;
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_FUSING_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_FUSING_HPP

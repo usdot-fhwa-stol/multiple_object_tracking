@@ -21,13 +21,13 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/units.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/units.hpp>
 
-#include "cooperative_perception/test/gmock_matchers.hpp"
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 /**
  * Test CTRV get_next_state function against pure rotation

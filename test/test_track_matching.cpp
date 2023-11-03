@@ -22,11 +22,11 @@
 #include <dlib/optimization/max_cost_assignment.h>
 #include <gtest/gtest.h>
 
-#include <cooperative_perception/dynamic_object.hpp>
-#include <cooperative_perception/scoring.hpp>
-#include <cooperative_perception/track_matching.hpp>
+#include <multiple_object_tracking/dynamic_object.hpp>
+#include <multiple_object_tracking/scoring.hpp>
+#include <multiple_object_tracking/track_matching.hpp>
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 /**
  * Test dlib library installation using example from library

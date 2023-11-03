@@ -19,8 +19,8 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_SCORING_HPP
-#define COOPERATIVE_PERCEPTION_SCORING_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_SCORING_HPP
+#define MULTIPLE_OBJECT_TRACKING_SCORING_HPP
 
 #include <map>
 #include <optional>
@@ -29,10 +29,10 @@
 #include <variant>
 #include <vector>
 
-#include "cooperative_perception/uuid.hpp"
-#include "cooperative_perception/visitor.hpp"
+#include "multiple_object_tracking/uuid.hpp"
+#include "multiple_object_tracking/visitor.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 namespace detail
 {
@@ -111,6 +111,6 @@ auto score_tracks_and_detections(
   return scores;
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_SCORING_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_SCORING_HPP

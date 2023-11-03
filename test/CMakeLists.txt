@@ -14,7 +14,7 @@
 
 # Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
 
-add_executable(test_cooperative_perceptionExecutable
+add_executable(test_multiple_object_trackingExecutable
   test_angle.cpp
   test_ctrv_model.cpp
   test_ctra_model.cpp
@@ -31,21 +31,21 @@ add_executable(test_cooperative_perceptionExecutable
   test_track_management.cpp
 )
 
-target_include_directories(test_cooperative_perceptionExecutable
+target_include_directories(test_multiple_object_trackingExecutable
   PRIVATE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test>
 )
 
-target_link_libraries(test_cooperative_perceptionExecutable
+target_link_libraries(test_multiple_object_trackingExecutable
   PRIVATE
-  cooperative_perception::cooperative_perception
-  GTest::gtest
-  GTest::gtest_main
-  GTest::gmock
-  GTest::gmock_main
+    multiple_object_tracking::multiple_object_tracking
+    GTest::gtest
+    GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(test_cooperative_perceptionExecutable
+gtest_discover_tests(test_multiple_object_trackingExecutable
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
 )

@@ -18,8 +18,8 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
-#define COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_CTRV_MODEL_HPP
+#define MULTIPLE_OBJECT_TRACKING_CTRV_MODEL_HPP
 
 #include <math.h>
 #include <units.h>
@@ -29,14 +29,14 @@
 #include <boost/math/special_functions/next.hpp>
 #include <functional>
 
-#include "cooperative_perception/angle.hpp"
-#include "cooperative_perception/dynamic_object.hpp"
-#include "cooperative_perception/units.hpp"
+#include "multiple_object_tracking/angle.hpp"
+#include "multiple_object_tracking/dynamic_object.hpp"
+#include "multiple_object_tracking/units.hpp"
 
 /**
  * @brief State vector for the constant turn-rate and velocity (CTRV) motion model
  */
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 struct CtrvState
 {
@@ -464,6 +464,6 @@ inline auto round_to_decimal_place(const CtrvProcessNoise & noise, std::size_t d
 
 }  // namespace utils
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_CTRV_MODEL_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_CTRV_MODEL_HPP

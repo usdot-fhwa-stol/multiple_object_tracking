@@ -19,16 +19,16 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
-#define COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_TEMPORAL_ALIGNMENT_HPP
+#define MULTIPLE_OBJECT_TRACKING_TEMPORAL_ALIGNMENT_HPP
 
 #include <units.h>
 
 #include <variant>
 
-#include "cooperative_perception/unscented_kalman_filter.hpp"
+#include "multiple_object_tracking/unscented_kalman_filter.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * @brief Function object to predict a system's state and covariance using an unscented transform
@@ -106,7 +106,7 @@ auto propagate_to_time(
 {
   std::visit(
     [&propagator](auto & o, units::time::second_t t) {
-      cooperative_perception::propagate_to_time(o, t, propagator);
+      multiple_object_tracking::propagate_to_time(o, t, propagator);
     },
     object, std::variant<units::time::second_t>{time});
 }
@@ -131,6 +131,6 @@ auto predict_to_time(Object object, units::time::second_t time, const Propagator
   return object;
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_TEMPORAL_ALIGNMENT_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_TEMPORAL_ALIGNMENT_HPP

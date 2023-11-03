@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef COOPERATIVE_PERCEPTION_DYNAMIC_OBJECT_HPP
-#define COOPERATIVE_PERCEPTION_DYNAMIC_OBJECT_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_DYNAMIC_OBJECT_HPP
+#define MULTIPLE_OBJECT_TRACKING_DYNAMIC_OBJECT_HPP
 
 #include <units.h>
 
-#include "cooperative_perception/uuid.hpp"
+#include "multiple_object_tracking/uuid.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 template <typename State, typename StateCovariance, typename Tag>
 struct DynamicObject
@@ -98,6 +98,6 @@ auto make_track(const std::variant<Alternatives...> & detection) -> Track
   return std::visit([](const auto & d) { return make_track<Track>(d); }, detection);
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_DYNAMIC_OBJECT_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_DYNAMIC_OBJECT_HPP

@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <cooperative_perception/clustering.hpp>
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/json_parsing.hpp>
+#include <multiple_object_tracking/clustering.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/json_parsing.hpp>
 #include <fstream>
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 TEST(TestCluster, Empty)
 {

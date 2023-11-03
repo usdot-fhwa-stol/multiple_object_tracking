@@ -14,7 +14,7 @@ This class represents a detected object received from the host agent (HA) or a r
 
 ```cpp
 struct {
-    namespace cp = cooperative_perception;
+    namespace cp = multiple_object_tracking;
 
     std::chrono::time_point timestamp;
     cp::CtrvState state;
@@ -46,7 +46,7 @@ This class represents a remote agent that shares its own state and detected obje
 
 ```cpp
 struct {
-    namespace cp = cooperative_perception;
+    namespace cp = multiple_object_tracking;
 
     std::chrono::time_point timestamp;
     cp::CtrvState state;

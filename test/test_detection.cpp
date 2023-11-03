@@ -21,10 +21,10 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 TEST(TestDetection, CtrvDetectionDefaultConstruction)
 {

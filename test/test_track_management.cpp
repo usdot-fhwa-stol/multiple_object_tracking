@@ -17,11 +17,11 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/track_management.hpp>
-#include <cooperative_perception/uuid.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/track_management.hpp>
+#include <multiple_object_tracking/uuid.hpp>
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 TEST(TestTrackManagement, Simple)
 {

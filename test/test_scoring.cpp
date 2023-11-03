@@ -22,14 +22,14 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/dynamic_object.hpp>
-#include <cooperative_perception/json_parsing.hpp>
-#include <cooperative_perception/scoring.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/dynamic_object.hpp>
+#include <multiple_object_tracking/json_parsing.hpp>
+#include <multiple_object_tracking/scoring.hpp>
 #include <fstream>
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 using DetectionVariant = std::variant<cp::CtrvDetection, cp::CtraDetection>;
 using TrackVariant = std::variant<cp::CtrvTrack, cp::CtraTrack>;

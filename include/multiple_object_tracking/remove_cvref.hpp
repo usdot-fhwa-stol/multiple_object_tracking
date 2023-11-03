@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef COOPERATIVE_PERCEPTION_REMOVE_CVREF_HPP
-#define COOPERATIVE_PERCEPTION_REMOVE_CVREF_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_REMOVE_CVREF_HPP
+#define MULTIPLE_OBJECT_TRACKING_REMOVE_CVREF_HPP
 
 #include <type_traits>
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 template <typename T>
 struct remove_cvref
@@ -30,6 +30,6 @@ struct remove_cvref
 template <typename T>
 using remove_cvref_t = typename remove_cvref<T>::type;
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_REMOVE_CVREF_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_REMOVE_CVREF_HPP

@@ -50,6 +50,6 @@ CPMAddPackage(NAME nlohmann_json
 
 find_package(Boost REQUIRED COMPONENTS container)
 
-if(cooperative_perception_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
+if(multiple_object_tracking_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
   CPMAddPackage("gh:google/googletest#v1.14.0")
 endif()

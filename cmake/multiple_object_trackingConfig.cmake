@@ -20,4 +20,4 @@ find_dependency(Eigen3)
 find_dependency(nlohmann_json)
 find_dependency(units)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cooperative_perception_core/cooperative_perception_coreTargets.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/multiple_object_tracking/multiple_object_trackingTargets.cmake)

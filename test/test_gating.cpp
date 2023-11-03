@@ -21,10 +21,10 @@
 
 #include <gtest/gtest.h>
 
-#include <cooperative_perception/gating.hpp>
-#include <cooperative_perception/scoring.hpp>
+#include <multiple_object_tracking/gating.hpp>
+#include <multiple_object_tracking/scoring.hpp>
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 TEST(TestGating, TestPruning)
 {

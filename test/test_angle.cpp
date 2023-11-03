@@ -23,12 +23,12 @@
 #include <units.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/units.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/units.hpp>
 
 using namespace units::literals;
 
-namespace cp = cooperative_perception;
+namespace cp = multiple_object_tracking;
 
 /**
  * Test CTRV get_next_state function against pure rotation

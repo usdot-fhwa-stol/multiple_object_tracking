@@ -19,8 +19,8 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_TRACK_MATCHING_HPP
-#define COOPERATIVE_PERCEPTION_TRACK_MATCHING_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_TRACK_MATCHING_HPP
+#define MULTIPLE_OBJECT_TRACKING_TRACK_MATCHING_HPP
 
 #include <dlib/matrix.h>
 #include <dlib/optimization/max_cost_assignment.h>
@@ -31,10 +31,10 @@
 #include <unordered_set>
 #include <vector>
 
-#include "cooperative_perception/dynamic_object.hpp"
-#include "cooperative_perception/scoring.hpp"
+#include "multiple_object_tracking/dynamic_object.hpp"
+#include "multiple_object_tracking/scoring.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * @brief Definition of AssociationMap, which is a mapping of track UUIDs to vectors of detection UUIDs
@@ -305,6 +305,6 @@ inline auto associate_detections_to_tracks(
   return associations;
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_TRACK_MATCHING_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_TRACK_MATCHING_HPP
