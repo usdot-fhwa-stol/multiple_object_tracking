@@ -14,6 +14,7 @@ jobs:
       env:
         INIT_ENV: "/home/carma/.base-image/init-env.sh"
         ROS_2_ENV: "/opt/ros/foxy/setup.bash"
+        BUILD_WRAPPER_OUT_DIR: "$GITHUB_WORKSPACE/bw-output"
         TERM: xterm
       options: "--user root"
     steps:
@@ -26,21 +27,27 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y libdlib-dev
     - name: Move source code
       run: mv $GITHUB_WORKSPACE/src /opt/carma/
-    - name: Build
-      run: |
-        source "$INIT_ENV"
-        source "$ROS_2_ENV"
-        cd src/multiple_object_tracking
-        mkdir build
-        cd build
-        cmake ..
-        make
+    # - name: Build
+    #   run: |
+    #     source "$INIT_ENV"
+    #     source "$ROS_2_ENV"
+    #     cd src/multiple_object_tracking
+    #     mkdir build
+    #     cd build
+    #     cmake ..
+    #     make
+    - name: Install sonar-scanner and build-wrapper
+      uses: SonarSource/sonarcloud-github-c-cpp@v1
     - name: Run C++ Tests
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV"
-        cd /opt/carma/src/multiple_object_tracking/build
-        make test
+        chmod 755  -R /opt/carma/src
+        cd /opt/carma/src/multiple_object_tracking/
+        build-wrapper-linux-x86-64 --out-dir $GITHUB_WORKSPACE/bw-output ./build.sh
+        mkdir coverage
+        cd /opt/carma/src/multiple_object_tracking/coverage
+        gcov /opt/carma/src/*.cpp --object-directory /opt/carma/src/multiple_object_tracking/build/
     - name: Run SonarScanner
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
