@@ -3,7 +3,7 @@ Motion models
 
 Accurately tracking objects' motion is critical to perception tasks. Unfortunately, not all objects move the same way.
 Cyclists are agile enough to weave in and out of traffic, while buses must move carefully to avoid overturning. Our
-cooperative perception library provides several motion models that collectively represent all types of agents you
+multiple object tracking library provides several motion models that collectively represent all types of agents you
 might encounter on the roads.
 
 

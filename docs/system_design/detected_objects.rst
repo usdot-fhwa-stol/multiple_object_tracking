@@ -1,7 +1,7 @@
 Detected objects
 ================
 
-Detecting objects is critical to perception, and sharing those objects is critical to cooperative perception. Without
+Detecting objects is critical to perception, and sharing those objects is critical to multiple object tracking. Without
 the former, you couldn't see, and without the latter, your friends couldn't see. Detected objects move with different
 motion models depending on their type. Think about how you move when walking versus how your car moves when driving. We
 support the following object types, each with a different assumed motion model:
