@@ -112,14 +112,14 @@ inline constexpr auto CtrvStateNear =
     using ::testing::AllOf;
     using ::testing::Field;
 
-    namespace cp = multiple_object_tracking;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtrvState::position_x, DimensionedNear(state.position_x, max_abs_error)),
-      Field(&cp::CtrvState::position_y, DimensionedNear(state.position_y, max_abs_error)),
-      Field(&cp::CtrvState::velocity, DimensionedNear(state.velocity, max_abs_error)),
-      Field(&cp::CtrvState::yaw, AngleNear(state.yaw, max_abs_error)),
-      Field(&cp::CtrvState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)));
+      Field(&mot::CtrvState::position_x, DimensionedNear(state.position_x, max_abs_error)),
+      Field(&mot::CtrvState::position_y, DimensionedNear(state.position_y, max_abs_error)),
+      Field(&mot::CtrvState::velocity, DimensionedNear(state.velocity, max_abs_error)),
+      Field(&mot::CtrvState::yaw, AngleNear(state.yaw, max_abs_error)),
+      Field(&mot::CtrvState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)));
   };
 
 inline constexpr auto CtraStateNear =
@@ -127,15 +127,15 @@ inline constexpr auto CtraStateNear =
     using ::testing::AllOf;
     using ::testing::Field;
 
-    namespace cp = multiple_object_tracking;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtraState::position_x, DimensionedNear(state.position_x, max_abs_error)),
-      Field(&cp::CtraState::position_y, DimensionedNear(state.position_y, max_abs_error)),
-      Field(&cp::CtraState::velocity, DimensionedNear(state.velocity, max_abs_error)),
-      Field(&cp::CtraState::yaw, AngleNear(state.yaw, max_abs_error)),
-      Field(&cp::CtraState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)),
-      Field(&cp::CtraState::acceleration, DimensionedNear(state.acceleration, max_abs_error)));
+      Field(&mot::CtraState::position_x, DimensionedNear(state.position_x, max_abs_error)),
+      Field(&mot::CtraState::position_y, DimensionedNear(state.position_y, max_abs_error)),
+      Field(&mot::CtraState::velocity, DimensionedNear(state.velocity, max_abs_error)),
+      Field(&mot::CtraState::yaw, AngleNear(state.yaw, max_abs_error)),
+      Field(&mot::CtraState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)),
+      Field(&mot::CtraState::acceleration, DimensionedNear(state.acceleration, max_abs_error)));
   };
 
 inline constexpr auto CtrvTrackNear =
@@ -144,13 +144,13 @@ inline constexpr auto CtrvTrackNear =
     using ::testing::Eq;
     using ::testing::Field;
 
-    namespace cp = multiple_object_tracking;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtrvTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
-      Field(&cp::CtrvTrack::state, CtrvStateNear(track.state, max_abs_error)),
-      Field(&cp::CtrvTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
-      Field(&cp::CtrvTrack::uuid, Eq(track.uuid)));
+      Field(&mot::CtrvTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
+      Field(&mot::CtrvTrack::state, CtrvStateNear(track.state, max_abs_error)),
+      Field(&mot::CtrvTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
+      Field(&mot::CtrvTrack::uuid, Eq(track.uuid)));
   };
 
 inline constexpr auto CtraTrackNear =
@@ -159,13 +159,13 @@ inline constexpr auto CtraTrackNear =
     using ::testing::Eq;
     using ::testing::Field;
 
-    namespace cp = multiple_object_tracking;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtraTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
-      Field(&cp::CtraTrack::state, CtraStateNear(track.state, max_abs_error)),
-      Field(&cp::CtraTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
-      Field(&cp::CtraTrack::uuid, Eq(track.uuid)));
+      Field(&mot::CtraTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
+      Field(&mot::CtraTrack::state, CtraStateNear(track.state, max_abs_error)),
+      Field(&mot::CtraTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
+      Field(&mot::CtraTrack::uuid, Eq(track.uuid)));
   };
 
 namespace detail

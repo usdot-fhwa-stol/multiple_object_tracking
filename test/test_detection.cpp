@@ -24,15 +24,15 @@
 #include <multiple_object_tracking/angle.hpp>
 #include <multiple_object_tracking/ctrv_model.hpp>
 
-namespace cp = multiple_object_tracking;
+namespace mot = multiple_object_tracking;
 
 TEST(TestDetection, CtrvDetectionDefaultConstruction)
 {
   using namespace units::literals;
 
-  auto const detection = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{
-    units::time::second_t{0}, cp::CtrvState{0_m, 0_m, 0_mps, cp::Angle(0_rad), 0_rad_per_s},
-    cp::CtrvStateCovariance{}, cp::Uuid{""}};
+  auto const detection = mot::Detection<mot::CtrvState, mot::CtrvStateCovariance>{
+    units::time::second_t{0}, mot::CtrvState{0_m, 0_m, 0_mps, mot::Angle(0_rad), 0_rad_per_s},
+    mot::CtrvStateCovariance{}, mot::Uuid{""}};
 
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.timestamp), 0.0);
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.state.position_x), 0.0);
@@ -47,9 +47,9 @@ TEST(TestDetection, CtrvDetectionCustomConstruction)
   using namespace units::literals;
 
   // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-  auto const detection = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{
-    units::time::second_t{1}, cp::CtrvState{1_m, 2_m, 3_mps, 4_rad, 5_rad_per_s},
-    cp::CtrvStateCovariance{}, cp::Uuid{""}};
+  auto const detection = mot::Detection<mot::CtrvState, mot::CtrvStateCovariance>{
+    units::time::second_t{1}, mot::CtrvState{1_m, 2_m, 3_mps, 4_rad, 5_rad_per_s},
+    mot::CtrvStateCovariance{}, mot::Uuid{""}};
   // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
   EXPECT_DOUBLE_EQ(units::unit_cast<double>(detection.timestamp), 1.0);

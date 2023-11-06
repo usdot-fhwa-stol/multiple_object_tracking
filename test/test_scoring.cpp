@@ -29,25 +29,25 @@
 #include <multiple_object_tracking/scoring.hpp>
 #include <fstream>
 
-namespace cp = multiple_object_tracking;
+namespace mot = multiple_object_tracking;
 
-using DetectionVariant = std::variant<cp::CtrvDetection, cp::CtraDetection>;
-using TrackVariant = std::variant<cp::CtrvTrack, cp::CtraTrack>;
+using DetectionVariant = std::variant<mot::CtrvDetection, mot::CtraDetection>;
+using TrackVariant = std::variant<mot::CtrvTrack, mot::CtraTrack>;
 
 TEST(TestScoring, CtrvEuclideanDistance)
 {
   using namespace units::literals;
 
-  using TestDetection = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
-  using TestTrack = cp::Track<cp::CtrvState, cp::CtrvStateCovariance>;
+  using TestDetection = mot::Detection<mot::CtrvState, mot::CtrvStateCovariance>;
+  using TestTrack = mot::Track<mot::CtrvState, mot::CtrvStateCovariance>;
 
   const auto detection = TestDetection{
-    .state{cp::CtrvState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s}}, .uuid{cp::Uuid{""}}};
+    .state{mot::CtrvState{1_m, 2_m, 3_mps, mot::Angle(3_rad), 5_rad_per_s}}, .uuid{mot::Uuid{""}}};
 
   const auto track = TestTrack{
-    .state{cp::CtrvState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s}}, .uuid{cp::Uuid{""}}};
+    .state{mot::CtrvState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s}}, .uuid{mot::Uuid{""}}};
 
-  const auto score = cp::euclidean_distance_score(detection, track);
+  const auto score = mot::euclidean_distance_score(detection, track);
   ASSERT_TRUE(score.has_value());
   EXPECT_FLOAT_EQ(score.value(), 7.0710678118654755F);
 }
@@ -56,24 +56,24 @@ TEST(TestScoring, CtrvMahalanobisDistance)
 {
   using namespace units::literals;
 
-  using TestDetection = cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>;
-  using TestTrack = cp::Track<cp::CtrvState, cp::CtrvStateCovariance>;
+  using TestDetection = mot::Detection<mot::CtrvState, mot::CtrvStateCovariance>;
+  using TestTrack = mot::Track<mot::CtrvState, mot::CtrvStateCovariance>;
 
   const auto detection = TestDetection{
-    .state{cp::CtrvState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s}}, .uuid{cp::Uuid{""}}};
+    .state{mot::CtrvState{1_m, 2_m, 3_mps, mot::Angle(3_rad), 5_rad_per_s}}, .uuid{mot::Uuid{""}}};
 
-  cp::CtrvStateCovariance covariance;
+  mot::CtrvStateCovariance covariance;
   covariance << 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, -0.0013, 0.0077, 0.0011, 0.0071, 0.0060,
     0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, -0.0020,
     0.0060, 0.0008, 0.0100, 0.0123;
 
   const auto track = TestTrack{
-    .state{cp::CtrvState{5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s}},
+    .state{mot::CtrvState{5.7441_m, 1.3800_m, 2.2049_mps, mot::Angle(0.5015_rad), 0.3528_rad_per_s}},
     .covariance = covariance,
-    .uuid{cp::Uuid{""}}};
+    .uuid{mot::Uuid{""}}};
 
   const auto mahalanobis_dist =
-    cp::mahalanobis_distance(track.state, track.covariance, detection.state);
+    mot::mahalanobis_distance(track.state, track.covariance, detection.state);
   EXPECT_FLOAT_EQ(mahalanobis_dist, 74.37377728947332F);
 }
 
@@ -81,17 +81,17 @@ TEST(TestScoring, CtraEuclideanDistance)
 {
   using namespace units::literals;
 
-  const auto detection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>{
+  const auto detection = mot::Detection<mot::CtraState, mot::CtraStateCovariance>{
     .timestamp{units::time::second_t{0}},
-    .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
-    .uuid{cp::Uuid{""}}};
+    .state{mot::CtraState{1_m, 2_m, 3_mps, mot::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
+    .uuid{mot::Uuid{""}}};
 
-  const auto track = cp::Track<cp::CtraState, cp::CtraStateCovariance>{
+  const auto track = mot::Track<mot::CtraState, mot::CtraStateCovariance>{
     .timestamp{units::time::second_t{0}},
-    .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
-    .uuid{cp::Uuid{""}}};
+    .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
+    .uuid{mot::Uuid{""}}};
 
-  const auto score = cp::euclidean_distance_score(detection, track);
+  const auto score = mot::euclidean_distance_score(detection, track);
   ASSERT_TRUE(score.has_value());
   EXPECT_FLOAT_EQ(score.value(), 7.0710678118654755);
 }
@@ -100,26 +100,26 @@ TEST(TestScoring, CtraMahalanobisDistance)
 {
   using namespace units::literals;
 
-  using TestDetection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
-  using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
+  using TestDetection = mot::Detection<mot::CtraState, mot::CtraStateCovariance>;
+  using TestTrack = mot::Track<mot::CtraState, mot::CtraStateCovariance>;
 
   const auto detection = TestDetection{
-    .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
-    .uuid{cp::Uuid{""}}};
+    .state{mot::CtraState{1_m, 2_m, 3_mps, mot::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
+    .uuid{mot::Uuid{""}}};
 
-  cp::CtraStateCovariance covariance;
+  mot::CtraStateCovariance covariance;
   covariance << 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5, -0.0013, 0.0077, 0.0011, 0.0071,
     0.0060, 0.123, 0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34, -0.0022, 0.0071, 0.0007, 0.0098,
     0.0100, 0.009, -0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021, 0.5, 0.123, -0.34, 0.009,
     0.0021, -0.8701;
 
   const auto track = TestTrack{
-    .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
+    .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
     .covariance = covariance,
-    .uuid{cp::Uuid{""}}};
+    .uuid{mot::Uuid{""}}};
 
   const auto mahalanobis_dist =
-    cp::mahalanobis_distance(track.state, track.covariance, detection.state);
+    mot::mahalanobis_distance(track.state, track.covariance, detection.state);
   EXPECT_FLOAT_EQ(mahalanobis_dist, 122.3575692494651);
 }
 
@@ -127,38 +127,38 @@ TEST(TestScoring, TrackToDetectionScoringEuclidean)
 {
   using namespace units::literals;
 
-  using TestDetection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
-  using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
+  using TestDetection = mot::Detection<mot::CtraState, mot::CtraStateCovariance>;
+  using TestTrack = mot::Track<mot::CtraState, mot::CtraStateCovariance>;
 
   const std::vector<TrackVariant> tracks{
     TestTrack{
-      .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
-      .uuid{cp::Uuid{"test_track1"}}},
+      .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
+      .uuid{mot::Uuid{"test_track1"}}},
     TestTrack{
-      .state{cp::CtraState{8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
-      .uuid{cp::Uuid{"test_track2"}}},
-    cp::Track<cp::CtrvState, cp::CtrvStateCovariance>{
-      .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s}, .uuid{cp::Uuid{"test_track3"}}}};
+      .state{mot::CtraState{8_m, 2_m, 3_mps, mot::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
+      .uuid{mot::Uuid{"test_track2"}}},
+    mot::Track<mot::CtrvState, mot::CtrvStateCovariance>{
+      .state{1_m, 1_m, 1_mps, mot::Angle(1_rad), 1_rad_per_s}, .uuid{mot::Uuid{"test_track3"}}}};
 
   const std::vector<DetectionVariant> detections{
     TestDetection{
-      .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
-      .uuid{cp::Uuid{"test_detection1"}}},
+      .state{mot::CtraState{1_m, 2_m, 3_mps, mot::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
+      .uuid{mot::Uuid{"test_detection1"}}},
     TestDetection{
-      .state{cp::CtraState{2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq}},
-      .uuid{cp::Uuid{"test_detection2"}}},
-    cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{
-      .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s}, .uuid{cp::Uuid{"test_detection3"}}}};
+      .state{mot::CtraState{2_m, 3_m, 6_mps, mot::Angle(2_rad), 20_rad_per_s, 9_mps_sq}},
+      .uuid{mot::Uuid{"test_detection2"}}},
+    mot::Detection<mot::CtrvState, mot::CtrvStateCovariance>{
+      .state{1_m, 1_m, 1_mps, mot::Angle(1_rad), 1_rad_per_s}, .uuid{mot::Uuid{"test_detection3"}}}};
 
   const auto scores =
-    cp::score_tracks_and_detections(tracks, detections, cp::euclidean_distance_score);
+    mot::score_tracks_and_detections(tracks, detections, mot::euclidean_distance_score);
 
-  const cp::ScoreMap expected_scores{
-    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection1"}}, 7.0710678},
-    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection2"}}, 5.7445626},
-    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection1"}}, 7.2801099},
-    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection2"}}, 6.1644139},
-    {std::pair{cp::Uuid{"test_track3"}, cp::Uuid{"test_detection3"}}, 0.0},
+  const mot::ScoreMap expected_scores{
+    {std::pair{mot::Uuid{"test_track1"}, mot::Uuid{"test_detection1"}}, 7.0710678},
+    {std::pair{mot::Uuid{"test_track1"}, mot::Uuid{"test_detection2"}}, 5.7445626},
+    {std::pair{mot::Uuid{"test_track2"}, mot::Uuid{"test_detection1"}}, 7.2801099},
+    {std::pair{mot::Uuid{"test_track2"}, mot::Uuid{"test_detection2"}}, 6.1644139},
+    {std::pair{mot::Uuid{"test_track3"}, mot::Uuid{"test_detection3"}}, 0.0},
   };
 
   EXPECT_EQ(std::size(scores), std::size(expected_scores));
@@ -172,17 +172,17 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
 {
   using namespace units::literals;
 
-  using TestDetection = cp::Detection<cp::CtraState, cp::CtraStateCovariance>;
-  using TestTrack = cp::Track<cp::CtraState, cp::CtraStateCovariance>;
+  using TestDetection = mot::Detection<mot::CtraState, mot::CtraStateCovariance>;
+  using TestTrack = mot::Track<mot::CtraState, mot::CtraStateCovariance>;
 
   std::ifstream tracks_file{"data/test_scoring_track_to_detection_scoring_mahalanobis_tracks.json"};
   ASSERT_TRUE(tracks_file);
-  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
   // const std::vector<TrackVariant> tracks{
   //   TestTrack{
-  //     .state{cp::CtraState{6_m, 7_m, 8_mps, cp::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
-  //     .covariance{cp::CtraStateCovariance{
+  //     .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
+  //     .covariance{mot::CtraStateCovariance{
   //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
   //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
   //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
@@ -190,10 +190,10 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
   //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
   //       {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
   //     }},
-  //     .uuid{cp::Uuid{"test_track1"}}},
+  //     .uuid{mot::Uuid{"test_track1"}}},
   //   TestTrack{
-  //     .state{cp::CtraState{8_m, 2_m, 3_mps, cp::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
-  //     .covariance{cp::CtraStateCovariance{
+  //     .state{mot::CtraState{8_m, 2_m, 3_mps, mot::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
+  //     .covariance{mot::CtraStateCovariance{
   //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
   //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
   //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
@@ -201,36 +201,36 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
   //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
   //       {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
   //     }},
-  //     .uuid{cp::Uuid{"test_track2"}}},
-  //   cp::Track<cp::CtrvState, cp::CtrvStateCovariance>{
-  //     .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s},
-  //     .covariance{cp::CtrvStateCovariance{
+  //     .uuid{mot::Uuid{"test_track2"}}},
+  //   mot::Track<mot::CtrvState, mot::CtrvStateCovariance>{
+  //     .state{1_m, 1_m, 1_mps, mot::Angle(1_rad), 1_rad_per_s},
+  //     .covariance{mot::CtrvStateCovariance{
   //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020},
   //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060},
   //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008},
   //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100},
   //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
-  //     .uuid{cp::Uuid{"test_track3"}}}};
+  //     .uuid{mot::Uuid{"test_track3"}}}};
 
   const std::vector<DetectionVariant> detections{
     TestDetection{
-      .state{cp::CtraState{1_m, 2_m, 3_mps, cp::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
-      .uuid{cp::Uuid{"test_detection1"}}},
+      .state{mot::CtraState{1_m, 2_m, 3_mps, mot::Angle(3_rad), 5_rad_per_s, 6_mps_sq}},
+      .uuid{mot::Uuid{"test_detection1"}}},
     TestDetection{
-      .state{cp::CtraState{2_m, 3_m, 6_mps, cp::Angle(2_rad), 20_rad_per_s, 9_mps_sq}},
-      .uuid{cp::Uuid{"test_detection2"}}},
-    cp::Detection<cp::CtrvState, cp::CtrvStateCovariance>{
-      .state{1_m, 1_m, 1_mps, cp::Angle(1_rad), 1_rad_per_s}, .uuid{cp::Uuid{"test_detection3"}}}};
+      .state{mot::CtraState{2_m, 3_m, 6_mps, mot::Angle(2_rad), 20_rad_per_s, 9_mps_sq}},
+      .uuid{mot::Uuid{"test_detection2"}}},
+    mot::Detection<mot::CtrvState, mot::CtrvStateCovariance>{
+      .state{1_m, 1_m, 1_mps, mot::Angle(1_rad), 1_rad_per_s}, .uuid{mot::Uuid{"test_detection3"}}}};
 
   const auto scores =
-    cp::score_tracks_and_detections(tracks, detections, cp::mahalanobis_distance_score);
+    mot::score_tracks_and_detections(tracks, detections, mot::mahalanobis_distance_score);
 
-  const cp::ScoreMap expected_scores{
-    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection1"}}, 122.35757},
-    {std::pair{cp::Uuid{"test_track1"}, cp::Uuid{"test_detection2"}}, 90.688416},
-    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection1"}}, 109.70312},
-    {std::pair{cp::Uuid{"test_track2"}, cp::Uuid{"test_detection2"}}, 95.243896},
-    {std::pair{cp::Uuid{"test_track3"}, cp::Uuid{"test_detection3"}}, 0.0},
+  const mot::ScoreMap expected_scores{
+    {std::pair{mot::Uuid{"test_track1"}, mot::Uuid{"test_detection1"}}, 122.35757},
+    {std::pair{mot::Uuid{"test_track1"}, mot::Uuid{"test_detection2"}}, 90.688416},
+    {std::pair{mot::Uuid{"test_track2"}, mot::Uuid{"test_detection1"}}, 109.70312},
+    {std::pair{mot::Uuid{"test_track2"}, mot::Uuid{"test_detection2"}}, 95.243896},
+    {std::pair{mot::Uuid{"test_track3"}, mot::Uuid{"test_detection3"}}, 0.0},
   };
 
   EXPECT_EQ(std::size(scores), std::size(expected_scores));

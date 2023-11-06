@@ -28,7 +28,7 @@
 
 #include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = multiple_object_tracking;
+namespace mot = multiple_object_tracking;
 
 /**
  * Test the generate_sigma_points function
@@ -36,35 +36,35 @@ namespace cp = multiple_object_tracking;
 TEST(TestUnscentedTransform, GenerateSigmaPoints)
 {
   using namespace units::literals;
-  const cp::CtrvState state{
-    5.7441_m, 1.3800_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s};
-  cp::CtrvStateCovariance covariance;
+  const mot::CtrvState state{
+    5.7441_m, 1.3800_m, 2.2049_mps, mot::Angle(0.5015_rad), 0.3528_rad_per_s};
+  mot::CtrvStateCovariance covariance;
   covariance << 0.0043, -0.0013, 0.0030, -0.0022, -0.0020, -0.0013, 0.0077, 0.0011, 0.0071, 0.0060,
     0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.0022, 0.0071, 0.0007, 0.0098, 0.0100, -0.0020,
     0.0060, 0.0008, 0.0100, 0.0123;
   const auto alpha{1.0};
   const auto kappa{1.0};
-  const auto lambda{cp::generate_lambda(state.kNumVars, alpha, kappa)};
-  const auto sigma_points{cp::generate_sigma_points(state, covariance, lambda)};
+  const auto lambda{mot::generate_lambda(state.kNumVars, alpha, kappa)};
+  const auto sigma_points{mot::generate_sigma_points(state, covariance, lambda)};
 
-  const std::vector<cp::CtrvState> expected_sigma_points{
-    cp::CtrvState{
-      5.90472378_m, 1.33143932_m, 2.31696311_mps, cp::Angle(0.41932039_rad), 0.27809126_rad_per_s},
-    cp::CtrvState{
-      5.58347622_m, 1.42856068_m, 2.09283689_mps, cp::Angle(0.58367961_rad), 0.42750874_rad_per_s},
-    cp::CtrvState{
-      5.7441_m, 1.58938448_m, 2.26241076_mps, cp::Angle(0.68589429_rad), 0.50740598_rad_per_s},
-    cp::CtrvState{
-      5.7441_m, 1.17061552_m, 2.14738924_mps, cp::Angle(0.31710571_rad), 0.19819402_rad_per_s},
-    cp::CtrvState{
-      5.7441_m, 1.38_m, 2.33348605_mps, cp::Angle(0.52331144_rad), 0.38608966_rad_per_s},
-    cp::CtrvState{
-      5.7441_m, 1.38_m, 2.07631395_mps, cp::Angle(0.47968856_rad), 0.31951034_rad_per_s},
-    cp::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.63405006_rad), 0.53858573_rad_per_s},
-    cp::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.36894994_rad), 0.16701427_rad_per_s},
-    cp::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.44602584_rad_per_s},
-    cp::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.25957416_rad_per_s},
-    cp::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, cp::Angle(0.5015_rad), 0.3528_rad_per_s}
+  const std::vector<mot::CtrvState> expected_sigma_points{
+    mot::CtrvState{
+      5.90472378_m, 1.33143932_m, 2.31696311_mps, mot::Angle(0.41932039_rad), 0.27809126_rad_per_s},
+    mot::CtrvState{
+      5.58347622_m, 1.42856068_m, 2.09283689_mps, mot::Angle(0.58367961_rad), 0.42750874_rad_per_s},
+    mot::CtrvState{
+      5.7441_m, 1.58938448_m, 2.26241076_mps, mot::Angle(0.68589429_rad), 0.50740598_rad_per_s},
+    mot::CtrvState{
+      5.7441_m, 1.17061552_m, 2.14738924_mps, mot::Angle(0.31710571_rad), 0.19819402_rad_per_s},
+    mot::CtrvState{
+      5.7441_m, 1.38_m, 2.33348605_mps, mot::Angle(0.52331144_rad), 0.38608966_rad_per_s},
+    mot::CtrvState{
+      5.7441_m, 1.38_m, 2.07631395_mps, mot::Angle(0.47968856_rad), 0.31951034_rad_per_s},
+    mot::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, mot::Angle(0.63405006_rad), 0.53858573_rad_per_s},
+    mot::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, mot::Angle(0.36894994_rad), 0.16701427_rad_per_s},
+    mot::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, mot::Angle(0.5015_rad), 0.44602584_rad_per_s},
+    mot::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, mot::Angle(0.5015_rad), 0.25957416_rad_per_s},
+    mot::CtrvState{5.7441_m, 1.38_m, 2.2049_mps, mot::Angle(0.5015_rad), 0.3528_rad_per_s}
 
   };
 
@@ -93,10 +93,10 @@ TEST(TestUnscentedTransform, GenerateWeights)
   const auto alpha{1.0};
   const auto beta{2.0};
   const auto kappa{1.0};
-  const auto lambda{cp::generate_lambda(n, alpha, kappa)};
+  const auto lambda{mot::generate_lambda(n, alpha, kappa)};
 
   // Call the function under test
-  const auto [Wm, Wc] = cp::generate_weights(n, alpha, beta, lambda);
+  const auto [Wm, Wc] = mot::generate_weights(n, alpha, beta, lambda);
 
   // Define the expected output
   Eigen::VectorXf expected_Wm(11);
@@ -143,7 +143,7 @@ TEST(TestUnscentedTransform, ComputeUnscentedTransformPureEigen)
     0.006, 0.003, 0.0011, 0.0054, 0.0007, 0.0008, -0.0022, 0.0071, 0.0007, 0.0098, 0.01, -0.002,
     0.006, 0.0008, 0.01, 0.0123;
 
-  const auto transform_res{cp::compute_unscented_transform(sigma_points, Wm, Wc)};
+  const auto transform_res{mot::compute_unscented_transform(sigma_points, Wm, Wc)};
   const auto result_state{std::get<0>(transform_res)};
   const auto result_covariance{std::get<1>(transform_res)};
 

@@ -24,20 +24,20 @@
 #include <multiple_object_tracking/gating.hpp>
 #include <multiple_object_tracking/scoring.hpp>
 
-namespace cp = multiple_object_tracking;
+namespace mot = multiple_object_tracking;
 
 TEST(TestGating, TestPruning)
 {
-  cp::ScoreMap scores{
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection1"}}, 10.0},
-    {{cp::Uuid{"track2"}, cp::Uuid{"detection2"}}, 20.0},
-    {{cp::Uuid{"track3"}, cp::Uuid{"detection3"}}, 30.0}};
+  mot::ScoreMap scores{
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection1"}}, 10.0},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection2"}}, 20.0},
+    {{mot::Uuid{"track3"}, mot::Uuid{"detection3"}}, 30.0}};
 
-  const cp::ScoreMap expected_pruned_scores{
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection1"}}, 10.0},
-    {{cp::Uuid{"track2"}, cp::Uuid{"detection2"}}, 20.0}};
+  const mot::ScoreMap expected_pruned_scores{
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection1"}}, 10.0},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection2"}}, 20.0}};
 
-  cp::prune_track_and_detection_scores_if(scores, [](const auto & score) { return score > 25.0; });
+  mot::prune_track_and_detection_scores_if(scores, [](const auto & score) { return score > 25.0; });
 
   EXPECT_EQ(std::size(scores), std::size(expected_pruned_scores));
 
