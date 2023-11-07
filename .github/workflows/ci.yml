@@ -14,40 +14,45 @@ jobs:
       env:
         INIT_ENV: "/home/carma/.base-image/init-env.sh"
         ROS_2_ENV: "/opt/ros/foxy/setup.bash"
-        BUILD_WRAPPER_OUT_DIR: "$GITHUB_WORKSPACE/bw-output"
+        BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
       options: "--user root"
     steps:
     - name: Checkout ${{ github.event.repository.name }}
       uses: actions/checkout@v3.3.0
       with:
-        fetch-depth: 0
+        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
         path: src/${{ github.event.repository.name }}
     - name: Install Dlib
       run: sudo apt-get update && sudo apt-get install -y libdlib-dev
     - name: Move source code
       run: mv $GITHUB_WORKSPACE/src /opt/carma/
-    # - name: Build
-    #   run: |
-    #     source "$INIT_ENV"
-    #     source "$ROS_2_ENV"
-    #     cd src/multiple_object_tracking
-    #     mkdir build
-    #     cd build
-    #     cmake ..
-    #     make
+    - name: Set up Python 3.8 for gcovr
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install Gcovr
+      run: |
+        curl -o gcovr https://raw.githubusercontent.com/gcovr/gcovr/master/scripts/gcovr
+        chmod +x gcovr
     - name: Install sonar-scanner and build-wrapper
       uses: SonarSource/sonarcloud-github-c-cpp@v1
-    - name: Run C++ Tests
+    - name: Build & Run Tests
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV"
         chmod 755  -R /opt/carma/src
         cd /opt/carma/src/multiple_object_tracking/
-        build-wrapper-linux-x86-64 --out-dir $GITHUB_WORKSPACE/bw-output ./build.sh
-        mkdir coverage
-        cd /opt/carma/src/multiple_object_tracking/coverage
-        gcov /opt/carma/src/*.cpp --object-directory /opt/carma/src/multiple_object_tracking/build/
+        mkdir build
+        cmake -S . -B build
+        build-wrapper-linux-x86-64 --out-dir /opt/carma/src/multiple_object_tracking/build/bw-output cmake --build build/ --config Release
+        cd build
+        ctest --output-on-failure
+        gcovr --sonarqube > coverage.xml
+    - name: Find coverage.xml
+      shell: bash
+      run: |
+        find "/opt/carma/src/multiple_object_tracking/build/" -name "coverage.xml"
     - name: Run SonarScanner
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
