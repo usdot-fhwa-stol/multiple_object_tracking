@@ -1,59 +1,78 @@
 name: CI
 on:
-  push:
-  pull_request:
+  push:  # Trigger workflow on a push event
+  pull_request:  # Trigger workflow on a pull request event
+
 jobs:
-  build:
-    defaults:
+  build:  # Define a job named 'build'
+    defaults:  # Set default values for the job
       run:
         shell: bash
         working-directory: "/opt/carma/"
-    runs-on: ubuntu-latest
-    container:
-      image: usdotfhwastoldev/autoware.ai:develop
-      env:
+    runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
+
+    container:  # Use a Docker container as the execution environment
+      image: usdotfhwastoldev/carma-base:upgrade_sonar_scanner  # Docker image to use
+      env:  # Define environment variables for the container
         INIT_ENV: "/home/carma/.base-image/init-env.sh"
         ROS_2_ENV: "/opt/ros/foxy/setup.bash"
         BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
-      options: "--user root"
-    steps:
-    - name: Checkout ${{ github.event.repository.name }}
+      options: "--user root"  # Additional Docker container options to set permissions
+
+    steps:  # Define a series of steps to execute in the job
+    - name: Checkout ${{ github.event.repository.name }}  # Checkout the repository
       uses: actions/checkout@v3.3.0
       with:
-        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-        path: src/${{ github.event.repository.name }}
-    - name: Install Dlib
+        fetch-depth: 0  # Disable shallow clones for better analysis relevance
+        path: src/${{ github.event.repository.name }}  # Specify the destination path
+
+    - name: Install Dlib  # Install the Dlib library
       run: sudo apt-get update && sudo apt-get install -y libdlib-dev
-    - name: Move source code
+
+    - name: Move source code  # Move the source code to the desired location
       run: mv $GITHUB_WORKSPACE/src /opt/carma/
-    - name: Set up Python 3.8 for gcovr
+
+    - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: Install Gcovr
+
+    - name: Install Gcovr 5.0  # Install Gcovr 5.0
       run: |
-        curl -o gcovr https://raw.githubusercontent.com/gcovr/gcovr/master/scripts/gcovr
+        curl -L -o gcovr https://github.com/gcovr/gcovr/archive/5.0.tar.gz
+        tar -xzvf gcovr
+        cd gcovr-5.0
         chmod +x gcovr
-    - name: Install sonar-scanner and build-wrapper
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
+      with:
+        java-version: 17
+        distribution: "temurin"
+
+    - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
       uses: SonarSource/sonarcloud-github-c-cpp@v1
-    - name: Build & Run Tests
+
+    - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
         source "$INIT_ENV"
         source "$ROS_2_ENV"
-        chmod 755  -R /opt/carma/src
+        chmod 755 -R /opt/carma/src
         cd /opt/carma/src/multiple_object_tracking/
         mkdir build
         cmake -S . -B build
         build-wrapper-linux-x86-64 --out-dir /opt/carma/src/multiple_object_tracking/build/bw-output cmake --build build/ --config Release
         cd build
         ctest --output-on-failure
-        gcovr --sonarqube > coverage.xml
-    - name: Find coverage.xml
+        gcovr --sonarqube coverage.xml -k -r .
+
+    - name: Find coverage.xml  # Find the coverage.xml file
       shell: bash
       run: |
         find "/opt/carma/src/multiple_object_tracking/build/" -name "coverage.xml"
-    - name: Run SonarScanner
+
+    - name: Run SonarScanner  # Run SonarScanner for code analysis
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
