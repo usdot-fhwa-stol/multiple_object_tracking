@@ -41,6 +41,3 @@ include(dependencies.cmake)
 
 add_subdirectory(src)
 
-if(cooperative_perception_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
-  add_subdirectory(test)
-endif()
