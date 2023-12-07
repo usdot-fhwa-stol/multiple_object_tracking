@@ -14,19 +14,19 @@
 
 # Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
 
-add_library(multiple_object_trackingLibrary
+add_library(multiple_object_tracking
   ctrv_model.cpp
   ctra_model.cpp
 )
 
-add_library(multiple_object_tracking::multiple_object_tracking ALIAS multiple_object_trackingLibrary)
+add_library(multiple_object_tracking::multiple_object_tracking ALIAS multiple_object_tracking)
 
-target_include_directories(multiple_object_trackingLibrary
+target_include_directories(multiple_object_tracking
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
 
-target_link_libraries(multiple_object_trackingLibrary
+target_link_libraries(multiple_object_tracking
   PUBLIC
     Boost::container
     Eigen3::Eigen
@@ -35,13 +35,13 @@ target_link_libraries(multiple_object_trackingLibrary
     nlohmann_json::nlohmann_json
 )
 
-set_target_properties(multiple_object_trackingLibrary PROPERTIES
+set_target_properties(multiple_object_tracking PROPERTIES
   POSITION_INDEPENDENT_CODE TRUE
 )
 
 include(GNUInstallDirs)
 
-install(TARGETS multiple_object_trackingLibrary
+install(TARGETS multiple_object_tracking
   EXPORT multiple_object_trackingTargets
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
