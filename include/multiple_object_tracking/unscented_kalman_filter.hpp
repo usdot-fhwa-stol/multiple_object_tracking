@@ -18,17 +18,17 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
-#define COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_UNSCENTED_KALMAN_FILTER_HPP
+#define MULTIPLE_OBJECT_TRACKING_UNSCENTED_KALMAN_FILTER_HPP
 
 #include <units.h>
 
 #include <tuple>
 #include <vector>
 
-#include "cooperative_perception/unscented_transform.hpp"
+#include "multiple_object_tracking/unscented_transform.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
  * This library breaks apart the UKF structure into two functions:
@@ -135,6 +135,6 @@ private:
   float kappa_;
 };
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_UNSCENTED_KALMAN_FILTER_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_UNSCENTED_KALMAN_FILTER_HPP

@@ -23,12 +23,12 @@
 #include <units.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/units.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/units.hpp>
 
 using namespace units::literals;
 
-namespace cp = cooperative_perception;
+namespace mot = multiple_object_tracking;
 
 /**
  * Test CTRV get_next_state function against pure rotation
@@ -36,17 +36,17 @@ namespace cp = cooperative_perception;
 TEST(TestAngle, AngleArithmeticOperations)
 {
   // Define some known angles
-  const auto angle_pi{cp::Angle{3.141592654_rad}};
-  const auto angle_pi_2{cp::Angle{1.570796327_rad}};
-  const auto angle_pi_4{cp::Angle{0.785398163_rad}};
-  const auto angle_pi_6{cp::Angle{0.523598776_rad}};
+  const auto angle_pi{mot::Angle{3.141592654_rad}};
+  const auto angle_pi_2{mot::Angle{1.570796327_rad}};
+  const auto angle_pi_4{mot::Angle{0.785398163_rad}};
+  const auto angle_pi_6{mot::Angle{0.523598776_rad}};
 
   // Perform additive and scalar operations
-  auto res1 = cp::remove_units((angle_pi / 2.0).get_angle());
-  auto res2 = cp::remove_units((angle_pi_4 * 2.0).get_angle());
-  auto res3 = cp::remove_units((angle_pi + angle_pi_2).get_angle());
-  auto res4 = cp::remove_units((angle_pi - angle_pi_4).get_angle());
-  auto res5 = cp::remove_units((angle_pi * 2.2).get_angle());
+  auto res1 = mot::remove_units((angle_pi / 2.0).get_angle());
+  auto res2 = mot::remove_units((angle_pi_4 * 2.0).get_angle());
+  auto res3 = mot::remove_units((angle_pi + angle_pi_2).get_angle());
+  auto res4 = mot::remove_units((angle_pi - angle_pi_4).get_angle());
+  auto res5 = mot::remove_units((angle_pi * 2.2).get_angle());
 
   // Set tolerance for these tests
   constexpr double tolerance = 1.e-8;
@@ -62,13 +62,13 @@ TEST(TestAngle, AngleBooleanOperations)
 {
   static constexpr double tolerance{1.e-8};
 
-  const auto angle_pi{cp::Angle{3.141592654_rad}};
-  const auto angle_pi_2{cp::Angle{1.570796327_rad}};
+  const auto angle_pi{mot::Angle{3.141592654_rad}};
+  const auto angle_pi_2{mot::Angle{1.570796327_rad}};
   const auto angle_difference{angle_pi - angle_pi_2};
 
-  const auto angle_pi_raw{cp::remove_units(angle_pi.get_angle())};
-  const auto angle_pi_2_raw{cp::remove_units(angle_pi_2.get_angle())};
-  const auto angle_difference_raw{cp::remove_units(angle_difference.get_angle())};
+  const auto angle_pi_raw{mot::remove_units(angle_pi.get_angle())};
+  const auto angle_pi_2_raw{mot::remove_units(angle_pi_2.get_angle())};
+  const auto angle_difference_raw{mot::remove_units(angle_difference.get_angle())};
 
   using ::testing::DoubleNear;
   using ::testing::Not;

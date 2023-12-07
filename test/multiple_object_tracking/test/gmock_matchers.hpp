@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef COOPERATIVE_PERCEPTION_TEST_MATCHERS_HPP
-#define COOPERATIVE_PERCEPTION_TEST_MATCHERS_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_TEST_MATCHERS_HPP
+#define MULTIPLE_OBJECT_TRACKING_TEST_MATCHERS_HPP
 
 #include <gmock/gmock.h>
 
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/units.hpp>
-#include <cooperative_perception/visitor.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/units.hpp>
+#include <multiple_object_tracking/visitor.hpp>
 #include <iostream>
 #include <type_traits>
 
@@ -49,7 +49,7 @@ public:
       *os << "absolute difference: " << absolute_difference;
     }
 
-    return cooperative_perception::remove_units(absolute_difference) <= max_abs_error_;
+    return multiple_object_tracking::remove_units(absolute_difference) <= max_abs_error_;
   }
 
   auto DescribeTo(std::ostream * os) const -> void
@@ -82,7 +82,7 @@ auto DimensionedNear(units::unit_t<Unit> expected, double max_abs_error)
 
 MATCHER_P2(AngleNear, angle, max_abs_error, "")
 {
-  return cooperative_perception::remove_units(
+  return multiple_object_tracking::remove_units(
            units::math::abs((arg.get_angle() - angle.get_angle()))) <= max_abs_error;
 }
 
@@ -108,64 +108,64 @@ MATCHER_P2(EigenMatrixNear, matrix, max_abs_error, "")
 }
 
 inline constexpr auto CtrvStateNear =
-  [](const cooperative_perception::CtrvState & state, double max_abs_error) {
+  [](const multiple_object_tracking::CtrvState & state, double max_abs_error) {
     using ::testing::AllOf;
     using ::testing::Field;
 
-    namespace cp = cooperative_perception;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtrvState::position_x, DimensionedNear(state.position_x, max_abs_error)),
-      Field(&cp::CtrvState::position_y, DimensionedNear(state.position_y, max_abs_error)),
-      Field(&cp::CtrvState::velocity, DimensionedNear(state.velocity, max_abs_error)),
-      Field(&cp::CtrvState::yaw, AngleNear(state.yaw, max_abs_error)),
-      Field(&cp::CtrvState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)));
+      Field(&mot::CtrvState::position_x, DimensionedNear(state.position_x, max_abs_error)),
+      Field(&mot::CtrvState::position_y, DimensionedNear(state.position_y, max_abs_error)),
+      Field(&mot::CtrvState::velocity, DimensionedNear(state.velocity, max_abs_error)),
+      Field(&mot::CtrvState::yaw, AngleNear(state.yaw, max_abs_error)),
+      Field(&mot::CtrvState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)));
   };
 
 inline constexpr auto CtraStateNear =
-  [](const cooperative_perception::CtraState & state, double max_abs_error) {
+  [](const multiple_object_tracking::CtraState & state, double max_abs_error) {
     using ::testing::AllOf;
     using ::testing::Field;
 
-    namespace cp = cooperative_perception;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtraState::position_x, DimensionedNear(state.position_x, max_abs_error)),
-      Field(&cp::CtraState::position_y, DimensionedNear(state.position_y, max_abs_error)),
-      Field(&cp::CtraState::velocity, DimensionedNear(state.velocity, max_abs_error)),
-      Field(&cp::CtraState::yaw, AngleNear(state.yaw, max_abs_error)),
-      Field(&cp::CtraState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)),
-      Field(&cp::CtraState::acceleration, DimensionedNear(state.acceleration, max_abs_error)));
+      Field(&mot::CtraState::position_x, DimensionedNear(state.position_x, max_abs_error)),
+      Field(&mot::CtraState::position_y, DimensionedNear(state.position_y, max_abs_error)),
+      Field(&mot::CtraState::velocity, DimensionedNear(state.velocity, max_abs_error)),
+      Field(&mot::CtraState::yaw, AngleNear(state.yaw, max_abs_error)),
+      Field(&mot::CtraState::yaw_rate, DimensionedNear(state.yaw_rate, max_abs_error)),
+      Field(&mot::CtraState::acceleration, DimensionedNear(state.acceleration, max_abs_error)));
   };
 
 inline constexpr auto CtrvTrackNear =
-  [](const cooperative_perception::CtrvTrack & track, double max_abs_error) {
+  [](const multiple_object_tracking::CtrvTrack & track, double max_abs_error) {
     using ::testing::AllOf;
     using ::testing::Eq;
     using ::testing::Field;
 
-    namespace cp = cooperative_perception;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtrvTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
-      Field(&cp::CtrvTrack::state, CtrvStateNear(track.state, max_abs_error)),
-      Field(&cp::CtrvTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
-      Field(&cp::CtrvTrack::uuid, Eq(track.uuid)));
+      Field(&mot::CtrvTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
+      Field(&mot::CtrvTrack::state, CtrvStateNear(track.state, max_abs_error)),
+      Field(&mot::CtrvTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
+      Field(&mot::CtrvTrack::uuid, Eq(track.uuid)));
   };
 
 inline constexpr auto CtraTrackNear =
-  [](const cooperative_perception::CtraTrack & track, double max_abs_error) {
+  [](const multiple_object_tracking::CtraTrack & track, double max_abs_error) {
     using ::testing::AllOf;
     using ::testing::Eq;
     using ::testing::Field;
 
-    namespace cp = cooperative_perception;
+    namespace mot = multiple_object_tracking;
 
     return AllOf(
-      Field(&cp::CtraTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
-      Field(&cp::CtraTrack::state, CtraStateNear(track.state, max_abs_error)),
-      Field(&cp::CtraTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
-      Field(&cp::CtraTrack::uuid, Eq(track.uuid)));
+      Field(&mot::CtraTrack::timestamp, DimensionedNear(track.timestamp, max_abs_error)),
+      Field(&mot::CtraTrack::state, CtraStateNear(track.state, max_abs_error)),
+      Field(&mot::CtraTrack::covariance, EigenMatrixNear(track.covariance, max_abs_error)),
+      Field(&mot::CtraTrack::uuid, Eq(track.uuid)));
   };
 
 namespace detail
@@ -179,7 +179,7 @@ public:
 
   auto MatchAndExplain(
     const std::tuple<
-      const cooperative_perception::CtrvTrack &, const cooperative_perception::CtrvTrack &> & arg,
+      const multiple_object_tracking::CtrvTrack &, const multiple_object_tracking::CtrvTrack &> & arg,
     std::ostream *) const -> bool
   {
     using ::testing::Matches;
@@ -192,7 +192,7 @@ public:
 
   auto MatchAndExplain(
     const std::tuple<
-      const cooperative_perception::CtraTrack &, const cooperative_perception::CtraTrack &> & arg,
+      const multiple_object_tracking::CtraTrack &, const multiple_object_tracking::CtraTrack &> & arg,
     std::ostream *) const -> bool
   {
     using ::testing::Matches;
@@ -209,10 +209,10 @@ public:
       arg,
     std::ostream *) const -> bool
   {
-    using cooperative_perception::CtraTrack;
-    using cooperative_perception::CtrvTrack;
+    using multiple_object_tracking::CtraTrack;
+    using multiple_object_tracking::CtrvTrack;
 
-    const cooperative_perception::Visitor visitor{
+    const multiple_object_tracking::Visitor visitor{
       [this](const CtrvTrack & actual, const CtrvTrack & expected) {
         return Matches(CtrvTrackNear(expected, max_abs_error_))(actual);
       },
@@ -249,7 +249,7 @@ inline auto PointwiseTrackNear(double max_abs_error) noexcept -> detail::Pointwi
   return detail::PointwiseTrackNearMatcher{max_abs_error};
 }
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 inline auto PrintTo(const CtrvTrack & track, std::ostream * os) noexcept -> void
 {
@@ -280,6 +280,6 @@ inline auto PrintTo(const CtraTrack & track, std::ostream * os) noexcept -> void
   *os << "    uuid: " << track.uuid.value() << '\n';
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_TEST_MATCHERS_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_TEST_MATCHERS_HPP

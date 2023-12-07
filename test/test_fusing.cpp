@@ -23,21 +23,21 @@
 #include <gtest/gtest.h>
 
 #include <Eigen/Dense>
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/dynamic_object.hpp>
-#include <cooperative_perception/fusing.hpp>
-#include <cooperative_perception/json_parsing.hpp>
-#include <cooperative_perception/track_matching.hpp>
-#include <cooperative_perception/utils.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/dynamic_object.hpp>
+#include <multiple_object_tracking/fusing.hpp>
+#include <multiple_object_tracking/json_parsing.hpp>
+#include <multiple_object_tracking/track_matching.hpp>
+#include <multiple_object_tracking/utils.hpp>
 
-#include "cooperative_perception/test/gmock_matchers.hpp"
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = cooperative_perception;
+namespace mot = multiple_object_tracking;
 
-using DetectionVariant = std::variant<cp::CtrvDetection, cp::CtraDetection>;
-using TrackVariant = std::variant<cp::CtrvTrack, cp::CtraTrack>;
+using DetectionVariant = std::variant<mot::CtrvDetection, mot::CtraDetection>;
+using TrackVariant = std::variant<mot::CtrvTrack, mot::CtraTrack>;
 
 /**
  * Test the generate_weight function
@@ -55,7 +55,7 @@ TEST(TestFusing, GenerateWeight)
   const auto expected_weight{0.5895104895104895};
 
   // Call the function under test
-  const auto result_weight{cp::generate_weight(covariance1.inverse(), covariance2.inverse())};
+  const auto result_weight{mot::generate_weight(covariance1.inverse(), covariance2.inverse())};
 
   // Check that function returns expected value
   EXPECT_FLOAT_EQ(result_weight, expected_weight);
@@ -85,10 +85,10 @@ TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
   const auto inverse_covariance2{covariance2.inverse()};
 
   // Generate weight for CI function
-  const auto weight{cp::generate_weight(inverse_covariance1, inverse_covariance2)};
+  const auto weight{mot::generate_weight(inverse_covariance1, inverse_covariance2)};
 
   // Call the function under test
-  const auto [result_mean, result_covariance]{cp::compute_covariance_intersection(
+  const auto [result_mean, result_covariance]{mot::compute_covariance_intersection(
     mean1, inverse_covariance1, mean2, inverse_covariance2, weight)};
 
   static constexpr double tolerance{1.e-6};
@@ -104,26 +104,26 @@ TEST(TestFusing, CtrvTracksAndDetections)
 {
   using namespace units::literals;
 
-  const cp::AssociationMap associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
+  const mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_ctrv_tracks_and_detections_tracks.json"};
   ASSERT_TRUE(tracks_file);
-  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
   std::ifstream detections_file{"data/test_fusing_ctrv_tracks_and_detections_detections.json"};
   ASSERT_TRUE(detections_file);
-  const auto detections{cp::detections_from_json_file<DetectionVariant>(detections_file)};
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
   std::ifstream expected_tracks_file{
     "data/test_fusing_ctrv_tracks_and_detections_expected_tracks.json"};
   ASSERT_TRUE(expected_tracks_file);
-  const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
   const auto result_tracks{
-    cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
   ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
 
@@ -139,26 +139,26 @@ TEST(TestFusing, CtraTracksAndDetections)
 {
   using namespace units::literals;
 
-  cp::AssociationMap associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
+  mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_ctra_tracks_and_detections_tracks.json"};
   ASSERT_TRUE(tracks_file);
-  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
   std::ifstream detections_file{"data/test_fusing_ctra_tracks_and_detections_detections.json"};
   ASSERT_TRUE(detections_file);
-  const auto detections{cp::detections_from_json_file<DetectionVariant>(detections_file)};
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
   std::ifstream expected_tracks_file{
     "data/test_fusing_ctra_tracks_and_detections_expected_tracks.json"};
   ASSERT_TRUE(expected_tracks_file);
-  const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
   const auto result_tracks{
-    cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
   ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
 
@@ -174,26 +174,26 @@ TEST(TestFusing, MixedTracksAndDetections)
 {
   using namespace units::literals;
 
-  cp::AssociationMap associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
+  mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_mixed_tracks_and_detections_tracks.json"};
   ASSERT_TRUE(tracks_file);
-  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
   std::ifstream detections_file{"data/test_fusing_mixed_tracks_and_detections_detections.json"};
   ASSERT_TRUE(detections_file);
-  const auto detections{cp::detections_from_json_file<DetectionVariant>(detections_file)};
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
   std::ifstream expected_tracks_file{
     "data/test_fusing_mixed_tracks_and_detections_expected_tracks.json"};
   ASSERT_TRUE(expected_tracks_file);
-  const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
   const auto result_tracks{
-    cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
   using ::testing::Pointwise;
 
@@ -208,23 +208,23 @@ TEST(TestFusing, UnmatchedAssociations)
   using namespace units::literals;
 
   // Declaring initial values
-  cp::AssociationMap associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection4"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection5"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection6"}}}};
+  mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection4"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection5"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection6"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_unmatched_associations_tracks.json"};
   ASSERT_TRUE(tracks_file);
-  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
   std::ifstream detections_file{"data/test_fusing_unmatched_associations_detections.json"};
   ASSERT_TRUE(detections_file);
-  const auto detections{cp::detections_from_json_file<DetectionVariant>(detections_file)};
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
   std::vector<TrackVariant> expected_tracks;
 
   const auto result_tracks{
-    cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
   using ::testing::Pointwise;
 
@@ -238,26 +238,26 @@ TEST(TestFusing, PartialMatchedAssociations)
 {
   using namespace units::literals;
 
-  cp::AssociationMap associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection4"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
+  mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection4"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
   std::ifstream tracks_file{"data/test_fusing_partial_matched_associations_tracks.json"};
   ASSERT_TRUE(tracks_file);
-  const auto tracks{cp::tracks_from_json_file<TrackVariant>(tracks_file)};
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
   std::ifstream detections_file{"data/test_fusing_partial_matched_associations_detections.json"};
   ASSERT_TRUE(detections_file);
-  const auto detections{cp::detections_from_json_file<DetectionVariant>(detections_file)};
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
   std::ifstream expected_tracks_file{
     "data/test_fusing_partial_matched_associations_expected_tracks.json"};
   ASSERT_TRUE(expected_tracks_file);
-  const auto expected_tracks{cp::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
   const auto result_tracks{
-    cp::fuse_associations(associations, tracks, detections, cp::covariance_intersection_visitor)};
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
   using ::testing::Pointwise;
 

@@ -18,8 +18,8 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_UNITS_HPP
-#define COOPERATIVE_PERCEPTION_UNITS_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_UNITS_HPP
+#define MULTIPLE_OBJECT_TRACKING_UNITS_HPP
 
 #include <units.h>
 
@@ -37,13 +37,13 @@ UNIT_ADD(
 
 }  // namespace units
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 template <typename Unit>
 constexpr auto remove_units(const units::unit_t<Unit> & value) noexcept
 {
   return units::unit_cast<typename units::unit_t<Unit>::underlying_type>(value);
 }
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
 #endif

@@ -1,4 +1,4 @@
-# cooperative-perception-core
+# Multiple object tracking
 
 ## Contribution
 Welcome to the CARMA contributing guide. Please read this guide to learn about our development process, how to propose pull requests and improvements, and how to build and test your changes to this project. [CARMA Contributing Guide](https://github.com/usdot-fhwa-stol/carma-platform/blob/develop/Contributing.md)
@@ -13,6 +13,6 @@ The development team would like to acknowledge the people who have made direct c
 By contributing to the Federal Highway Administration (FHWA) Connected Automated Research Mobility Applications (CARMA), you agree that your contributions will be licensed under its Apache License 2.0 license. [Project License](<docs/License.md>)
 
 ## Contact
-Please click on the CARMA logo below to visit the Federal Highway Adminstration (FHWA) CARMA website.
+Please click on the CARMA logo below to visit the Federal Highway Administration (FHWA) CARMA website.
 
 [![CARMA Image](https://raw.githubusercontent.com/usdot-fhwa-stol/carma-platform/develop/docs/image/CARMA_icon.png)](https://highways.dot.gov/research/research-programs/operations/CARMA)

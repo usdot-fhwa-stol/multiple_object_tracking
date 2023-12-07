@@ -19,13 +19,13 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
-#define COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP
+#define MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP
 
-#include "cooperative_perception/track_matching.hpp"
-#include "cooperative_perception/uuid.hpp"
+#include "multiple_object_tracking/track_matching.hpp"
+#include "multiple_object_tracking/uuid.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 template <typename Type, typename Tag>
 struct TaggedType
@@ -181,6 +181,6 @@ private:
   std::unordered_map<Uuid, std::size_t> occurrences_;
 };
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_TRACK_MANAGEMENT_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP

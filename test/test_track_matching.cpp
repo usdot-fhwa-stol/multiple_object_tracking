@@ -22,11 +22,11 @@
 #include <dlib/optimization/max_cost_assignment.h>
 #include <gtest/gtest.h>
 
-#include <cooperative_perception/dynamic_object.hpp>
-#include <cooperative_perception/scoring.hpp>
-#include <cooperative_perception/track_matching.hpp>
+#include <multiple_object_tracking/dynamic_object.hpp>
+#include <multiple_object_tracking/scoring.hpp>
+#include <multiple_object_tracking/track_matching.hpp>
 
-namespace cp = cooperative_perception;
+namespace mot = multiple_object_tracking;
 
 /**
  * Test dlib library installation using example from library
@@ -66,24 +66,24 @@ TEST(TestTrackMatching, VerifyLibraryInstallation)
  */
 TEST(TestTrackMatching, GnnAssociator)
 {
-  cp::ScoreMap scores{
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection1"}}, 10},
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection2"}}, 2.0},
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection3"}}, 1.0},
-    {{cp::Uuid{"track2"}, cp::Uuid{"detection1"}}, 2.0},
-    {{cp::Uuid{"track2"}, cp::Uuid{"detection2"}}, 1.0},
-    {{cp::Uuid{"track2"}, cp::Uuid{"detection3"}}, 10.0},
-    {{cp::Uuid{"track3"}, cp::Uuid{"detection1"}}, 3.0},
-    {{cp::Uuid{"track3"}, cp::Uuid{"detection2"}}, 10.0},
-    {{cp::Uuid{"track3"}, cp::Uuid{"detection3"}}, 5.0}};
+  mot::ScoreMap scores{
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection1"}}, 10},
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection2"}}, 2.0},
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection3"}}, 1.0},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection1"}}, 2.0},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection2"}}, 1.0},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection3"}}, 10.0},
+    {{mot::Uuid{"track3"}, mot::Uuid{"detection1"}}, 3.0},
+    {{mot::Uuid{"track3"}, mot::Uuid{"detection2"}}, 10.0},
+    {{mot::Uuid{"track3"}, mot::Uuid{"detection3"}}, 5.0}};
 
-  cp::AssociationMap expected_associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
+  mot::AssociationMap expected_associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
   auto result_associations =
-    cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
+    mot::associate_detections_to_tracks(scores, mot::gnn_association_visitor);
 
   EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
 
@@ -115,18 +115,18 @@ TEST(TestTrackMatching, GnnAssociator)
  */
 TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
 {
-  cp::ScoreMap scores{
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection3"}}, 1.0},
-    {{cp::Uuid{"track2"}, cp::Uuid{"detection2"}}, 1.0},
-    {{cp::Uuid{"track3"}, cp::Uuid{"detection1"}}, 1.0}};
+  mot::ScoreMap scores{
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection3"}}, 1.0},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection2"}}, 1.0},
+    {{mot::Uuid{"track3"}, mot::Uuid{"detection1"}}, 1.0}};
 
-  cp::AssociationMap expected_associations{
-    {cp::Uuid{"track1"}, {cp::Uuid{"detection3"}}},
-    {cp::Uuid{"track2"}, {cp::Uuid{"detection2"}}},
-    {cp::Uuid{"track3"}, {cp::Uuid{"detection1"}}}};
+  mot::AssociationMap expected_associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
   auto result_associations =
-    cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
+    mot::associate_detections_to_tracks(scores, mot::gnn_association_visitor);
 
   EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
 
@@ -155,14 +155,14 @@ TEST(TestTrackMatching, GnnAssociatorWithGatedScores)
 
 TEST(TestTrackMatching, GnnAssociatorMoreDetectionsThanTracks)
 {
-  const cp::ScoreMap scores{
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection1"}}, 10},
-    {{cp::Uuid{"track1"}, cp::Uuid{"detection2"}}, 2.0}};
+  const mot::ScoreMap scores{
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection1"}}, 10},
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection2"}}, 2.0}};
 
-  const cp::AssociationMap expected_associations{{cp::Uuid{"track1"}, {cp::Uuid{"detection2"}}}};
+  const mot::AssociationMap expected_associations{{mot::Uuid{"track1"}, {mot::Uuid{"detection2"}}}};
 
   const auto result_associations =
-    cp::associate_detections_to_tracks(scores, cp::gnn_association_visitor);
+    mot::associate_detections_to_tracks(scores, mot::gnn_association_visitor);
 
   EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
 

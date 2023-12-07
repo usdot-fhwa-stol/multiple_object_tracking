@@ -18,16 +18,16 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#include "cooperative_perception/ctrv_model.hpp"
+#include "multiple_object_tracking/ctrv_model.hpp"
 
 #include <units.h>
 
 #include <cmath>
 
-#include "cooperative_perception/units.hpp"
-#include "cooperative_perception/utils.hpp"
+#include "multiple_object_tracking/units.hpp"
+#include "multiple_object_tracking/utils.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 auto get_next_state(const CtrvState & state, units::time::second_t time_step) -> CtrvState
 {
@@ -90,4 +90,4 @@ auto print_state(const CtrvState & state) -> void
   std::cout << "yaw rate: " << state.yaw_rate << "\n";
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking

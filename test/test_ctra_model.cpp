@@ -21,13 +21,13 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/angle.hpp>
-#include <cooperative_perception/ctra_model.hpp>
-#include <cooperative_perception/units.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/ctra_model.hpp>
+#include <multiple_object_tracking/units.hpp>
 
-#include "cooperative_perception/test/gmock_matchers.hpp"
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
 
-namespace cp = cooperative_perception;
+namespace mot = multiple_object_tracking;
 
 /**
  * Test CTRA get_next_state function against pure rotation
@@ -36,9 +36,9 @@ TEST(TestCtraModel, NextStatePureRotation)
 {
   using namespace units::literals;
 
-  const cp::CtraState state{0_m, 0_m, 0_mps, cp::Angle(0_rad), 1_rad_per_s, 0_mps_sq};
-  const auto next_state{cp::get_next_state(state, 0.5_s)};
-  const cp::CtraState expected_state{0_m, 0_m, 0_mps, cp::Angle(0.5_rad), 1_rad_per_s, 0_mps_sq};
+  const mot::CtraState state{0_m, 0_m, 0_mps, mot::Angle(0_rad), 1_rad_per_s, 0_mps_sq};
+  const auto next_state{mot::get_next_state(state, 0.5_s)};
+  const mot::CtraState expected_state{0_m, 0_m, 0_mps, mot::Angle(0.5_rad), 1_rad_per_s, 0_mps_sq};
 
   EXPECT_THAT(next_state, CtraStateNear(expected_state, 1e-9));
 }
@@ -50,10 +50,10 @@ TEST(TestCtraModel, NextStatePureTranslation)
 {
   using namespace units::literals;
 
-  const cp::CtraState state{0_m, 0_m, 1_mps, cp::Angle(0_rad), 0_rad_per_s, 1_mps_sq};
-  const auto next_state{cp::get_next_state(state, 0.5_s)};
-  const cp::CtraState expected_state{0.625_m,          0_m,         1.5_mps,
-                                     cp::Angle(0_rad), 0_rad_per_s, 1_mps_sq};
+  const mot::CtraState state{0_m, 0_m, 1_mps, mot::Angle(0_rad), 0_rad_per_s, 1_mps_sq};
+  const auto next_state{mot::get_next_state(state, 0.5_s)};
+  const mot::CtraState expected_state{0.625_m,          0_m,         1.5_mps,
+                                     mot::Angle(0_rad), 0_rad_per_s, 1_mps_sq};
 
   EXPECT_THAT(next_state, CtraStateNear(expected_state, 1e-9));
 }
@@ -65,10 +65,10 @@ TEST(TestCtraModel, NextStateRotationAndTranslation)
 {
   using namespace units::literals;
 
-  const cp::CtraState state{0_m, 0_m, 1_mps, cp::Angle(0_rad), 1_rad_per_s, 1_mps_sq};
-  const auto next_state{cp::get_next_state(state, 0.5_s)};
-  const cp::CtraState expected_state{0.5967208697966773_m, 0.16305169576864387_m, 1.5_mps,
-                                     cp::Angle(0.5_rad),   1_rad_per_s,           1_mps_sq};
+  const mot::CtraState state{0_m, 0_m, 1_mps, mot::Angle(0_rad), 1_rad_per_s, 1_mps_sq};
+  const auto next_state{mot::get_next_state(state, 0.5_s)};
+  const mot::CtraState expected_state{0.5967208697966773_m, 0.16305169576864387_m, 1.5_mps,
+                                     mot::Angle(0.5_rad),   1_rad_per_s,           1_mps_sq};
 
   EXPECT_THAT(next_state, CtraStateNear(expected_state, 1e-9));
 }
@@ -77,13 +77,13 @@ TEST(TestCtraModel, Equality)
 {
   using namespace units::literals;
 
-  const cp::CtraState state1{
-    1.23_m, 2.435_m, 5544_mps, cp::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq};
-  const cp::CtraState state2{
-    1.23_m, 2.435_m, 5544_mps, cp::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq};
-  const cp::CtraState state3{
-    1_m, 2_m, 4_mps, cp::Angle(3_rad), 1.000000000000000000000000001_rad_per_s, 1_mps_sq};
-  const cp::CtraState state4{1_m, 2_m, 4_mps, cp::Angle(3_rad), 1_rad_per_s, 1_mps_sq};
+  const mot::CtraState state1{
+    1.23_m, 2.435_m, 5544_mps, mot::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq};
+  const mot::CtraState state2{
+    1.23_m, 2.435_m, 5544_mps, mot::Angle(34656.6543_rad), 595633.555_rad_per_s, 100_mps_sq};
+  const mot::CtraState state3{
+    1_m, 2_m, 4_mps, mot::Angle(3_rad), 1.000000000000000000000000001_rad_per_s, 1_mps_sq};
+  const mot::CtraState state4{1_m, 2_m, 4_mps, mot::Angle(3_rad), 1_rad_per_s, 1_mps_sq};
 
   EXPECT_THAT(state1, CtraStateNear(state1, 1e-9));
   EXPECT_THAT(state1, CtraStateNear(state2, 1e-9));

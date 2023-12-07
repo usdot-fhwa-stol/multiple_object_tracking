@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef COOPERATIVE_PERCEPTION_CLUSTERING_HPP
-#define COOPERATIVE_PERCEPTION_CLUSTERING_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_CLUSTERING_HPP
+#define MULTIPLE_OBJECT_TRACKING_CLUSTERING_HPP
 
 #include <units.h>
 
@@ -23,13 +23,13 @@
 #include <variant>
 #include <vector>
 
-#include "cooperative_perception/angle.hpp"
-#include "cooperative_perception/ctra_model.hpp"
-#include "cooperative_perception/ctrv_model.hpp"
-#include "cooperative_perception/uuid.hpp"
-#include "cooperative_perception/visitor.hpp"
+#include "multiple_object_tracking/angle.hpp"
+#include "multiple_object_tracking/ctra_model.hpp"
+#include "multiple_object_tracking/ctrv_model.hpp"
+#include "multiple_object_tracking/uuid.hpp"
+#include "multiple_object_tracking/visitor.hpp"
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 struct Point
 {
@@ -241,6 +241,6 @@ template <typename Detection>
   return clusters;
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_CLUSTERING_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_CLUSTERING_HPP

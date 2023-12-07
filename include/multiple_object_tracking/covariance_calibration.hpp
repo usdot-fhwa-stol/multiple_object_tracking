@@ -18,31 +18,22 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
-#ifndef COOPERATIVE_PERCEPTION_VISITOR_HPP
-#define COOPERATIVE_PERCEPTION_VISITOR_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_COVARIANCE_CALIBRATION_HPP
+#define MULTIPLE_OBJECT_TRACKING_COVARIANCE_CALIBRATION_HPP
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 /**
- * @brief Generic visitor class
+ * @brief Covariance Calibration
  *
- * This is a utility class to make it easier to build visitors with lambdas.
+ * @tparam DetectionType for whose covariance needs to be calibrated
  */
-template <typename... Base>
-struct Visitor : Base...
+template <typename DetectionType>
+auto calibrate_covariance(DetectionType & detection) -> void
 {
-  /**
-   * @brief Bring base class' operator overloads into this scope
-   */
-  using Base::operator()...;
-};
+  // TODO: Implement covariance calibration algorithm here
+  // Covariance calibration magic here
+}
+}  // namespace multiple_object_tracking
 
-/**
- * @brief Type deduction hint for the Visitor constructor
- */
-template <typename... T>
-Visitor(T &&... t) -> Visitor<T...>;
-
-}  // namespace cooperative_perception
-
-#endif  // COOPERATIVE_PERCEPTION_VISITOR_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_UNSCENTED_TRANSFORM_HPP

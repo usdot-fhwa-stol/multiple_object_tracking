@@ -19,15 +19,15 @@
  * Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU).
  */
 
-#ifndef COOPERATIVE_PERCEPTION_UUID_HPP
-#define COOPERATIVE_PERCEPTION_UUID_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_UUID_HPP
+#define MULTIPLE_OBJECT_TRACKING_UUID_HPP
 
 #include <functional>
 #include <ostream>
 #include <string>
 #include <utility>
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 class Uuid
 {
@@ -81,15 +81,15 @@ inline auto operator>=(const Uuid & lhs, const Uuid & rhs) noexcept -> bool
   return lhs.value() >= rhs.value();
 }
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
 template <>
-struct std::hash<cooperative_perception::Uuid>
+struct std::hash<multiple_object_tracking::Uuid>
 {
-  auto operator()(const cooperative_perception::Uuid & uuid) const noexcept -> std::size_t
+  auto operator()(const multiple_object_tracking::Uuid & uuid) const noexcept -> std::size_t
   {
     return std::hash<std::string>{}(uuid.value());
   }
 };
 
-#endif  // COOPERATIVE_PERCEPTION_UUID_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_UUID_HPP

@@ -16,8 +16,8 @@
 
 #include <gtest/gtest.h>
 
-#include <cooperative_perception/dynamic_object.hpp>
-#include <cooperative_perception/json_parsing.hpp>
+#include <multiple_object_tracking/dynamic_object.hpp>
+#include <multiple_object_tracking/json_parsing.hpp>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -29,7 +29,7 @@ TEST(JsonParsing, CtrvDetection)
   ASSERT_TRUE(file);
   const auto data = nlohmann::json::parse(file);
 
-  const auto detection{data.template get<cooperative_perception::CtrvDetection>()};
+  const auto detection{data.template get<multiple_object_tracking::CtrvDetection>()};
 
   Eigen::Matrix<float, 5, 5> expected_covariance;
   expected_covariance << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,

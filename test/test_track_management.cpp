@@ -17,22 +17,22 @@
 #include <gtest/gtest.h>
 #include <units.h>
 
-#include <cooperative_perception/ctrv_model.hpp>
-#include <cooperative_perception/track_management.hpp>
-#include <cooperative_perception/uuid.hpp>
+#include <multiple_object_tracking/ctrv_model.hpp>
+#include <multiple_object_tracking/track_management.hpp>
+#include <multiple_object_tracking/uuid.hpp>
 
-namespace cp = cooperative_perception;
+namespace mot = multiple_object_tracking;
 
 TEST(TestTrackManagement, Simple)
 {
-  cp::FixedThresholdTrackManager<cp::CtrvTrack> track_manager{
-    cp::PromotionThreshold{3}, cp::RemovalThreshold{1}};
+  mot::FixedThresholdTrackManager<mot::CtrvTrack> track_manager{
+    mot::PromotionThreshold{3}, mot::RemovalThreshold{1}};
 
-  cp::CtrvTrack track;
-  track.uuid = cp::Uuid{"test_track"};
+  mot::CtrvTrack track;
+  track.uuid = mot::Uuid{"test_track"};
 
-  cp::AssociationMap association_map;
-  association_map[cp::Uuid{"test_track"}].push_back(cp::Uuid{"test_detection"});
+  mot::AssociationMap association_map;
+  association_map[mot::Uuid{"test_track"}].push_back(mot::Uuid{"test_detection"});
 
   track_manager.add_tentative_track(track);
 
@@ -52,14 +52,14 @@ TEST(TestTrackManagement, Simple)
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.update_track_lists(cp::AssociationMap{});
+  track_manager.update_track_lists(mot::AssociationMap{});
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.update_track_lists(cp::AssociationMap{});
-  track_manager.update_track_lists(cp::AssociationMap{});
+  track_manager.update_track_lists(mot::AssociationMap{});
+  track_manager.update_track_lists(mot::AssociationMap{});
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
@@ -68,23 +68,23 @@ TEST(TestTrackManagement, Simple)
 
 TEST(TestTrackManagement, Getters)
 {
-  const cp::FixedThresholdTrackManager<cp::CtrvTrack> track_manager{
-    cp::PromotionThreshold{3}, cp::RemovalThreshold{1}};
+  const mot::FixedThresholdTrackManager<mot::CtrvTrack> track_manager{
+    mot::PromotionThreshold{3}, mot::RemovalThreshold{1}};
 
-  EXPECT_EQ(track_manager.get_promotion_threshold().value, cp::PromotionThreshold{3U}.value);
-  EXPECT_EQ(track_manager.get_removal_threshold().value, cp::RemovalThreshold{1U}.value);
+  EXPECT_EQ(track_manager.get_promotion_threshold().value, mot::PromotionThreshold{3U}.value);
+  EXPECT_EQ(track_manager.get_removal_threshold().value, mot::RemovalThreshold{1U}.value);
 }
 
 TEST(TestTrackManagement, Setters)
 {
-  cp::FixedThresholdTrackManager<cp::CtrvTrack> track_manager{
-    cp::PromotionThreshold{3}, cp::RemovalThreshold{1}};
+  mot::FixedThresholdTrackManager<mot::CtrvTrack> track_manager{
+    mot::PromotionThreshold{3}, mot::RemovalThreshold{1}};
 
-  cp::CtrvTrack track;
-  track.uuid = cp::Uuid{"test_track"};
+  mot::CtrvTrack track;
+  track.uuid = mot::Uuid{"test_track"};
 
-  cp::AssociationMap association_map;
-  association_map[cp::Uuid{"test_track"}].push_back(cp::Uuid{"test_detection"});
+  mot::AssociationMap association_map;
+  association_map[mot::Uuid{"test_track"}].push_back(mot::Uuid{"test_detection"});
 
   track_manager.add_tentative_track(track);
 
@@ -100,19 +100,19 @@ TEST(TestTrackManagement, Setters)
 
   track_manager.update_track_lists(association_map);
 
-  track_manager.set_promotion_threshold_and_update(cp::PromotionThreshold{1U});
+  track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{1U});
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.set_promotion_threshold_and_update(cp::PromotionThreshold{10U});
+  track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{10U});
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.set_removal_threshold_and_update(cp::RemovalThreshold{5U});
+  track_manager.set_removal_threshold_and_update(mot::RemovalThreshold{5U});
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);

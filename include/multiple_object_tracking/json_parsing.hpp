@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-#ifndef COOPERATIVE_PERCEPTION_JSON_PARSING_HPP
-#define COOPERATIVE_PERCEPTION_JSON_PARSING_HPP
+#ifndef MULTIPLE_OBJECT_TRACKING_JSON_PARSING_HPP
+#define MULTIPLE_OBJECT_TRACKING_JSON_PARSING_HPP
 
 #include <Eigen/Dense>
 #include <nlohmann/json.hpp>
 
-#include "cooperative_perception/ctra_model.hpp"
-#include "cooperative_perception/ctrv_model.hpp"
-#include "cooperative_perception/uuid.hpp"
+#include "multiple_object_tracking/ctra_model.hpp"
+#include "multiple_object_tracking/ctrv_model.hpp"
+#include "multiple_object_tracking/uuid.hpp"
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::Uuid>
+struct nlohmann::adl_serializer<multiple_object_tracking::Uuid>
 {
-  static auto to_json(json & j, const cooperative_perception::Uuid & uuid) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::Uuid & uuid) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::Uuid & uuid) -> void
+  static auto from_json(const json & j, multiple_object_tracking::Uuid & uuid) -> void
   {
-    uuid = cooperative_perception::Uuid{j.template get<std::string>()};
+    uuid = multiple_object_tracking::Uuid{j.template get<std::string>()};
   }
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtrvState>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtrvState>
 {
-  static auto to_json(json & j, const cooperative_perception::CtrvState & state) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::CtrvState & state) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::CtrvState & state) -> void
+  static auto from_json(const json & j, multiple_object_tracking::CtrvState & state) -> void
   {
     state.position_x = units::length::meter_t{j.at("position_x_m").template get<double>()};
     state.position_y = units::length::meter_t{j.at("position_y_m")};
@@ -51,11 +51,11 @@ struct nlohmann::adl_serializer<cooperative_perception::CtrvState>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtraState>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtraState>
 {
-  static auto to_json(json & j, const cooperative_perception::CtraState & state) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::CtraState & state) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::CtraState & state) -> void
+  static auto from_json(const json & j, multiple_object_tracking::CtraState & state) -> void
   {
     state.position_x = units::length::meter_t{j.at("position_x_m").template get<double>()};
     state.position_y = units::length::meter_t{j.at("position_y_m")};
@@ -68,14 +68,14 @@ struct nlohmann::adl_serializer<cooperative_perception::CtraState>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtrvStateCovariance>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtrvStateCovariance>
 {
-  static auto to_json(json & j, const cooperative_perception::CtrvStateCovariance & covariance)
+  static auto to_json(json & j, const multiple_object_tracking::CtrvStateCovariance & covariance)
     -> void
   {
   }
 
-  static auto from_json(const json & j, cooperative_perception::CtrvStateCovariance & covariance)
+  static auto from_json(const json & j, multiple_object_tracking::CtrvStateCovariance & covariance)
     -> void
   {
     auto data = j.template get<std::vector<float>>();
@@ -84,14 +84,14 @@ struct nlohmann::adl_serializer<cooperative_perception::CtrvStateCovariance>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtraStateCovariance>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtraStateCovariance>
 {
-  static auto to_json(json & j, const cooperative_perception::CtraStateCovariance & covariance)
+  static auto to_json(json & j, const multiple_object_tracking::CtraStateCovariance & covariance)
     -> void
   {
   }
 
-  static auto from_json(const json & j, cooperative_perception::CtraStateCovariance & covariance)
+  static auto from_json(const json & j, multiple_object_tracking::CtraStateCovariance & covariance)
     -> void
   {
     auto data = j.template get<std::vector<float>>();
@@ -100,11 +100,11 @@ struct nlohmann::adl_serializer<cooperative_perception::CtraStateCovariance>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtrvDetection>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtrvDetection>
 {
-  static auto to_json(json & j, const cooperative_perception::CtrvDetection & detection) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::CtrvDetection & detection) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::CtrvDetection & detection) -> void
+  static auto from_json(const json & j, multiple_object_tracking::CtrvDetection & detection) -> void
   {
     detection.timestamp = units::time::second_t{j.at("timestamp_sec").template get<double>()};
     j.at("state").get_to(detection.state);
@@ -114,11 +114,11 @@ struct nlohmann::adl_serializer<cooperative_perception::CtrvDetection>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtraDetection>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtraDetection>
 {
-  static auto to_json(json & j, const cooperative_perception::CtraDetection & detection) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::CtraDetection & detection) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::CtraDetection & detection) -> void
+  static auto from_json(const json & j, multiple_object_tracking::CtraDetection & detection) -> void
   {
     detection.timestamp = units::time::second_t{j.at("timestamp_sec").template get<double>()};
     j.at("state").get_to(detection.state);
@@ -128,11 +128,11 @@ struct nlohmann::adl_serializer<cooperative_perception::CtraDetection>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtrvTrack>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtrvTrack>
 {
-  static auto to_json(json & j, const cooperative_perception::CtrvTrack & track) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::CtrvTrack & track) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::CtrvTrack & track) -> void
+  static auto from_json(const json & j, multiple_object_tracking::CtrvTrack & track) -> void
   {
     track.timestamp = units::time::second_t{j.at("timestamp_sec").template get<double>()};
     j.at("state").get_to(track.state);
@@ -142,11 +142,11 @@ struct nlohmann::adl_serializer<cooperative_perception::CtrvTrack>
 };
 
 template <>
-struct nlohmann::adl_serializer<cooperative_perception::CtraTrack>
+struct nlohmann::adl_serializer<multiple_object_tracking::CtraTrack>
 {
-  static auto to_json(json & j, const cooperative_perception::CtraTrack & track) -> void {}
+  static auto to_json(json & j, const multiple_object_tracking::CtraTrack & track) -> void {}
 
-  static auto from_json(const json & j, cooperative_perception::CtraTrack & track) -> void
+  static auto from_json(const json & j, multiple_object_tracking::CtraTrack & track) -> void
   {
     track.timestamp = units::time::second_t{j.at("timestamp_sec").template get<double>()};
     j.at("state").get_to(track.state);
@@ -155,7 +155,7 @@ struct nlohmann::adl_serializer<cooperative_perception::CtraTrack>
   }
 };
 
-namespace cooperative_perception
+namespace multiple_object_tracking
 {
 namespace customization
 {
@@ -174,7 +174,7 @@ struct do_detections_from_json_file<CtrvDetection>
       const auto motion_model{detection.at("motion_model").template get<std::string>()};
 
       if (motion_model == "ctrv") {
-        detections.push_back(detection.template get<cooperative_perception::CtrvDetection>());
+        detections.push_back(detection.template get<multiple_object_tracking::CtrvDetection>());
       } else {
         throw std::runtime_error("Unsupported motion model");
       }
@@ -196,7 +196,7 @@ struct do_detections_from_json_file<CtraDetection>
       const auto motion_model{detection.at("motion_model").template get<std::string>()};
 
       if (motion_model == "ctra") {
-        detections.push_back(detection.template get<cooperative_perception::CtraDetection>());
+        detections.push_back(detection.template get<multiple_object_tracking::CtraDetection>());
       } else {
         throw std::runtime_error("Unsupported motion model");
       }
@@ -218,9 +218,9 @@ struct do_detections_from_json_file<std::variant<Alternatives...>>
       const auto motion_model{detection.at("motion_model").template get<std::string>()};
 
       if (motion_model == "ctrv") {
-        detections.push_back(detection.template get<cooperative_perception::CtrvDetection>());
+        detections.push_back(detection.template get<multiple_object_tracking::CtrvDetection>());
       } else if (motion_model == "ctra") {
-        detections.push_back(detection.template get<cooperative_perception::CtraDetection>());
+        detections.push_back(detection.template get<multiple_object_tracking::CtraDetection>());
       } else {
         throw std::runtime_error("Unsupported motion model");
       }
@@ -245,7 +245,7 @@ struct do_tracks_from_json_file<CtrvTrack>
       const auto motion_model{track.at("motion_model").template get<std::string>()};
 
       if (motion_model == "ctrv") {
-        tracks.push_back(track.template get<cooperative_perception::CtrvTrack>());
+        tracks.push_back(track.template get<multiple_object_tracking::CtrvTrack>());
       } else {
         throw std::runtime_error("Unsupported motion model");
       }
@@ -267,7 +267,7 @@ struct do_tracks_from_json_file<CtraTrack>
       const auto motion_model{track.at("motion_model").template get<std::string>()};
 
       if (motion_model == "ctra") {
-        tracks.push_back(track.template get<cooperative_perception::CtraTrack>());
+        tracks.push_back(track.template get<multiple_object_tracking::CtraTrack>());
       } else {
         throw std::runtime_error("Unsupported motion model");
       }
@@ -289,9 +289,9 @@ struct do_tracks_from_json_file<std::variant<Alternatives...>>
       const auto motion_model{track.at("motion_model").template get<std::string>()};
 
       if (motion_model == "ctrv") {
-        tracks.push_back(track.template get<cooperative_perception::CtrvTrack>());
+        tracks.push_back(track.template get<multiple_object_tracking::CtrvTrack>());
       } else if (motion_model == "ctra") {
-        tracks.push_back(track.template get<cooperative_perception::CtraTrack>());
+        tracks.push_back(track.template get<multiple_object_tracking::CtraTrack>());
       } else {
         throw std::runtime_error("Unsupported motion model");
       }
@@ -311,6 +311,6 @@ template <typename T>
 inline constexpr auto tracks_from_json_file =
   [](std::ifstream & file) { return customization::do_tracks_from_json_file<T>::_(file); };
 
-}  // namespace cooperative_perception
+}  // namespace multiple_object_tracking
 
-#endif  // COOPERATIVE_PERCEPTION_JSON_PARSING_HPP
+#endif  // MULTIPLE_OBJECT_TRACKING_JSON_PARSING_HPP
