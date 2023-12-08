@@ -31,6 +31,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "multiple_object_tracking/detail/dlib_extensions.hpp"
 #include "multiple_object_tracking/dynamic_object.hpp"
 #include "multiple_object_tracking/scoring.hpp"
 
@@ -220,26 +221,10 @@ inline auto gnn_associator(const ScoreMap & scores) -> AssociationMap
   // Generate the score matrix
   const auto score_matrix = score_matrix_from_score_map(scores, track_set, detection_set);
 
-  // Generate the cost matrix
-  auto cost_matrix = cost_matrix_from_score_matrix(score_matrix);
-
-  // dlib requires square matrices, so we will pad with phantom tracks
-  if (cost_matrix.nr() != cost_matrix.nc()) {
-    const auto cost_matrix_original{dlib::tmp(cost_matrix)};
-    cost_matrix.set_size(cost_matrix.nc(), cost_matrix.nc());
-
-    for (auto row{0U}; row < cost_matrix_original.nr(); ++row) {
-      for (auto column{0U}; column < cost_matrix_original.nc(); ++column) {
-        cost_matrix(row, column) = cost_matrix_original(row, column);
-      }
-    }
-
-    for (auto row{cost_matrix_original.nr()}; row < cost_matrix.nr(); ++row) {
-      for (auto column{0U}; column < cost_matrix.nc(); ++column) {
-        cost_matrix(row, column) = std::numeric_limits<int>::lowest();
-      }
-    }
-  }
+  // dlib's max_cost_assignment requires a square matrix with integer values
+  const auto cost_matrix = detail::make_square_matrix(
+    cost_matrix_from_score_matrix(score_matrix),
+    detail::PaddingValue{std::numeric_limits<int>::lowest()});
 
   // Perform max_cost_assignment
   const std::vector<long> results = max_cost_assignment(cost_matrix);
