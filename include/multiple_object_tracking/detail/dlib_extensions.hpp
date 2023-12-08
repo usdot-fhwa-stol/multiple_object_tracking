@@ -28,9 +28,19 @@ auto make_square_matrix(
     }
   }
 
-  for (auto row{matrix.nr()}; row < square_matrix_size; ++row) {
-    for (auto column{matrix.nc()}; column < square_matrix_size; ++column) {
-      square_matrix(row, column) = padding_value.value;
+  if (matrix.nr() > matrix.nc()) {
+    // We added extra column(s)
+    for (auto row{0U}; row < square_matrix_size; ++row) {
+      for (auto column{matrix.nc()}; column < square_matrix_size; ++column) {
+        square_matrix(row, column) = padding_value.value;
+      }
+    }
+  } else {
+    // We added extra row(s)
+    for (auto row{matrix.nr()}; row < square_matrix_size; ++row) {
+      for (auto column{0U}; column < square_matrix_size; ++column) {
+        square_matrix(row, column) = padding_value.value;
+      }
     }
   }
 
