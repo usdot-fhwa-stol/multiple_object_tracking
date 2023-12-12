@@ -94,7 +94,9 @@ auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & 
 }
 
 template <typename State, typename StateCovariance, typename Tag>
-auto set_state(DynamicObject<State, StateCovariance, Tag> & object, const State & state)
+auto set_state(
+  DynamicObject<State, StateCovariance, Tag> & object,
+  const typename DynamicObject<State, StateCovariance, Tag>::state_type & state)
 {
   object.state = state;
 }
@@ -107,7 +109,9 @@ auto set_state(const std::variant<Alternatives...> & object, const State & state
 
 template <typename State, typename StateCovariance, typename Tag>
 auto set_state_covariance(
-  DynamicObject<State, StateCovariance, Tag> & object, const StateCovariance & state_covariance)
+  DynamicObject<State, StateCovariance, Tag> & object,
+  const typename DynamicObject<State, StateCovariance, Tag>::state_covariance_type &
+    state_covariance)
 {
   object.covariance = state_covariance;
 }
