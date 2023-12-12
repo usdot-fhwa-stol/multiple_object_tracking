@@ -21,6 +21,8 @@
 #include <multiple_object_tracking/track_management.hpp>
 #include <multiple_object_tracking/uuid.hpp>
 
+#include "multiple_object_tracking/test/gmock_matchers.hpp"
+
 namespace mot = multiple_object_tracking;
 
 TEST(TestTrackManagement, Simple)
@@ -117,4 +119,37 @@ TEST(TestTrackManagement, Setters)
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 0U);
+}
+
+TEST(TestTrackManagement, UpdateTrack)
+{
+  using units::literals::operator""_m;
+  using units::literals::operator""_mps;
+  using units::literals::operator""_rad;
+  using units::literals::operator""_rad_per_s;
+  using units::literals::operator""_s;
+
+  mot::CtrvTrack track;
+  track.uuid = mot::Uuid{"test_track"};
+  track.timestamp = 0_s;
+  track.state = mot::CtrvState{};
+  track.covariance = mot::CtrvStateCovariance{};
+
+  mot::FixedThresholdTrackManager<mot::CtrvTrack> track_manager{
+    mot::PromotionThreshold{3U}, mot::RemovalThreshold{0U}};
+  track_manager.add_tentative_track(track);
+
+  track_manager.update_track(
+    track.uuid, 1_s, mot::CtrvState{1_m, 2_m, 3_mps, mot::Angle{4_rad}, 5_rad_per_s},
+    mot::CtrvStateCovariance::Identity());
+
+  const auto tracks{track_manager.get_all_tracks()};
+  ASSERT_EQ(std::size(tracks), 1U);
+
+  EXPECT_EQ(mot::get_uuid(tracks.at(0)), track.uuid);
+  EXPECT_EQ(mot::get_timestamp(tracks.at(0)), 1_s);
+  EXPECT_THAT(
+    tracks.at(0).state,
+    CtrvStateNear(mot::CtrvState{1_m, 2_m, 3_mps, mot::Angle{4_rad}, 5_rad_per_s}, 1e-9));
+  EXPECT_THAT(tracks.at(0).covariance, EigenMatrixNear(mot::CtrvStateCovariance::Identity(), 1e-9));
 }
