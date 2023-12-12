@@ -48,6 +48,13 @@ auto get_timestamp(const std::variant<Alternatives...> & object) -> units::time:
   return std::visit([](const auto & o) { return get_timestamp(o); }, object);
 }
 
+template <typename State, typename StateCovariance, typename Tag>
+auto set_timestamp(
+  DynamicObject<State, StateCovariance, Tag> & object, const units::time::second_t & timestamp)
+{
+  object.timestamp = timestamp;
+}
+
 /**
  * @brief Get the object's UUID
  *
@@ -78,6 +85,39 @@ template <typename... Variants>
 auto get_uuid(const std::variant<Variants...> & object) -> Uuid
 {
   return std::visit([](const auto & o) { return get_uuid(o); }, object);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & uuid)
+{
+  object.uuid = uuid;
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto set_state(DynamicObject<State, StateCovariance, Tag> & object, const State & state)
+{
+  object.state = state;
+}
+
+template <typename State, typename... Alternatives>
+auto set_state(const std::variant<Alternatives...> & object, const State & state)
+{
+  return std::visit([](const auto & o, const auto & s) { return set_state(o, s); }, object);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto set_state_covariance(
+  DynamicObject<State, StateCovariance, Tag> & object, const StateCovariance & state_covariance)
+{
+  object.covariance = state_covariance;
+}
+
+template <typename StateCovariance, typename... Alternatives>
+auto set_state_covariance(
+  const std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
+{
+  return std::visit(
+    [](const auto & o, const auto & c) { return set_state_covariance(o, c); }, object);
 }
 
 template <typename State, typename StateCovariance>
