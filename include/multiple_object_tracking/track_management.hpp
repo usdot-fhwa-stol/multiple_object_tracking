@@ -173,6 +173,18 @@ public:
     return removal_threshold_;
   }
 
+  auto update_track(
+    const Uuid track_id, const units::time::second_t & timestamp,
+    const typename Track::state_type & state,
+    const typename Track::state_covariance_type & state_covariance)
+  {
+    auto & track = tracks_.at(track_id);
+
+    set_timestamp(track, timestamp);
+    set_state(track, state);
+    set_state_covariance(track, state_covariance);
+  }
+
 private:
   PromotionThreshold promotion_threshold_;
   RemovalThreshold removal_threshold_;
