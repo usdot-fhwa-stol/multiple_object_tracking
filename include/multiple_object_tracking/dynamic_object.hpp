@@ -94,6 +94,18 @@ auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & 
 }
 
 template <typename State, typename StateCovariance, typename Tag>
+auto get_state(const DynamicObject<State, StateCovariance, Tag> & object)
+{
+  return object.state;
+}
+
+template <typename... Alternatives>
+auto get_state(const std::variant<Alternatives...> & object)
+{
+  return std::visit([](const auto & o) { return get_state(o); }, object);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
 auto set_state(
   DynamicObject<State, StateCovariance, Tag> & object,
   const typename DynamicObject<State, StateCovariance, Tag>::state_type & state)
@@ -105,6 +117,18 @@ template <typename State, typename... Alternatives>
 auto set_state(const std::variant<Alternatives...> & object, const State & state)
 {
   return std::visit([](const auto & o, const auto & s) { return set_state(o, s); }, object);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto get_state_covariance(const DynamicObject<State, StateCovariance, Tag> & object)
+{
+  return object.covariance;
+}
+
+template <typename... Alternatives>
+auto get_state_covariance(const std::variant<Alternatives...> & object)
+{
+  return std::visit([](const auto & o) { return get_state_covariance(o); }, object);
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -131,9 +155,15 @@ template <typename State, typename StateCovariance>
 using Track = DynamicObject<State, StateCovariance, struct TrackTag>;
 
 template <typename Track, typename Detection>
+auto make_track(const Detection & detection, const Uuid & uuid) -> Track
+{
+  return {detection.timestamp, detection.state, detection.covariance, uuid};
+}
+
+template <typename Track, typename Detection>
 auto make_track(const Detection & detection) -> Track
 {
-  return {detection.timestamp, detection.state, detection.covariance, detection.uuid};
+  return make_track<Track>(detection, detection.uuid);
 }
 
 template <typename Track, typename... Alternatives>
