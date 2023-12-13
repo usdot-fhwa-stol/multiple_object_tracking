@@ -185,6 +185,13 @@ public:
     set_state_covariance(track, state_covariance);
   }
 
+  auto update_track(const Uuid track_id, const Track & track)
+  {
+    set_timestamp(tracks_.at(track_id), get_timestamp(track));
+    copy_state(tracks_.at(track_id), track);
+    copy_state_covariance(tracks_.at(track_id), track);
+  }
+
 private:
   PromotionThreshold promotion_threshold_;
   RemovalThreshold removal_threshold_;
