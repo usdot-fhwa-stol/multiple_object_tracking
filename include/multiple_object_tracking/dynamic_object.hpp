@@ -151,6 +151,25 @@ auto set_state(std::variant<Alternatives...> & object, const State & state)
 }
 
 template <typename State, typename StateCovariance, typename Tag>
+auto copy_state(
+  DynamicObject<State, StateCovariance, Tag> & destination,
+  const DynamicObject<State, StateCovariance, Tag> & source)
+{
+  destination.state = destination.state;
+}
+
+template <typename... Alternatives>
+auto copy_state(
+  std::variant<Alternatives...> & destination, const std::variant<Alternatives...> & source)
+{
+  std::visit(
+    Visitor{
+      [](auto & dst, const auto & src) { copy_state(dst, src); },
+      [](...) { throw std::runtime_error("source and destination are different types"); }},
+    destination, source);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
 auto get_state_covariance(const DynamicObject<State, StateCovariance, Tag> & object)
 {
   return object.covariance;
@@ -195,14 +214,27 @@ auto set_state_covariance(
   std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
 {
   std::visit(
-    // Visitor{
-    //   [](auto & o, const StateCovariance & c) { set_state_covariance(o, c); },
-    //   [](auto &, const auto &) {
-    //     throw std::runtime_error("state covariance types are incompatible");
-    //   },
-    // },
     detail::set_state_covariance_visitor{}, object,
     std::variant<StateCovariance>{state_covariance});
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto copy_state_covariance(
+  DynamicObject<State, StateCovariance, Tag> & destination,
+  const DynamicObject<State, StateCovariance, Tag> & source)
+{
+  destination.covariance = source.covariance;
+}
+
+template <typename... Alternatives>
+auto copy_state_covariance(
+  std::variant<Alternatives...> & destination, const std::variant<Alternatives...> & source)
+{
+  std::visit(
+    Visitor{
+      [](auto & dst, const auto & src) { copy_state_covariance(dst, src); },
+      [](...) { throw std::runtime_error("source and destination are different types"); }},
+    destination, source);
 }
 
 template <typename State, typename StateCovariance>
