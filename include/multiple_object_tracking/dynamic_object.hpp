@@ -55,6 +55,12 @@ auto set_timestamp(
   object.timestamp = timestamp;
 }
 
+template <typename... Alternatives>
+auto set_timestamp(const std::variant<Alternatives...> & object)
+{
+  std::visit([](const auto & o) { set_timestamp(o); }, object);
+}
+
 /**
  * @brief Get the object's UUID
  *
@@ -91,6 +97,11 @@ template <typename State, typename StateCovariance, typename Tag>
 auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & uuid)
 {
   object.uuid = uuid;
+}
+
+template <typename... Alternatives>
+auto set_uuid(const std::variant<Alternatives...> & object) {
+  std::visit([](const auto & o) { set_uuid(o); }, object);
 }
 
 template <typename State, typename StateCovariance, typename Tag>
