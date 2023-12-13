@@ -105,7 +105,7 @@ auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & 
 template <typename... Alternatives>
 auto set_uuid(std::variant<Alternatives...> & object, const Uuid & uuid)
 {
-  std::visit([](auto & o, const auto & u) { set_uuid(o, u); }, object, std::variant<Uuid>{uuid});
+  std::visit([](auto & o, const Uuid & u) { set_uuid(o, u); }, object, std::variant<Uuid>{uuid});
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -128,14 +128,26 @@ auto set_state(
   object.state = state;
 }
 
+namespace detail
+{
+struct set_state_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & o,
+    const typename DynamicObject<State, StateCovariance, Tag>::state_type & s) const
+  {
+    set_state(o, s);
+  }
+
+  auto operator()(...) const { throw std::runtime_error{"state types are incompatible"}; }
+};
+};  // namespace detail
+
 template <typename State, typename... Alternatives>
 auto set_state(std::variant<Alternatives...> & object, const State & state)
 {
-  std::visit(
-    Visitor{
-      [](auto & o, const State & s) { set_state(o, s); },
-      [](auto &, const auto &) { throw std::runtime_error{"state types are incompatible"}; }},
-    object, std::variant<State>{state});
+  std::visit(detail::set_state_visitor{}, object, std::variant<State>{state});
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -159,18 +171,38 @@ auto set_state_covariance(
   object.covariance = state_covariance;
 }
 
+namespace detail
+{
+struct set_state_covariance_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & o,
+    const typename DynamicObject<State, StateCovariance, Tag>::state_covariance_type & sc) const
+  {
+    set_state_covariance(o, sc);
+  }
+
+  auto operator()(...) const
+  {
+    throw std::runtime_error{"state covariance types are incompatible"};
+  }
+};
+};  // namespace detail
+
 template <typename StateCovariance, typename... Alternatives>
 auto set_state_covariance(
   std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
 {
   std::visit(
-    Visitor{
-      [](auto & o, const StateCovariance & c) { set_state_covariance(o, c); },
-      [](auto &, const auto &) {
-        throw std::runtime_error("state covariance types are incompatible");
-      },
-    },
-    object, std::variant<StateCovariance>{state_covariance});
+    // Visitor{
+    //   [](auto & o, const StateCovariance & c) { set_state_covariance(o, c); },
+    //   [](auto &, const auto &) {
+    //     throw std::runtime_error("state covariance types are incompatible");
+    //   },
+    // },
+    detail::set_state_covariance_visitor{}, object,
+    std::variant<StateCovariance>{state_covariance});
 }
 
 template <typename State, typename StateCovariance>
