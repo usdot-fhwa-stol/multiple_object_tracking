@@ -58,7 +58,9 @@ auto set_timestamp(
 template <typename... Alternatives>
 auto set_timestamp(std::variant<Alternatives...> & object, const units::time::second_t & timestamp)
 {
-  std::visit([](auto & o, const auto & t) { set_timestamp(o, t); }, object);
+  std::visit(
+    [](auto & o, const auto & t) { set_timestamp(o, t); }, object,
+    std::variant<units::time::second_t>{timestamp});
 }
 
 /**
@@ -102,7 +104,7 @@ auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & 
 template <typename... Alternatives>
 auto set_uuid(std::variant<Alternatives...> & object, const Uuid & uuid)
 {
-  std::visit([](auto & o, const auto & u) { set_uuid(o, u); }, object);
+  std::visit([](auto & o, const auto & u) { set_uuid(o, u); }, object, std::variant<Uuid>{uuid});
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -128,7 +130,7 @@ auto set_state(
 template <typename State, typename... Alternatives>
 auto set_state(std::variant<Alternatives...> & object, const State & state)
 {
-  std::visit([](auto & o, const auto & s) { set_state(o, s); }, object);
+  std::visit([](auto & o, const auto & s) { set_state(o, s); }, object, std::variant<State>{state});
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -156,7 +158,9 @@ template <typename StateCovariance, typename... Alternatives>
 auto set_state_covariance(
   std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
 {
-  std::visit([](auto & o, const auto & c) { set_state_covariance(o, c); }, object);
+  std::visit(
+    [](auto & o, const auto & c) { set_state_covariance(o, c); }, object,
+    std::variant<StateCovariance>{state_covariance});
 }
 
 template <typename State, typename StateCovariance>
