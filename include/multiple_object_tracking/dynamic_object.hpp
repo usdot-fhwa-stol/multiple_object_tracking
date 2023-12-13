@@ -158,15 +158,32 @@ auto copy_state(
   destination.state = destination.state;
 }
 
+namespace detail
+{
+
+struct copy_state_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & destination,
+    const DynamicObject<State, StateCovariance, Tag> & source) const
+  {
+    copy_state(destination, source);
+  }
+
+  auto operator()(...) const
+  {
+    throw std::runtime_error("source and destination are different types");
+  }
+};
+
+}  // namespace detail
+
 template <typename... Alternatives>
 auto copy_state(
   std::variant<Alternatives...> & destination, const std::variant<Alternatives...> & source)
 {
-  std::visit(
-    Visitor{
-      [](auto & dst, const auto & src) { copy_state(dst, src); },
-      [](...) { throw std::runtime_error("source and destination are different types"); }},
-    destination, source);
+  std::visit(detail::copy_state_visitor{}, destination, source);
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -226,15 +243,32 @@ auto copy_state_covariance(
   destination.covariance = source.covariance;
 }
 
+namespace detail
+{
+
+struct copy_state_covariance_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & destination,
+    const DynamicObject<State, StateCovariance, Tag> & source)
+  {
+    copy_state_covariance(destination, source);
+  }
+
+  auto operator()(...) const
+  {
+    throw std::runtime_error("source and destination are different types");
+  }
+};
+
+}  // namespace detail
+
 template <typename... Alternatives>
 auto copy_state_covariance(
   std::variant<Alternatives...> & destination, const std::variant<Alternatives...> & source)
 {
-  std::visit(
-    Visitor{
-      [](auto & dst, const auto & src) { copy_state_covariance(dst, src); },
-      [](...) { throw std::runtime_error("source and destination are different types"); }},
-    destination, source);
+  std::visit(detail::copy_state_covariance_visitor{}, destination, source);
 }
 
 template <typename State, typename StateCovariance>
