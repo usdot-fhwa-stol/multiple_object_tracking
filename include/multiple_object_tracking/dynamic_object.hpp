@@ -20,6 +20,7 @@
 #include <units.h>
 
 #include "multiple_object_tracking/uuid.hpp"
+#include "multiple_object_tracking/visitor.hpp"
 
 namespace multiple_object_tracking
 {
@@ -130,7 +131,11 @@ auto set_state(
 template <typename State, typename... Alternatives>
 auto set_state(std::variant<Alternatives...> & object, const State & state)
 {
-  std::visit([](auto & o, const auto & s) { set_state(o, s); }, object, std::variant<State>{state});
+  std::visit(
+    Visitor{
+      [](auto & o, const State & s) { set_state(o, s); },
+      [](auto &, const auto &) { throw std::runtime_error{"state types are incompatible"}; }},
+    object, std::variant<State>{state});
 }
 
 template <typename State, typename StateCovariance, typename Tag>
@@ -159,8 +164,13 @@ auto set_state_covariance(
   std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
 {
   std::visit(
-    [](auto & o, const auto & c) { set_state_covariance(o, c); }, object,
-    std::variant<StateCovariance>{state_covariance});
+    Visitor{
+      [](auto & o, const StateCovariance & c) { set_state_covariance(o, c); },
+      [](auto &, const auto &) {
+        throw std::runtime_error("state covariance types are incompatible");
+      },
+    },
+    object, std::variant<StateCovariance>{state_covariance});
 }
 
 template <typename State, typename StateCovariance>
