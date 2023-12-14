@@ -173,16 +173,23 @@ public:
     return removal_threshold_;
   }
 
+  template <typename State, typename StateCovariance>
   auto update_track(
-    const Uuid track_id, const units::time::second_t & timestamp,
-    const typename Track::state_type & state,
-    const typename Track::state_covariance_type & state_covariance)
+    const Uuid track_id, const units::time::second_t & timestamp, const State & state,
+    const StateCovariance & state_covariance)
   {
     auto & track = tracks_.at(track_id);
 
     set_timestamp(track, timestamp);
     set_state(track, state);
     set_state_covariance(track, state_covariance);
+  }
+
+  auto update_track(const Uuid track_id, const Track & track)
+  {
+    set_timestamp(tracks_.at(track_id), get_timestamp(track));
+    copy_state(tracks_.at(track_id), track);
+    copy_state_covariance(tracks_.at(track_id), track);
   }
 
 private:

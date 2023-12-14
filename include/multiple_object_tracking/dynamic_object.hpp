@@ -20,6 +20,7 @@
 #include <units.h>
 
 #include "multiple_object_tracking/uuid.hpp"
+#include "multiple_object_tracking/visitor.hpp"
 
 namespace multiple_object_tracking
 {
@@ -53,6 +54,14 @@ auto set_timestamp(
   DynamicObject<State, StateCovariance, Tag> & object, const units::time::second_t & timestamp)
 {
   object.timestamp = timestamp;
+}
+
+template <typename... Alternatives>
+auto set_timestamp(std::variant<Alternatives...> & object, const units::time::second_t & timestamp)
+{
+  std::visit(
+    [](auto & o, const auto & t) { set_timestamp(o, t); }, object,
+    std::variant<units::time::second_t>{timestamp});
 }
 
 /**
@@ -93,31 +102,173 @@ auto set_uuid(DynamicObject<State, StateCovariance, Tag> & object, const Uuid & 
   object.uuid = uuid;
 }
 
+template <typename... Alternatives>
+auto set_uuid(std::variant<Alternatives...> & object, const Uuid & uuid)
+{
+  std::visit([](auto & o, const Uuid & u) { set_uuid(o, u); }, object, std::variant<Uuid>{uuid});
+}
+
 template <typename State, typename StateCovariance, typename Tag>
-auto set_state(DynamicObject<State, StateCovariance, Tag> & object, const State & state)
+auto get_state(const DynamicObject<State, StateCovariance, Tag> & object)
+{
+  return object.state;
+}
+
+template <typename... Alternatives>
+auto get_state(const std::variant<Alternatives...> & object)
+{
+  return std::visit([](const auto & o) { return get_state(o); }, object);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto set_state(
+  DynamicObject<State, StateCovariance, Tag> & object,
+  const typename DynamicObject<State, StateCovariance, Tag>::state_type & state)
 {
   object.state = state;
 }
 
-template <typename State, typename... Alternatives>
-auto set_state(const std::variant<Alternatives...> & object, const State & state)
+namespace detail
 {
-  return std::visit([](const auto & o, const auto & s) { return set_state(o, s); }, object);
+struct set_state_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & o,
+    const typename DynamicObject<State, StateCovariance, Tag>::state_type & s) const
+  {
+    set_state(o, s);
+  }
+
+  auto operator()(...) const { throw std::runtime_error{"state types are incompatible"}; }
+};
+};  // namespace detail
+
+template <typename State, typename... Alternatives>
+auto set_state(std::variant<Alternatives...> & object, const State & state)
+{
+  std::visit(detail::set_state_visitor{}, object, std::variant<State>{state});
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto copy_state(
+  DynamicObject<State, StateCovariance, Tag> & destination,
+  const DynamicObject<State, StateCovariance, Tag> & source)
+{
+  destination.state = source.state;
+}
+
+namespace detail
+{
+
+struct copy_state_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & destination,
+    const DynamicObject<State, StateCovariance, Tag> & source) const
+  {
+    copy_state(destination, source);
+  }
+
+  auto operator()(...) const
+  {
+    throw std::runtime_error("source and destination are different types");
+  }
+};
+
+}  // namespace detail
+
+template <typename... Alternatives>
+auto copy_state(
+  std::variant<Alternatives...> & destination, const std::variant<Alternatives...> & source)
+{
+  std::visit(detail::copy_state_visitor{}, destination, source);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto get_state_covariance(const DynamicObject<State, StateCovariance, Tag> & object)
+{
+  return object.covariance;
+}
+
+template <typename... Alternatives>
+auto get_state_covariance(const std::variant<Alternatives...> & object)
+{
+  return std::visit([](const auto & o) { return get_state_covariance(o); }, object);
 }
 
 template <typename State, typename StateCovariance, typename Tag>
 auto set_state_covariance(
-  DynamicObject<State, StateCovariance, Tag> & object, const StateCovariance & state_covariance)
+  DynamicObject<State, StateCovariance, Tag> & object,
+  const typename DynamicObject<State, StateCovariance, Tag>::state_covariance_type &
+    state_covariance)
 {
   object.covariance = state_covariance;
 }
 
+namespace detail
+{
+struct set_state_covariance_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & o,
+    const typename DynamicObject<State, StateCovariance, Tag>::state_covariance_type & sc) const
+  {
+    set_state_covariance(o, sc);
+  }
+
+  auto operator()(...) const
+  {
+    throw std::runtime_error{"state covariance types are incompatible"};
+  }
+};
+};  // namespace detail
+
 template <typename StateCovariance, typename... Alternatives>
 auto set_state_covariance(
-  const std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
+  std::variant<Alternatives...> & object, const StateCovariance & state_covariance)
 {
-  return std::visit(
-    [](const auto & o, const auto & c) { return set_state_covariance(o, c); }, object);
+  std::visit(
+    detail::set_state_covariance_visitor{}, object,
+    std::variant<StateCovariance>{state_covariance});
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto copy_state_covariance(
+  DynamicObject<State, StateCovariance, Tag> & destination,
+  const DynamicObject<State, StateCovariance, Tag> & source)
+{
+  destination.covariance = source.covariance;
+}
+
+namespace detail
+{
+
+struct copy_state_covariance_visitor
+{
+  template <typename State, typename StateCovariance, typename Tag>
+  auto operator()(
+    DynamicObject<State, StateCovariance, Tag> & destination,
+    const DynamicObject<State, StateCovariance, Tag> & source)
+  {
+    copy_state_covariance(destination, source);
+  }
+
+  auto operator()(...) const
+  {
+    throw std::runtime_error("source and destination are different types");
+  }
+};
+
+}  // namespace detail
+
+template <typename... Alternatives>
+auto copy_state_covariance(
+  std::variant<Alternatives...> & destination, const std::variant<Alternatives...> & source)
+{
+  std::visit(detail::copy_state_covariance_visitor{}, destination, source);
 }
 
 template <typename State, typename StateCovariance>
@@ -127,9 +278,15 @@ template <typename State, typename StateCovariance>
 using Track = DynamicObject<State, StateCovariance, struct TrackTag>;
 
 template <typename Track, typename Detection>
+auto make_track(const Detection & detection, const Uuid & uuid) -> Track
+{
+  return {detection.timestamp, detection.state, detection.covariance, uuid};
+}
+
+template <typename Track, typename Detection>
 auto make_track(const Detection & detection) -> Track
 {
-  return {detection.timestamp, detection.state, detection.covariance, detection.uuid};
+  return make_track<Track>(detection, detection.uuid);
 }
 
 template <typename Track, typename... Alternatives>
