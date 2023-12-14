@@ -155,7 +155,7 @@ auto copy_state(
   DynamicObject<State, StateCovariance, Tag> & destination,
   const DynamicObject<State, StateCovariance, Tag> & source)
 {
-  destination.state = destination.state;
+  destination.state = source.state;
 }
 
 namespace detail
