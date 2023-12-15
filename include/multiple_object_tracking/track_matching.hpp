@@ -194,6 +194,11 @@ inline auto association_map_from_score_map(
 
   // Iterate over the assignments and populate the AssociationMap
   for (int i = 0; i < assignments.size(); i++) {
+    if (assignments[i] >= std::size(detection_set)) {
+      // Indices greater than the number of detections indicate that the track did not get assigned
+      continue;
+    }
+
     // Get the track UUID at the current index
     const auto & track_uuid = get_element_at(track_set, i);
 
