@@ -182,3 +182,33 @@ TEST(TestTrackMatching, GnnAssociatorMoreDetectionsThanTracks)
     }
   }
 }
+
+TEST(TestTrackMatching, GnnAssociatorMoreTracksThanDetections)
+{
+  const mot::ScoreMap scores{
+    {{mot::Uuid{"track1"}, mot::Uuid{"detection1"}}, 10},
+    {{mot::Uuid{"track2"}, mot::Uuid{"detection1"}}, 2.0}};
+
+  const mot::AssociationMap expected_associations{{mot::Uuid{"track2"}, {mot::Uuid{"detection1"}}}};
+
+  const auto result_associations =
+    mot::associate_detections_to_tracks(scores, mot::gnn_association_visitor);
+
+  EXPECT_EQ(std::size(expected_associations), std::size(result_associations));
+
+  for (const auto & [expected_track_uuid, expected_detection_uuids] : expected_associations) {
+    EXPECT_GT(result_associations.count(expected_track_uuid), 0);
+
+    const auto & result_detection_uuids = result_associations.at(expected_track_uuid);
+
+    EXPECT_EQ(std::size(expected_detection_uuids), std::size(result_detection_uuids));
+
+    for (const auto & expected_detection_uuid : expected_detection_uuids) {
+      EXPECT_NE(
+        std::find(
+          std::cbegin(result_detection_uuids), std::cend(result_detection_uuids),
+          expected_detection_uuid),
+        std::cend(result_detection_uuids));
+    }
+  }
+}
