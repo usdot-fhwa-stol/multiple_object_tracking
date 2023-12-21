@@ -88,6 +88,12 @@ inline auto unscented_kalman_filter_predict(
     }
   }
 
+  for (auto row{0}; row < m_sigma_points.rows(); ++row) {
+    if (m_sigma_points(row, 3) > 3.14159265359) {
+      m_sigma_points(row, 3) -= 2 * 3.14159265359;
+    }
+  }
+
   // Compute UT based on the sigma points and weights
   const auto [result_state_vector, result_covariance_matrix] =
     compute_unscented_transform(m_sigma_points, Wm, Wc);
