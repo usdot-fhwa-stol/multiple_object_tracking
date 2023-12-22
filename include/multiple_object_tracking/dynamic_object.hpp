@@ -24,6 +24,15 @@
 
 namespace multiple_object_tracking
 {
+enum class SemanticClass
+{
+  kUnknown,
+  kSmallVehicle,
+  kLargeVehicle,
+  kPedestrian,
+  kMotorcycle
+};
+
 template <typename State, typename StateCovariance, typename Tag>
 struct DynamicObject
 {
@@ -35,6 +44,7 @@ struct DynamicObject
   State state{};
   StateCovariance covariance{};
   Uuid uuid{""};
+  SemanticClass semantic_class{SemanticClass::kUnknown};
 };
 
 template <typename Object>
@@ -106,6 +116,34 @@ template <typename... Alternatives>
 auto set_uuid(std::variant<Alternatives...> & object, const Uuid & uuid)
 {
   std::visit([](auto & o, const Uuid & u) { set_uuid(o, u); }, object, std::variant<Uuid>{uuid});
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto get_semantic_class(const DynamicObject<State, StateCovariance, Tag> & object)
+{
+  return object.semantic_class;
+}
+
+template <typename... Alternatives>
+auto get_semantic_class(const std::variant<Alternatives...> & object)
+{
+  return std::visit([](const auto & o) { return get_semantic_class(o); }, object);
+}
+
+template <typename State, typename StateCovariance, typename Tag>
+auto set_semantic_class(
+  DynamicObject<State, StateCovariance, Tag> & object, const SemanticClass & semantic_class)
+{
+  object.semantic_class = semantic_class;
+}
+
+template <typename... Alternatives>
+auto set_semantic_class(
+  std::variant<Alternatives...> & object, const SemanticClass & semantic_class)
+{
+  std::visit(
+    [](auto & o, const auto & c) { set_semantic_class(o, c); }, object,
+    std::variant<SemanticClass>(semantic_class));
 }
 
 template <typename State, typename StateCovariance, typename Tag>
