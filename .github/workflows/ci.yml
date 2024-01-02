@@ -11,14 +11,10 @@ jobs:
         shell: bash
         working-directory: "/opt/carma/"
     runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
-
-    container:  # Use a Docker container as the execution environment
-      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
-      env:  # Define environment variables for the container
-        BUILD_WRAPPER_OUT_DIR: "/home/multiple_object_tracking/build/bw-output"
-        TERM: xterm
-        SONAR_SCANNER_VERSION: "5.0.1.3006"
-      options: "--user root"  # Additional Docker container options to set permissions
+    env:  # Define environment variables for the container
+      BUILD_WRAPPER_OUT_DIR: "/home/multiple_object_tracking/build/bw-output"
+      TERM: xterm
+      SONAR_SCANNER_VERSION: "5.0.1.3006"
 
     steps:  # Define a series of steps to execute in the job
     - name: Checkout ${{ github.event.repository.name }}  # Checkout the repository
@@ -37,16 +33,15 @@ jobs:
 
     - name: Install Gcovr 5.0  # Install Gcovr 5.0
       run: |
-        apt-get update && apt-get install -y curl
+        apt-get update && apt-get install -y curl unzip
         curl -L -o gcovr https://github.com/gcovr/gcovr/archive/5.0.tar.gz
         tar -xzvf gcovr
         cd gcovr-5.0
         chmod +x gcovr
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
-      uses: SonarSource/sonarcloud-github-c-cpp@v1
+      uses: SonarSource/sonarcloud-github-c-cpp@v2
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
-        apt-get update && apt-get install -y unzip
         cd ${GITHUB_WORKSPACE}
         build-wrapper-linux-x86-64 --out-dir ${GITHUB_WORKSPACE}/build/bw-output ${GITHUB_WORKSPACE}/build.sh --config Release
         cd build
