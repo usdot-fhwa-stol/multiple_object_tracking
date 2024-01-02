@@ -63,7 +63,7 @@ jobs:
         mkdir build
         COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
         cmake -S . -B build -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug"
-        build-wrapper-linux-x86-64 --out-dir /opt/carma/src/multiple_object_tracking/build/bw-output cmake --build build/ --config Release
+        build-wrapper-linux-x86-64 --out-dir /opt/carma/src/multiple_object_tracking/build/bw-output cmake --build build/ -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug" --config Release
         cd build
         ctest --output-on-failure
         gcovr --sonarqube coverage.xml -k -s -r .
