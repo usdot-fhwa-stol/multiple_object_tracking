@@ -25,13 +25,13 @@ jobs:
             build: false
           - architecture: armhf
             ubuntu: jammy
-            build: true
+            build: false
           - architecture: arm64
             ubuntu: focal
             build: false
           - architecture: arm64
             ubuntu: jammy
-            build: true
+            build: false
     uses: usdot-fhwa-stol/actions/.github/workflows/cpp-module-build.yml@main
     with:
       bucket-codename: ${{ matrix.ubuntu }}
