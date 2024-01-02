@@ -1,8 +1,9 @@
 name: CI
 on:
   push:  # Trigger workflow on a push event
+    branches: [develop, master]
   pull_request:  # Trigger workflow on a pull request event
-
+    types: [opened, synchronize, reopened]
 jobs:
   build:  # Define a job named 'build'
     defaults:  # Set default values for the job
@@ -12,10 +13,8 @@ jobs:
     runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
 
     container:  # Use a Docker container as the execution environment
-      image: usdotfhwastoldev/carma-base:upgrade_sonar_scanner  # Docker image to use
+      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
       env:  # Define environment variables for the container
-        INIT_ENV: "/home/carma/.base-image/init-env.sh"
-        ROS_2_ENV: "/opt/ros/foxy/setup.bash"
         BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
       options: "--user root"  # Additional Docker container options to set permissions
@@ -26,13 +25,31 @@ jobs:
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
         path: src/${{ github.event.repository.name }}  # Specify the destination path
-
-    - name: Install Dlib  # Install the Dlib library
-      run: sudo apt-get update && sudo apt-get install -y libdlib-dev
-
-    - name: Move source code  # Move the source code to the desired location
-      run: mv $GITHUB_WORKSPACE/src /opt/carma/
-
+    - name: Install Sonar
+      run: |
+        SONAR_DIR=/opt/sonarqube
+        mkdir $SONAR_DIR
+        curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
+        curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+        curl -sL https://deb.nodesource.com/setup_16.x | bash -
+        apt-get install -y nodejs unzip
+        # Set the JAVA_HOME to a compatible version of Java, e.g., Java 17
+        export JAVA_HOME=$GITHUB_WORKSPACE/java-17
+        cd $SONAR_DIR
+        for ZIP in *.zip; do
+          unzip "$ZIP" -d .
+          rm "$ZIP"
+        done
+        mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
+        mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
+        echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
+        echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
+      env:
+        JAVA_HOME: $GITHUB_WORKSPACE/java-17
+    - name: Move source code and build script # Move the source code to the desired location
+      run: |
+        mv $GITHUB_WORKSPACE/src /opt/carma/
+        mv $GITHUB_WORKSPACE/build.sh /opt/carma/
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -56,8 +73,6 @@ jobs:
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
-        source "$INIT_ENV"
-        source "$ROS_2_ENV"
         chmod 755 -R /opt/carma/src
         cd /opt/carma/src/multiple_object_tracking/
         build-wrapper-linux-x86-64 --out-dir /opt/carma/src/multiple_object_tracking/build/bw-output ./build.sh --config Release
