@@ -9,3 +9,6 @@ cmake --build build
 cmake --install build
 cd /
 rm -rf /tmp/eigen
+
+apt update
+DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev

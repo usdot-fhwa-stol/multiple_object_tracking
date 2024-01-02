@@ -13,7 +13,7 @@ jobs:
         include:
           - architecture: x64
             ubuntu: bionic
-            build: true
+            build: false
           - architecture: x64
             ubuntu: focal
             build: true
