@@ -17,6 +17,7 @@ jobs:
       env:  # Define environment variables for the container
         BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
+        SONAR_SCANNER_VERSION: "5.0.1.3006"
       options: "--user root"  # Additional Docker container options to set permissions
 
     steps:  # Define a series of steps to execute in the job
