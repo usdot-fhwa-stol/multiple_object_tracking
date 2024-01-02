@@ -25,8 +25,6 @@ jobs:
       uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
-        GITHUB_WORKSPACE: /home
-        path: /home # Specify the destination path
     - name: Set up JDK 17
       uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
@@ -65,14 +63,14 @@ jobs:
       uses: SonarSource/sonarcloud-github-c-cpp@v1
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
-        cd /home/multiple_object_tracking/
-        build-wrapper-linux-x86-64 --out-dir /home/multiple_object_tracking/build/bw-output ./build.sh --config Release
+        cd ${GITHUB_WORKSPACE}
+        build-wrapper-linux-x86-64 --out-dir ${GITHUB_WORKSPACE}/build/bw-output ${GITHUB_WORKSPACE}/build.sh --config Release
         cd build
         ctest --output-on-failure
         gcovr --sonarqube coverage.xml -k -s -r .
-        find /home/multiple_object_tracking/build/" -name "coverage.xml"
+        find ${GITHUB_WORKSPACE}/build/" -name "coverage.xml"
     - name: Run SonarScanner  # Run SonarScanner for code analysis
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
-        working-dir: /home/multiple_object_tracking"
+        working-dir: ${GITHUB_WORKSPACE}
