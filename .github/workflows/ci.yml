@@ -15,7 +15,7 @@ jobs:
     container:  # Use a Docker container as the execution environment
       image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
       env:  # Define environment variables for the container
-        BUILD_WRAPPER_OUT_DIR: "$GITHUB_WORKSPACE/multiple_object_tracking/build/bw-output"
+        BUILD_WRAPPER_OUT_DIR: "/home/multiple_object_tracking/build/bw-output"
         TERM: xterm
         SONAR_SCANNER_VERSION: "5.0.1.3006"
       options: "--user root"  # Additional Docker container options to set permissions
@@ -25,34 +25,30 @@ jobs:
       uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
-        path: workspace/${{ github.event.repository.name }}  # Specify the destination path
+        path: /home # Specify the destination path
     - name: Set up JDK 17
       uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
         java-version: 17
         distribution: "temurin"
-    - name: Install Sonar
-      run: |
-        SONAR_DIR=/opt/sonarqube
-        mkdir $SONAR_DIR
-        apt-get update && apt-get install -y curl
-        curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
-        curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-        curl -sL https://deb.nodesource.com/setup_16.x | bash -
-        apt-get install -y nodejs unzip
-        # Set the JAVA_HOME to a compatible version of Java, e.g., Java 17
-        export JAVA_HOME=$GITHUB_WORKSPACE/java-17
-        cd $SONAR_DIR
-        for ZIP in *.zip; do
-          unzip "$ZIP" -d .
-          rm "$ZIP"
-        done
-        mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
-        mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
-        echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
-        echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
-      env:
-        JAVA_HOME: $GITHUB_WORKSPACE/java-17
+    # - name: Install Sonar
+    #   run: |
+    #     SONAR_DIR=/opt/sonarqube
+    #     mkdir $SONAR_DIR
+    #     apt-get update && apt-get install -y curl
+    #     curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
+    #     curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+    #     curl -sL https://deb.nodesource.com/setup_16.x | bash -
+    #     apt-get install -y nodejs unzip
+    #     cd $SONAR_DIR
+    #     for ZIP in *.zip; do
+    #       unzip "$ZIP" -d .
+    #       rm "$ZIP"
+    #     done
+    #     mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
+    #     mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
+    #     echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
+    #     echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -66,22 +62,16 @@ jobs:
         chmod +x gcovr
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
       uses: SonarSource/sonarcloud-github-c-cpp@v1
-
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
-        cd $GITHUB_WORKSPACE/multiple_object_tracking/
-        build-wrapper-linux-x86-64 --out-dir $GITHUB_WORKSPACE/multiple_object_tracking/build/bw-output ./build.sh --config Release
+        cd /home/multiple_object_tracking/
+        build-wrapper-linux-x86-64 --out-dir /home/multiple_object_tracking/build/bw-output ./build.sh --config Release
         cd build
         ctest --output-on-failure
         gcovr --sonarqube coverage.xml -k -s -r .
-
-    - name: Find coverage.xml  # Find the coverage.xml file
-      shell: bash
-      run: |
-        find "$GITHUB_WORKSPACE/multiple_object_tracking/build/" -name "coverage.xml"
-
+        find /home/multiple_object_tracking/build/" -name "coverage.xml"
     - name: Run SonarScanner  # Run SonarScanner for code analysis
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
-        working-dir: "$GITHUB_WORKSPACE/${{ github.event.repository.name }}"
+        working-dir: /home/multiple_object_tracking"
