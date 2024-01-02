@@ -9,7 +9,7 @@ jobs:
     defaults:  # Set default values for the job
       run:
         shell: bash
-        working-directory: "/opt/carma/"
+        working-directory: "${GITHUB_WORKSPACE}"
     runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
     env:  # Define environment variables for the container
       BUILD_WRAPPER_OUT_DIR: "/home/multiple_object_tracking/build/bw-output"
