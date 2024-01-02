@@ -15,7 +15,7 @@ jobs:
     container:  # Use a Docker container as the execution environment
       image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
       env:  # Define environment variables for the container
-        BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
+        BUILD_WRAPPER_OUT_DIR: "$GITHUB_WORKSPACE/multiple_object_tracking/build/bw-output"
         TERM: xterm
         SONAR_SCANNER_VERSION: "5.0.1.3006"
       options: "--user root"  # Additional Docker container options to set permissions
@@ -25,7 +25,7 @@ jobs:
       uses: actions/checkout@v3.3.0
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
-        path: src/${{ github.event.repository.name }}  # Specify the destination path
+        path: workspace/${{ github.event.repository.name }}  # Specify the destination path
     - name: Set up JDK 17
       uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
@@ -53,10 +53,6 @@ jobs:
         echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
       env:
         JAVA_HOME: $GITHUB_WORKSPACE/java-17
-    - name: Move source code and build script # Move the source code to the desired location
-      run: |
-        mv $GITHUB_WORKSPACE/src /opt/carma/
-        mv $GITHUB_WORKSPACE/build.sh /opt/carma/
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -68,17 +64,13 @@ jobs:
         tar -xzvf gcovr
         cd gcovr-5.0
         chmod +x gcovr
-
-
-
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
       uses: SonarSource/sonarcloud-github-c-cpp@v1
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
-        chmod 755 -R /opt/carma/src
-        cd /opt/carma/src/multiple_object_tracking/
-        build-wrapper-linux-x86-64 --out-dir /opt/carma/src/multiple_object_tracking/build/bw-output ./build.sh --config Release
+        cd $GITHUB_WORKSPACE/multiple_object_tracking/
+        build-wrapper-linux-x86-64 --out-dir $GITHUB_WORKSPACE/multiple_object_tracking/build/bw-output ./build.sh --config Release
         cd build
         ctest --output-on-failure
         gcovr --sonarqube coverage.xml -k -s -r .
@@ -86,10 +78,10 @@ jobs:
     - name: Find coverage.xml  # Find the coverage.xml file
       shell: bash
       run: |
-        find "/opt/carma/src/multiple_object_tracking/build/" -name "coverage.xml"
+        find "$GITHUB_WORKSPACE/multiple_object_tracking/build/" -name "coverage.xml"
 
     - name: Run SonarScanner  # Run SonarScanner for code analysis
       uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
-        working-dir: "/opt/carma/src/${{ github.event.repository.name }}"
+        working-dir: "$GITHUB_WORKSPACE/${{ github.event.repository.name }}"
