@@ -30,24 +30,6 @@ jobs:
       with:
         java-version: 17
         distribution: "temurin"
-    # - name: Install Sonar
-    #   run: |
-    #     SONAR_DIR=/opt/sonarqube
-    #     mkdir $SONAR_DIR
-    #     apt-get update && apt-get install -y curl
-    #     curl -o $SONAR_DIR/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
-    #     curl -o $SONAR_DIR/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-    #     curl -sL https://deb.nodesource.com/setup_16.x | bash -
-    #     apt-get install -y nodejs unzip
-    #     cd $SONAR_DIR
-    #     for ZIP in *.zip; do
-    #       unzip "$ZIP" -d .
-    #       rm "$ZIP"
-    #     done
-    #     mv $(ls $SONAR_DIR | grep "sonar-scanner-") $SONAR_DIR/sonar-scanner/
-    #     mv $(ls $SONAR_DIR | grep "build-wrapper-") $SONAR_DIR/build-wrapper/
-    #     echo $SONAR_DIR/sonar-scanner/bin >> $GITHUB_PATH
-    #     echo $SONAR_DIR/build-wrapper >> $GITHUB_PATH
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -64,6 +46,7 @@ jobs:
       uses: SonarSource/sonarcloud-github-c-cpp@v1
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
+        apt-get update && apt-get install -y unzip
         cd ${GITHUB_WORKSPACE}
         build-wrapper-linux-x86-64 --out-dir ${GITHUB_WORKSPACE}/build/bw-output ${GITHUB_WORKSPACE}/build.sh --config Release
         cd build
@@ -71,7 +54,6 @@ jobs:
         gcovr --sonarqube coverage.xml -k -s -r .
         find ${GITHUB_WORKSPACE}/build/" -name "coverage.xml"
     - name: Run SonarScanner  # Run SonarScanner for code analysis
-      uses: usdot-fhwa-stol/actions/sonar-scanner@main
       with:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
         working-dir: ${GITHUB_WORKSPACE}
