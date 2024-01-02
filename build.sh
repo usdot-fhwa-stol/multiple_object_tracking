@@ -13,6 +13,5 @@
 #  License for the specific language governing permissions and limitations under
 #  the License.
 set -e
-mkdir build
-COVERAGE_FLAGS="-g --coverage -fprofile-arcs -ftest-coverage"
-cmake -S . -B build -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" -DCMAKE_BUILD_TYPE="Debug"
+
+${CARMA_OPT_DIR}/scripts/build_script.sh -p $@
