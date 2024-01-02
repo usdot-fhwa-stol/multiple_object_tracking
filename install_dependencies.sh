@@ -11,4 +11,4 @@ cd /
 rm -rf /tmp/eigen
 
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev libdlib-dev nlohmann-json3-dev libgtest-dev libgmock-dev libpng-dev
+DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev libdlib-dev nlohmann-json3-dev libgtest-dev libgmock-dev libpng-dev libjpeg-dev
