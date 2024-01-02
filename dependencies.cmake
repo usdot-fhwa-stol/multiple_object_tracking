@@ -14,6 +14,7 @@
 
 set(CPM_DOWNLOAD_VERSION  0.38.2)
 include(cmake/get_cpm.cmake)
+find_package(GTest REQUIRED)
 
 CPMAddPackage(NAME units
   GITHUB_REPOSITORY nholthaus/units
@@ -24,32 +25,33 @@ CPMAddPackage(NAME units
 )
 
 find_package(Eigen3 REQUIRED)
+find_package(dlib REQUIRED)
+# CPMAddPackage(NAME dlib
+#   GITHUB_REPOSITORY davisking/dlib
+#   GIT_TAG v19.24.2
+#   OPTIONS
+#     "DLIB_NO_GUI_SUPPORT TRUE"
+#     "DLIB_JPEG_SUPPORT FALSE"
+#     "DLIB_WEBP_SUPPORT FALSE"
+#     "DLIB_PNG_SUPPORT FALSE"
+#     "DLIB_GIF_SUPPORT FALSE"
+#     "DLIB_USE_MKL_FFT FALSE"
+#     "DLIB_USE_FFMPEG FALSE"
+#     "DLIB_USE_CUDA FALSE"
+#     "DLIB_IN_PROJECT_BUILD FALSE"
+# )
+find_package(nlohmann_json REQUIRED)
 
-CPMAddPackage(NAME dlib
-  GITHUB_REPOSITORY davisking/dlib
-  GIT_TAG v19.24.2
-  OPTIONS
-    "DLIB_NO_GUI_SUPPORT TRUE"
-    "DLIB_JPEG_SUPPORT FALSE"
-    "DLIB_WEBP_SUPPORT FALSE"
-    "DLIB_PNG_SUPPORT FALSE"
-    "DLIB_GIF_SUPPORT FALSE"
-    "DLIB_USE_MKL_FFT FALSE"
-    "DLIB_USE_FFMPEG FALSE"
-    "DLIB_USE_CUDA FALSE"
-    "DLIB_IN_PROJECT_BUILD FALSE"
-)
-
-CPMAddPackage(NAME nlohmann_json
-  GITHUB_REPOSITORY nlohmann/json
-  GIT_TAG v3.11.2
-  OPTIONS
-    "JSON_BuildTests FALSE"
-    "JSON_Install TRUE"
-)
+# CPMAddPackage(NAME nlohmann_json
+#   GITHUB_REPOSITORY nlohmann/json
+#   GIT_TAG v3.11.2
+#   OPTIONS
+#     "JSON_BuildTests FALSE"
+#     "JSON_Install TRUE"
+# )
 
 find_package(Boost REQUIRED COMPONENTS container)
 
-if(multiple_object_tracking_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
-  CPMAddPackage("gh:google/googletest#v1.14.0")
-endif()
+# if(multiple_object_tracking_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
+#   CPMAddPackage("gh:google/googletest#v1.14.0")
+# endif()
