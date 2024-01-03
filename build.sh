@@ -14,4 +14,4 @@
 #  the License.
 set -e
 
-${CARMA_OPT_DIR}/scripts/build_script.sh  $@
+${CARMA_OPT_DIR}/scripts/build_script.sh -c $@
