@@ -1,16 +1,17 @@
 {
     "name": "Ubuntu",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "context": "../"
     },
     "customizations": {
         "vscode": {
             "extensions": [
-				"ms-vscode.cpptools",
-				"ms-vscode.cpptools-extension-pack",
-				"streetsidesoftware.code-spell-checker",
-				"ms-vscode-remote.remote-containers"
-			]
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "streetsidesoftware.code-spell-checker",
+                "ms-vscode-remote.remote-containers"
+            ]
         }
     },
     "remoteUser": "root",
