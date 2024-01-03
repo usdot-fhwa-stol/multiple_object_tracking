@@ -13,7 +13,7 @@ rm -rf /tmp/eigen
 # Install dlib
 git clone --depth 1 --branch v19.24.2 https://github.com/davisking/dlib.git /tmp/dlib
 cd /tmp/dlib
-cmake -B build
+cmake -B build \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_TESTS=OFF \
     -DDLIB_NO_GUI_SUPPORT=TRUE \
