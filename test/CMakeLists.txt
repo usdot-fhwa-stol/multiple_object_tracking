@@ -49,3 +49,8 @@ include(GoogleTest)
 gtest_discover_tests(test_multiple_object_trackingExecutable
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test
 )
+add_custom_target(
+  run_unit_test ALL
+  COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+  DEPENDS test_multiple_object_trackingExecutable
+  )
