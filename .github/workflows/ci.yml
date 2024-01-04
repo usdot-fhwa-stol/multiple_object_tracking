@@ -27,12 +27,12 @@ jobs:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
         path: src/${{ github.event.repository.name }}  # Specify the destination path
     - name: Move source code  # Move the source code to the desired location
-      run: mv $GITHUB_WORKSPACE/ /opt/carma/
+      run: mv $GITHUB_WORKSPACE/src/ /opt/carma/
     - name: Install Dependencies  # Install Dependencies
       run: |
-        ls multiple_object_tracking/
+        ls multiple_object_tracking/src/
         pwd
-        /opt/carma/multiple_object_tracking/install_dependencies.sh
+        /opt/carma/multiple_object_tracking/src/install_dependencies.sh
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
