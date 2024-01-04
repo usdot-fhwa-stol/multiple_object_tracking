@@ -1,5 +1,8 @@
 # Multiple object tracking
 
+| CI Build Status | Sonar Code Quality |
+|----------------------|---------------------|
+|[![CI](https://github.com/usdot-fhwa-stol/multiple_object_tracking/actions/workflows/ci.yml/badge.svg)](https://github.com/usdot-fhwa-stol/multiple_object_tracking/actions/workflows/ci.yml) | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_multiple-object-tracking&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=usdot-fhwa-stol_multiple-object-tracking) |
 ## Contribution
 Welcome to the CARMA contributing guide. Please read this guide to learn about our development process, how to propose pull requests and improvements, and how to build and test your changes to this project. [CARMA Contributing Guide](https://github.com/usdot-fhwa-stol/carma-platform/blob/develop/Contributing.md)
 
