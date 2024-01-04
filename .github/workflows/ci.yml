@@ -56,7 +56,7 @@ jobs:
         cd build
         ctest --output-on-failure
         cd ..
-        gcovr --sonarqube coverage.xml -k -s -r .
+        gcovr --sonarqube build/coverage.xml -k -s -r .
 
     - name: Find coverage.xml  # Find the coverage.xml file
       shell: bash
