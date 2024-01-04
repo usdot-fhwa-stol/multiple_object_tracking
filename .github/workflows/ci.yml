@@ -32,11 +32,6 @@ jobs:
         ls src/multiple_object_tracking
         pwd
         /opt/carma/src/multiple_object_tracking/scripts/install_dependencies.sh
-    - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
     - name: Install Gcovr 5.0  # Install Gcovr 5.0
       run: |
         apt update
