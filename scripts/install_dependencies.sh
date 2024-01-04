@@ -57,4 +57,4 @@ cd /
 rm -rf /tmp/json
 
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev libgtest-dev libgmock-dev
+DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev
