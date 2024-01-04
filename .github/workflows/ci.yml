@@ -30,8 +30,7 @@ jobs:
       run: mv $GITHUB_WORKSPACE/src/ /opt/carma/
     - name: Install Dependencies  # Install Dependencies
       run: |
-        ls
-        ls multiple_object_tracking/
+        ls src/
         pwd
         /opt/carma/multiple_object_tracking/install_dependencies.sh
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
