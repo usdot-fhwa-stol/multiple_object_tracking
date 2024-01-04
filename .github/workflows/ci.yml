@@ -12,11 +12,9 @@ jobs:
     runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
 
     container:  # Use a Docker container as the execution environment
-      image: usdotfhwastoldev/carma-base:upgrade_sonar_scanner  # Docker image to use
+      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
       env:  # Define environment variables for the container
-        INIT_ENV: "/home/carma/.base-image/init-env.sh"
-        ROS_2_ENV: "/opt/ros/foxy/setup.bash"
-        BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
+0        BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
       options: "--user root"  # Additional Docker container options to set permissions
 
