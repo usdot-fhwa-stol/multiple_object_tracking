@@ -26,13 +26,13 @@ jobs:
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
         path: src/${{ github.event.repository.name }}  # Specify the destination path
-
-    - name: Install Dlib  # Install the Dlib library
-      run: sudo apt-get update && sudo apt-get install -y libdlib-dev
-
     - name: Move source code  # Move the source code to the desired location
-      run: mv $GITHUB_WORKSPACE/src /opt/carma/
-
+      run: mv $GITHUB_WORKSPACE/ /opt/carma/
+    - name: Install Dependencies  # Install Dependencies
+      run: |
+        ls -la
+        pwd
+        /opt/carma/install_dependencies.sh
     - name: Set up Python 3.8 for gcovr  # Set up Python 3.8
       uses: actions/setup-python@v2
       with:
