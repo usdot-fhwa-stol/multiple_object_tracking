@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Install eigen
 set -ex
 cd /tmp
 git clone --depth 1 --branch 3.4.0 https://gitlab.com/libeigen/eigen.git /tmp/eigen
@@ -40,6 +41,7 @@ cmake --install build
 cd /
 rm -rf /tmp/units
 
+# Install JSON library
 git clone --depth 1 --branch v3.11.2 https://github.com/nlohmann/json.git /tmp/json
 cd /tmp/json
 cmake -B build  \
@@ -52,7 +54,7 @@ cmake -B build  \
 cmake --build build
 cmake --install build
 cd /
-rm -rf /tmp/units
+rm -rf /tmp/json
 
 apt update
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev libgtest-dev libgmock-dev
