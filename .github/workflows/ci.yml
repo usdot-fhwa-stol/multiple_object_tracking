@@ -39,7 +39,7 @@ jobs:
     - name: Install Gcovr 5.0  # Install Gcovr 5.0
       run: |
         apt update
-        DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends curl
+        DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends curl zip
         curl -L -o gcovr https://github.com/gcovr/gcovr/archive/5.0.tar.gz
         tar -xzvf gcovr
         cd gcovr-5.0
