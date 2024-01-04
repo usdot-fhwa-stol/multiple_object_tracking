@@ -1,8 +1,9 @@
 name: CI
 on:
-  push:  # Trigger workflow on a push event
-  pull_request:  # Trigger workflow on a pull request event
-
+  push:
+    branches: [develop, master]
+  pull_request:
+      types: [opened, synchronize, reopened]
 jobs:
   build:  # Define a job named 'build'
     defaults:  # Set default values for the job
