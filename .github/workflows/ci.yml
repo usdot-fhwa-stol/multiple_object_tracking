@@ -40,8 +40,8 @@ jobs:
     - name: Install Gcovr 5.0  # Install Gcovr 5.0
       run: |
         apt update
-        DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends curl unzip pip3
-        pip3 install gcovr
+        DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends curl unzip
+        python3 -m pip install gcovr==5.0
 
     - name: Set up JDK 17
       uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
