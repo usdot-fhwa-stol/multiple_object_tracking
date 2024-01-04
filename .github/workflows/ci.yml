@@ -40,7 +40,7 @@ jobs:
     - name: Install Gcovr 5.0  # Install Gcovr 5.0
       run: |
         apt update
-        DEBIAN_FRONTEND=noninteractive apt install -y curl unzip python3
+        DEBIAN_FRONTEND=noninteractive apt install -y curl unzip libc6 python3
         python3 -m pip install gcovr==5.0
 
     - name: Set up JDK 17
