@@ -14,7 +14,7 @@ jobs:
     container:  # Use a Docker container as the execution environment
       image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
       env:  # Define environment variables for the container
-0        BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
+        BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
       options: "--user root"  # Additional Docker container options to set permissions
 
