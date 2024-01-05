@@ -16,4 +16,9 @@ find_package(Eigen3 REQUIRED)
 find_package(dlib REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Boost REQUIRED COMPONENTS container)
-find_package(GTest REQUIRED)
+if(multiple_object_tracking_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
+  # Currently findGTest does not currently actually work well for version
+  # so if you have compilation issues ensure you have the correct version
+  # installed
+  find_package(GTest 1.14.0 REQUIRED)
+endif()
