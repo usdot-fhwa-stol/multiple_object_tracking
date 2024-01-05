@@ -318,7 +318,8 @@ using Track = DynamicObject<State, StateCovariance, struct TrackTag>;
 template <typename Track, typename Detection>
 auto make_track(const Detection & detection, const Uuid & uuid) -> Track
 {
-  return {detection.timestamp, detection.state, detection.covariance, uuid};
+  return {
+    detection.timestamp, detection.state, detection.covariance, uuid, detection.semantic_class};
 }
 
 template <typename Track, typename Detection>
