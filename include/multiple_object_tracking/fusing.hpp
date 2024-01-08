@@ -111,6 +111,7 @@ constexpr Visitor covariance_intersection_visitor{
 
     // Create a new fused track with updated state and covariance
     auto fused_track{track};
+    fused_track.timestamp = detection.timestamp;
     fused_track.state = track.state.from_eigen_vector(fused_state);
     fused_track.covariance = fused_covariance;
 
