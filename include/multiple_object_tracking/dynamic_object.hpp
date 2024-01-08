@@ -17,6 +17,8 @@
 #ifndef MULTIPLE_OBJECT_TRACKING_DYNAMIC_OBJECT_HPP
 #define MULTIPLE_OBJECT_TRACKING_DYNAMIC_OBJECT_HPP
 
+#include <variant>
+
 #include <units.h>
 
 #include "multiple_object_tracking/uuid.hpp"
