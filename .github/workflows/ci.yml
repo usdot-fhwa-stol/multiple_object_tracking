@@ -43,7 +43,7 @@ jobs:
         distribution: "temurin"
 
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
-      uses: SonarSource/sonarcloud-github-c-cpp@v1
+      uses: SonarSource/sonarcloud-github-c-cpp@v2
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
