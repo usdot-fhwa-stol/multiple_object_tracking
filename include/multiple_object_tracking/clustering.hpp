@@ -211,6 +211,19 @@ auto make_point(const std::variant<Alternatives...> & detection) -> Point
 
 }  // namespace detail
 
+/**
+ * @brief Group detections into clusters
+ *
+ * @tparam Detection Detection type being clustered
+ * @tparam Metric Function comparing cluster centroid with a detection
+ *
+ * @param[in] detections Detections to cluster
+ * @param[in] distance_threshold Distance threshold determining if a detection should be part of
+ * an existing cluster
+ * @param[in] metric Distance metric function object
+ *
+ * @return Generated clusters
+*/
 template <typename Detection, typename Metric>
 [[nodiscard]] auto cluster_detections(
   std::vector<Detection> detections, double distance_threshold, Metric metric)
@@ -242,6 +255,17 @@ template <typename Detection, typename Metric>
   return clusters;
 }
 
+/**
+ * @brief Group detections into clusters using the square Euclidean distance
+ *
+ * @tparam Detection Detection type being clustered
+ *
+ * @param[in] detections Detections to cluster
+ * @param[in] distance_threshold Distance threshold determining if a detection should be part of
+ * an existing cluster
+ *
+ * @return Generated clusters
+*/
 template <typename Detection>
 [[nodiscard]] auto cluster_detections(std::vector<Detection> detections, double distance_threshold)
 {
