@@ -19,12 +19,22 @@
 
 #include <gmock/gmock.h>
 
+#include <iostream>
 #include <multiple_object_tracking/ctra_model.hpp>
 #include <multiple_object_tracking/ctrv_model.hpp>
 #include <multiple_object_tracking/units.hpp>
 #include <multiple_object_tracking/visitor.hpp>
-#include <iostream>
 #include <type_traits>
+
+using ::testing::AllOf;
+using ::testing::Eq;
+using ::testing::Field;
+using ::testing::MakePolymorphicMatcher;
+using ::testing::Matches;
+using ::testing::MatchResultListener;
+using ::testing::Pointwise;
+using ::testing::PolymorphicMatcher;
+using ::testing::Value;
 
 MATCHER(AlwaysFalse, "") { return false; }
 
@@ -41,12 +51,12 @@ public:
   {
   }
 
-  auto MatchAndExplain(Unit value, std::ostream * os) const -> bool
+  auto MatchAndExplain(Unit value, MatchResultListener * listener) const -> bool
   {
     const auto absolute_difference{units::math::abs(value - expected_)};
 
-    if (os != nullptr) {
-      *os << "absolute difference: " << absolute_difference;
+    if (listener != nullptr) {
+      *listener << "absolute difference: " << absolute_difference;
     }
 
     return multiple_object_tracking::remove_units(absolute_difference) <= max_abs_error_;
@@ -75,9 +85,10 @@ private:
 
 template <typename Unit>
 auto DimensionedNear(units::unit_t<Unit> expected, double max_abs_error)
-  -> ::testing::Matcher<units::unit_t<Unit>>
+  -> PolymorphicMatcher<detail::DimensionedNearMatcher<units::unit_t<Unit>>>
 {
-  return detail::DimensionedNearMatcher<units::unit_t<Unit>>{expected, max_abs_error};
+  return MakePolymorphicMatcher(
+    detail::DimensionedNearMatcher<units::unit_t<Unit>>(expected, max_abs_error));
 }
 
 MATCHER_P2(AngleNear, angle, max_abs_error, "")
@@ -88,10 +99,6 @@ MATCHER_P2(AngleNear, angle, max_abs_error, "")
 
 MATCHER_P2(EigenMatrixNear, matrix, max_abs_error, "")
 {
-  using ::testing::AllOf;
-  using ::testing::Pointwise;
-  using ::testing::Value;
-
   if (std::size(arg) != std::size(matrix)) {
     return false;
   }
@@ -109,9 +116,6 @@ MATCHER_P2(EigenMatrixNear, matrix, max_abs_error, "")
 
 inline constexpr auto CtrvStateNear =
   [](const multiple_object_tracking::CtrvState & state, double max_abs_error) {
-    using ::testing::AllOf;
-    using ::testing::Field;
-
     namespace mot = multiple_object_tracking;
 
     return AllOf(
@@ -124,9 +128,6 @@ inline constexpr auto CtrvStateNear =
 
 inline constexpr auto CtraStateNear =
   [](const multiple_object_tracking::CtraState & state, double max_abs_error) {
-    using ::testing::AllOf;
-    using ::testing::Field;
-
     namespace mot = multiple_object_tracking;
 
     return AllOf(
@@ -140,10 +141,6 @@ inline constexpr auto CtraStateNear =
 
 inline constexpr auto CtrvTrackNear =
   [](const multiple_object_tracking::CtrvTrack & track, double max_abs_error) {
-    using ::testing::AllOf;
-    using ::testing::Eq;
-    using ::testing::Field;
-
     namespace mot = multiple_object_tracking;
 
     return AllOf(
@@ -155,10 +152,6 @@ inline constexpr auto CtrvTrackNear =
 
 inline constexpr auto CtraTrackNear =
   [](const multiple_object_tracking::CtraTrack & track, double max_abs_error) {
-    using ::testing::AllOf;
-    using ::testing::Eq;
-    using ::testing::Field;
-
     namespace mot = multiple_object_tracking;
 
     return AllOf(
@@ -179,11 +172,10 @@ public:
 
   auto MatchAndExplain(
     const std::tuple<
-      const multiple_object_tracking::CtrvTrack &, const multiple_object_tracking::CtrvTrack &> & arg,
-    std::ostream *) const -> bool
+      const multiple_object_tracking::CtrvTrack &, const multiple_object_tracking::CtrvTrack &> &
+      arg,
+    MatchResultListener * /* listener */) const -> bool
   {
-    using ::testing::Matches;
-
     const auto actual{std::get<0>(arg)};
     const auto expected{std::get<1>(arg)};
 
@@ -192,11 +184,10 @@ public:
 
   auto MatchAndExplain(
     const std::tuple<
-      const multiple_object_tracking::CtraTrack &, const multiple_object_tracking::CtraTrack &> & arg,
-    std::ostream *) const -> bool
+      const multiple_object_tracking::CtraTrack &, const multiple_object_tracking::CtraTrack &> &
+      arg,
+    MatchResultListener * /* listener */) const -> bool
   {
-    using ::testing::Matches;
-
     const auto actual{std::get<0>(arg)};
     const auto expected{std::get<1>(arg)};
 
@@ -207,7 +198,7 @@ public:
   auto MatchAndExplain(
     const std::tuple<const std::variant<Alternatives...> &, const std::variant<Alternatives...> &> &
       arg,
-    std::ostream *) const -> bool
+    MatchResultListener * /* listener */) const -> bool
   {
     using multiple_object_tracking::CtraTrack;
     using multiple_object_tracking::CtrvTrack;
@@ -244,9 +235,10 @@ private:
 
 }  // namespace detail
 
-inline auto PointwiseTrackNear(double max_abs_error) noexcept -> detail::PointwiseTrackNearMatcher
+inline auto PointwiseTrackNear(double max_abs_error) noexcept
+  -> PolymorphicMatcher<detail::PointwiseTrackNearMatcher>
 {
-  return detail::PointwiseTrackNearMatcher{max_abs_error};
+  return MakePolymorphicMatcher(detail::PointwiseTrackNearMatcher{max_abs_error});
 }
 
 namespace multiple_object_tracking
