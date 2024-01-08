@@ -47,8 +47,6 @@ jobs:
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
-        java --version
-        echo $JAVA_HOME
         chmod 755 -R /opt/carma/src
         cd /opt/carma/src/multiple_object_tracking/
         mkdir build
