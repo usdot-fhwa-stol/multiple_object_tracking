@@ -140,7 +140,7 @@ inline auto cost_matrix_from_score_matrix(const dlib::matrix<float> & score_matr
       // Calculate the cost value by subtracting the normalized score from 1
       const float cost_value = 1.0 - normalized_score;
 
-      // Scale the cost value by multiplying it by 100 and convert it to an integer
+      // dlib requires integer costs; scaling keeps floating-point costs distinguishable
       const int scaled_cost = static_cast<int>(cost_value * 100000000);
 
       // Assign the scaled cost to the cost matrix
