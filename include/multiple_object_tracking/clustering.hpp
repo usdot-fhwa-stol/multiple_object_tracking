@@ -211,8 +211,22 @@ auto make_point(const std::variant<Alternatives...> & detection) -> Point
 
 }  // namespace detail
 
-template <typename Detection>
-[[nodiscard]] auto cluster_detections(std::vector<Detection> detections, double distance_threshold)
+/**
+ * @brief Group detections into clusters
+ *
+ * @tparam Detection Detection type being clustered
+ * @tparam Metric Function comparing cluster centroid with a detection
+ *
+ * @param[in] detections Detections to cluster
+ * @param[in] distance_threshold Distance threshold determining if a detection should be part of
+ * an existing cluster
+ * @param[in] metric Distance metric function object
+ *
+ * @return Generated clusters
+*/
+template <typename Detection, typename Metric>
+[[nodiscard]] auto cluster_detections(
+  std::vector<Detection> detections, double distance_threshold, Metric metric)
   -> std::vector<Cluster<Detection>>
 {
   std::vector<Cluster<Detection>> clusters;
@@ -227,7 +241,7 @@ template <typename Detection>
     detections.pop_back();
 
     for (auto it{std::begin(detections)}; it != std::end(detections);) {
-      if (detail::squared_euclidean_distance(origin_point, *it) < distance_threshold) {
+      if (metric(origin_point, *it) < distance_threshold) {
         cluster.add_detection(*it);
         it = detections.erase(it);
       } else {
@@ -239,6 +253,23 @@ template <typename Detection>
   }
 
   return clusters;
+}
+
+/**
+ * @brief Group detections into clusters using the square Euclidean distance
+ *
+ * @tparam Detection Detection type being clustered
+ *
+ * @param[in] detections Detections to cluster
+ * @param[in] distance_threshold Distance threshold determining if a detection should be part of
+ * an existing cluster
+ *
+ * @return Generated clusters
+*/
+template <typename Detection>
+[[nodiscard]] auto cluster_detections(std::vector<Detection> detections, double distance_threshold)
+{
+  return cluster_detections(detections, distance_threshold, detail::squared_euclidean_distance);
 }
 
 }  // namespace multiple_object_tracking
