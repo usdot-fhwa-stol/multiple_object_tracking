@@ -48,19 +48,32 @@ public:
   explicit HasAssociation(const AssociationMap & associations)
   {
     for (const auto & [track_uuid, detection_uuids] : associations) {
-      associated_uuids_.insert(track_uuid);
-      associated_uuids_.insert(std::cbegin(detection_uuids), std::cend(detection_uuids));
+      associated_tracks_.insert(track_uuid);
+      associated_detections_.insert(std::cbegin(detection_uuids), std::cend(detection_uuids));
     }
   }
 
-  template <typename Object>
-  auto operator()(const Object & object) const noexcept -> bool
+  template <typename State, typename StateCovariance>
+  auto operator()(const Track<State, StateCovariance> & track) const noexcept -> bool
   {
-    return associated_uuids_.count(get_uuid(object)) != 0;
+    return associated_tracks_.count(get_uuid(track)) != 0;
+  }
+
+  template <typename State, typename StateCovariance>
+  auto operator()(const Detection<State, StateCovariance> & detection) const noexcept -> bool
+  {
+    return associated_detections_.count(get_uuid(detection)) != 0;
+  }
+
+  template <typename... Alternatives>
+  auto operator()(const std::variant<Alternatives...> & object) const noexcept -> bool
+  {
+    return std::visit([this](const auto & o) { return this->operator()(o); }, object);
   }
 
 private:
-  std::unordered_set<Uuid> associated_uuids_{};
+  std::unordered_set<Uuid> associated_tracks_;
+  std::unordered_set<Uuid> associated_detections_;
 };
 
 /**
