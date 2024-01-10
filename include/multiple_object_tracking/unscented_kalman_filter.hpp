@@ -74,8 +74,17 @@ inline auto unscented_kalman_filter_predict(
   }
 
   // Convert mean and sigma points into Eigen::MatrixXf
-  const auto m_sigma_points{
-    mean_and_sigma_pints_to_matrix_xf(predicted_mean, predicted_sigma_points)};
+  auto m_sigma_points{mean_and_sigma_pints_to_matrix_xf(predicted_mean, predicted_sigma_points)};
+
+  // Yaw values (index 3) are circular, so we must wrap them so that they stay between [0, 2pi).
+  // Otherwise, our calculations will be messed up.
+  // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
+  // this assumption may not hold. We will have to redesign and reimplement in that scenario.
+  for (auto row{0}; row < m_sigma_points.rows(); ++row) {
+    if (m_sigma_points(row, 3) > 3.14159265359) {
+      m_sigma_points(row, 3) -= 2 * 3.14159265359;
+    }
+  }
 
   // Compute UT based on the sigma points and weights
   const auto [result_state_vector, result_covariance_matrix] =
