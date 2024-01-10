@@ -1,15 +1,6 @@
 #!/bin/bash
 
-# Install eigen
 set -ex
-cd /tmp
-git clone --depth 1 --branch 3.4.0 https://gitlab.com/libeigen/eigen.git /tmp/eigen
-cd /tmp/eigen
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DEIGEN_BUILD_TESTING=OFF -DEIGEN_BUILD_DOC=OFF
-cmake --build build
-cmake --install build
-cd /
-rm -rf /tmp/eigen
 
 # Install dlib
 git clone --depth 1 --branch v19.24.2 https://github.com/davisking/dlib.git /tmp/dlib
@@ -50,11 +41,10 @@ cmake -B build  \
     -DJSON_BuildTests=FALSE \
     -DJSON_Install=TRUE \
     -DBUILD_DOCS=OFF
-
 cmake --build build
 cmake --install build
 cd /
 rm -rf /tmp/json
 
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev
+DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev libeigen3-dev
