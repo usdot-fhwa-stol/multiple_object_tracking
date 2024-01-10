@@ -74,7 +74,7 @@ inline auto unscented_kalman_filter_predict(
   }
 
   // Convert mean and sigma points into Eigen::MatrixXf
-  auto m_sigma_points{mean_and_sigma_pints_to_matrix_xf(predicted_mean, predicted_sigma_points)};
+  auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
   // Yaw values (index 3) are circular, so we must wrap them so that they stay between [0, 2pi).
   // Otherwise, our calculations will be messed up.
