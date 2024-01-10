@@ -76,8 +76,9 @@ inline auto unscented_kalman_filter_predict(
   // Convert mean and sigma points into Eigen::MatrixXf
   auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
-  // Yaw values (index 3) are circular, so we must wrap them so that they stay between [0, 2pi).
-  // Otherwise, our calculations will be messed up.
+  // Yaw values (index 3) are circular, which cause issues when values cross the identification
+  // point. To (partially) avoid the issue, we "rotate" values to they are +/-pi, making the
+  // math work out for our current use case. This will need to be revisited in the future.
   // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
   // this assumption may not hold. We will have to redesign and reimplement in that scenario.
   for (auto row{0}; row < m_sigma_points.rows(); ++row) {
