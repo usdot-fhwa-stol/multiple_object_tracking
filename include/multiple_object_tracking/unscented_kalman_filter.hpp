@@ -79,6 +79,7 @@ inline auto unscented_kalman_filter_predict(
   // Yaw values (index 3) are circular, which cause issues when values cross the identification
   // point. To (partially) avoid the issue, we "rotate" values to they are +/-pi, making the
   // math work out for our current use case. This will need to be revisited in the future.
+  // https://github.com/usdot-fhwa-stol/multiple_object_tracking/issues/145
   // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
   // this assumption may not hold. We will have to redesign and reimplement in that scenario.
   for (auto row{0}; row < m_sigma_points.rows(); ++row) {
