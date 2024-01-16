@@ -133,6 +133,18 @@ inline auto operator-=(CtraState & lhs, const CtraState & rhs) -> CtraState &
   return lhs;
 }
 
+inline auto operator*=(CtraState & lhs, float scalar) -> CtraState &
+{
+  lhs.position_x *= scalar;
+  lhs.position_y *= scalar;
+  lhs.velocity *= scalar;
+  lhs.yaw *= scalar;
+  lhs.yaw_rate *= scalar;
+  lhs.acceleration *= scalar;
+
+  return lhs;
+}
+
 /**
  * @brief Compare true equality between two CtraStates
  *
@@ -178,6 +190,18 @@ inline auto operator-(CtraState lhs, const CtraState & rhs) -> CtraState
 {
   lhs -= rhs;
   return lhs;
+}
+
+inline auto operator*(CtraState lhs, float rhs) -> CtraState
+{
+  lhs *= rhs;
+  return lhs;
+}
+
+inline auto operator*(float lhs, CtraState rhs) -> CtraState
+{
+  rhs *= lhs;
+  return rhs;
 }
 
 /**
