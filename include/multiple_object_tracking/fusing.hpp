@@ -25,6 +25,7 @@
 #include <Eigen/Dense>
 #include <tuple>
 #include <variant>
+#include <cmath>
 
 #include "multiple_object_tracking/dynamic_object.hpp"
 #include "multiple_object_tracking/uuid.hpp"
@@ -59,6 +60,50 @@ inline auto compute_covariance_intersection(
     covariance_combined *
     (weight * inverse_covariance1 * mean1 + (1 - weight) * inverse_covariance2 * mean2)};
   return {mean_combined, covariance_combined};
+}
+
+auto wrap_angle(Eigen::VectorXf & vec) {
+  while (vec(3) < 0) {
+    vec(3) += 2 * 3.14159265359;
+  }
+
+  while (vec(3) > 2 * 3.14159265359) {
+    vec(3) -= 2 * 3.14159265359;
+  }
+}
+
+inline auto compute_covariance_intersection2(
+  const Eigen::VectorXf & mean1, const Eigen::MatrixXf & inverse_covariance1,
+  const Eigen::VectorXf & mean2, const Eigen::MatrixXf & inverse_covariance2, float weight)
+  -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+{
+  const auto inverse_covariance_combined{
+    weight * inverse_covariance1 + (1 - weight) * inverse_covariance2};
+  const auto covariance_combined{inverse_covariance_combined.inverse()};
+
+  // std::cout << "original mean 1:\n" << mean1 << '\n';
+
+  Eigen::VectorXf weighted_mean1 = weight * inverse_covariance1 * mean1;
+  wrap_angle(weighted_mean1);
+  // std::cout << "weighted mean 1: \n" << weighted_mean1 << '\n';
+
+  // std::cout << "original mean 2:\n" << mean2 << '\n';
+
+  Eigen::VectorXf weighted_mean2 = (1 - weight) * inverse_covariance2 * mean2;
+  // std::cout << "weighted mean 2: \n" << weighted_mean2 << '\n';
+
+  wrap_angle(weighted_mean2);
+  // std::cout << "weighted mean 2 (wrapped):\n" << weighted_mean2 << '\n';
+
+  // std::cout << "inverse covariance 1:\n" << inverse_covariance2 << '\n';
+
+  const auto mean_combined2 = covariance_combined * (weighted_mean1 + weighted_mean2);
+  return {mean_combined2, covariance_combined};
+
+  // const auto mean_combined{
+  //   covariance_combined *
+  //   (weight * inverse_covariance1 * mean1 + (1 - weight) * inverse_covariance2 * mean2)};
+  // return {mean_combined, covariance_combined};
 }
 
 /**
@@ -105,7 +150,7 @@ constexpr Visitor covariance_intersection_visitor{
     const auto weight{generate_weight(track_inverse_covariance, detection_inverse_covariance)};
 
     // Fuse states and covariances
-    const auto [fused_state, fused_covariance]{compute_covariance_intersection(
+    const auto [fused_state, fused_covariance]{compute_covariance_intersection2(
       track.state.to_eigen_vector(track.state), track_inverse_covariance,
       detection.state.to_eigen_vector(detection.state), detection_inverse_covariance, weight)};
 
