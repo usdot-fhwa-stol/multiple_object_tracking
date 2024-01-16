@@ -97,7 +97,10 @@ inline auto compute_covariance_intersection2(
 
   // std::cout << "inverse covariance 1:\n" << inverse_covariance2 << '\n';
 
-  Eigen::VectorXf mean_combined2 = covariance_combined * (weighted_mean1 + weighted_mean2);
+  Eigen::VectorXf summed_mean = weighted_mean1 + weighted_mean2;
+  wrap_angle(summed_mean);
+
+  Eigen::VectorXf mean_combined2 = covariance_combined * summed_mean;
   wrap_angle(mean_combined2);
 
   return {mean_combined2, covariance_combined};
