@@ -138,7 +138,7 @@ inline auto vector_to_vector_xf(const std::vector<float> & input) -> Eigen::Vect
  * @return A matrix containing the state and sigma points as rows.
  */
 template <typename StateType>
-inline auto mean_and_sigma_pints_to_matrix_xf(
+inline auto mean_and_sigma_points_to_matrix_xf(
   const StateType & mean, const std::vector<StateType> & sigma_points) -> Eigen::MatrixXf
 {
   Eigen::MatrixXf matrix(sigma_points.size() + 1, StateType::kNumVars);

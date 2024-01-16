@@ -52,12 +52,29 @@ inline auto compute_covariance_intersection(
   const Eigen::VectorXf & mean2, const Eigen::MatrixXf & inverse_covariance2, float weight)
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
+  // Yaw values (index 3) are circular, which cause issues when values cross the identification
+  // point. To (partially) avoid the issue, we "rotate" values to they are +/-pi, making the
+  // math work out for our current use case. This will need to be revisited in the future.
+  // https://github.com/usdot-fhwa-stol/multiple_object_tracking/issues/145
+  // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
+  // this assumption may not hold. We will have to redesign and reimplement in that scenario.
+  Eigen::VectorXf mean1_copy = mean1;
+  Eigen::VectorXf mean2_copy = mean2;
+
+  if (mean1_copy[3] > 3.14159265359) {
+    mean1_copy[3] -= 2 * 3.14159265359;
+  }
+
+  if (mean2_copy[3] > 3.14159265359) {
+    mean2_copy[3] -= 2 * 3.14159265359;
+  }
+
   const auto inverse_covariance_combined{
     weight * inverse_covariance1 + (1 - weight) * inverse_covariance2};
   const auto covariance_combined{inverse_covariance_combined.inverse()};
   const auto mean_combined{
     covariance_combined *
-    (weight * inverse_covariance1 * mean1 + (1 - weight) * inverse_covariance2 * mean2)};
+    (weight * inverse_covariance1 * mean1_copy + (1 - weight) * inverse_covariance2 * mean2_copy)};
   return {mean_combined, covariance_combined};
 }
 
@@ -149,8 +166,8 @@ auto fuse_associations(
           const auto detection_uuid{get_uuid(detection)};
           if (
             std::find(
-              target_detection_uuids.begin(), target_detection_uuids.end(),
-              detection_uuid) != target_detection_uuids.end()) {
+              target_detection_uuids.begin(), target_detection_uuids.end(), detection_uuid) !=
+            target_detection_uuids.end()) {
             const auto fused_track{std::visit(fusion_visitor, track, detection)};
             fused_tracks.push_back(fused_track);
           }
