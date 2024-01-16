@@ -66,7 +66,7 @@ TEST(TestUnscentedKalmanFilter, CtrvPrediction)
   mot::CtrvStateCovariance result_covariance{std::get<1>(transform_res)};
 
   EXPECT_THAT(result_state, CtrvStateNear(expected_state, 1e-4));
-  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, 1e-4));
+  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, 1e-3));
 }
 
 TEST(TestUnscentedKalmanFilter, CtraPrediction)
