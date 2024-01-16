@@ -73,13 +73,25 @@ inline auto unscented_kalman_filter_predict(
     predicted_sigma_points.push_back(get_next_state(sigma_point, time_step));
   }
 
+  std::cout << "mean weights:\n" << Wm << '\n';
+  std::cout << "\ncovariance weights:\n" << Wc << '\n';
+
   // Convert mean and sigma points into Eigen::MatrixXf
   const auto m_sigma_points{
     mean_and_sigma_pints_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
   // Compute UT based on the sigma points and weights
+  // const auto [result_state_vector, result_covariance_matrix] =
+  //   compute_unscented_transform(m_sigma_points, Wm, Wc);
+
   const auto [result_state_vector, result_covariance_matrix] =
-    compute_unscented_transform(m_sigma_points, Wm, Wc);
+  compute_unscented_transform2(predicted_mean, predicted_sigma_points, Wm, Wc);
+
+  // std::cout << '\n' << result_state_vector << '\n';
+  // std::cout << '\n' << result_covariance_matrix << '\n';
+
+  // std::cout << '\n' << result_state_vector2 << '\n';
+  // std::cout << '\n' << result_covariance_matrix2 << '\n';
 
   const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
   const CovarianceType result_covariance{std::move(result_covariance_matrix)};

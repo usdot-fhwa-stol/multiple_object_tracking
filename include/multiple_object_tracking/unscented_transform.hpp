@@ -162,9 +162,44 @@ inline auto compute_unscented_transform(
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   Eigen::VectorXf x = Wm.transpose() * sigma_points;
+  std::cout << stack_vector_into_matrix(x, sigma_points.rows()) << '\n';
   Eigen::MatrixXf y = sigma_points - stack_vector_into_matrix(x, sigma_points.rows());
+  std::cout << y << '\n';
   Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
   return {x, P};
+}
+
+template <typename State>
+inline auto compute_unscented_transform2(
+  const State & mean, const std::vector<State> & sigma_points, const Eigen::VectorXf & mean_weights,
+  const Eigen::VectorXf & covariance_weights) -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
+{
+  auto new_mean{mean_weights[0] * mean};
+  for (auto i{0U}; i < std::size(sigma_points); ++i) {
+    new_mean += mean_weights[i + 1] * sigma_points[i];
+  }
+
+  Eigen::MatrixXf mean_matrix(State::kNumVars, std::size(sigma_points));
+  for (auto i{0U}; i < std::size(sigma_points); ++i) {
+    mean_matrix.col(i) = State::to_eigen_vector(mean);
+  }
+
+  Eigen::MatrixXf sigma_points_matrix(State::kNumVars, std::size(sigma_points));
+  for (auto i{0U}; i < std::size(sigma_points); ++i) {
+    sigma_points_matrix.col(i) = State::to_eigen_vector(sigma_points.at(i));
+  }
+
+  std::cout << sigma_points_matrix << '\n';
+
+  Eigen::VectorXf subvector(covariance_weights.rows() - 1);
+  for (auto i{0U}; i < covariance_weights.rows() - 1; ++i) {
+    subvector(i) = covariance_weights(i + 1);
+  }
+
+  Eigen::MatrixXf deltas = mean_matrix - sigma_points_matrix;
+  Eigen::MatrixXf new_covariance = deltas * subvector.asDiagonal() * deltas.transpose();
+
+  return {State::to_eigen_vector(new_mean), new_covariance};
 }
 
 /**
