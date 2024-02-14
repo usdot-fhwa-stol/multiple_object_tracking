@@ -52,6 +52,14 @@ public:
   {
   }
 
+  auto get_occurrences(const Uuid & uuid) const {
+    if (occurrences_.count(uuid) == 0) {
+      return 0;
+    }
+
+    return static_cast<int>(occurrences_.at(uuid));
+  }
+
   auto update_track_lists(const AssociationMap & associations) -> void
   {
     for (auto & [uuid, occurrences] : occurrences_) {
