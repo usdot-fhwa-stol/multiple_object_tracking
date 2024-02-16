@@ -22,6 +22,8 @@
 #ifndef MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP
 #define MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP
 
+#include <algorithm>
+
 #include "multiple_object_tracking/track_matching.hpp"
 #include "multiple_object_tracking/uuid.hpp"
 
