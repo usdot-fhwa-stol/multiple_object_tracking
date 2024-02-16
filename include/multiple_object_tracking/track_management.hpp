@@ -86,9 +86,10 @@ public:
 
       if (occurrences >= promotion_threshold_.value) {
         statuses_.at(uuid) = TrackStatus::kConfirmed;
-      } else {
-        statuses_.at(uuid) = TrackStatus::kTentative;
       }
+      // else {
+      //   statuses_.at(uuid) = TrackStatus::kTentative;
+      // }
 
       ++it;
     }
