@@ -68,7 +68,7 @@ public:
       if (associations.count(uuid) == 0) {
         --occurrences;
       } else {
-        occurrences = std::max(occurrences + 1, promotion_threshold_);
+        occurrences = std::max(occurrences + 1, promotion_threshold_.value);
         // ++occurrences;
       }
     }
