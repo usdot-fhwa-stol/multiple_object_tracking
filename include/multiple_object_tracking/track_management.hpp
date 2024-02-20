@@ -22,6 +22,8 @@
 #ifndef MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP
 #define MULTIPLE_OBJECT_TRACKING_TRACK_MANAGEMENT_HPP
 
+#include <algorithm>
+
 #include "multiple_object_tracking/track_matching.hpp"
 #include "multiple_object_tracking/uuid.hpp"
 
@@ -52,13 +54,22 @@ public:
   {
   }
 
+  auto get_occurrences(const Uuid & uuid) const
+  {
+    if (occurrences_.count(uuid) == 0) {
+      return 0;
+    }
+
+    return static_cast<int>(occurrences_.at(uuid));
+  }
+
   auto update_track_lists(const AssociationMap & associations) -> void
   {
     for (auto & [uuid, occurrences] : occurrences_) {
       if (associations.count(uuid) == 0) {
         --occurrences;
       } else {
-        ++occurrences;
+        occurrences = std::min(occurrences + 1, promotion_threshold_.value);
       }
     }
 
@@ -75,8 +86,6 @@ public:
 
       if (occurrences >= promotion_threshold_.value) {
         statuses_.at(uuid) = TrackStatus::kConfirmed;
-      } else {
-        statuses_.at(uuid) = TrackStatus::kTentative;
       }
 
       ++it;
