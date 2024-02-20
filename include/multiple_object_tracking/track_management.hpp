@@ -54,7 +54,8 @@ public:
   {
   }
 
-  auto get_occurrences(const Uuid & uuid) const {
+  auto get_occurrences(const Uuid & uuid) const
+  {
     if (occurrences_.count(uuid) == 0) {
       return 0;
     }
@@ -69,7 +70,6 @@ public:
         --occurrences;
       } else {
         occurrences = std::min(occurrences + 1, promotion_threshold_.value);
-        // ++occurrences;
       }
     }
 
@@ -87,9 +87,6 @@ public:
       if (occurrences >= promotion_threshold_.value) {
         statuses_.at(uuid) = TrackStatus::kConfirmed;
       }
-      // else {
-      //   statuses_.at(uuid) = TrackStatus::kTentative;
-      // }
 
       ++it;
     }
