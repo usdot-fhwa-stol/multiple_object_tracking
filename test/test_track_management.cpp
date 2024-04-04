@@ -50,21 +50,21 @@ TEST(TestTrackManagement, Simple)
 
   track_manager.update_track_lists(association_map);
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); 
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
   track_manager.update_track_lists(mot::AssociationMap{});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); //confirmed tracks don't get demoted to tentative
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); 
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
   track_manager.update_track_lists(mot::AssociationMap{});
   track_manager.update_track_lists(mot::AssociationMap{});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); 
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U); //confirmed tracks get destroyed after removal threshold is met
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 0U);
 }
 
