@@ -26,10 +26,10 @@ using CtrvCovariance = Eigen::Matrix<float, 5, 5>;
 ### Interface
 ```cpp
 auto nextState(
-    const cooperative_perception::CtrvState& state,
-    const cooperative_perception::CtrvStateCovariance& covariance,
+    const multiple_object_tracking::CtrvState& state,
+    const multiple_object_tracking::CtrvStateCovariance& covariance,
     float time_step
-) -> std::tuple<cooperative_perception::CtrvState, cooperative_perception::CtrvStateCovariance>;
+) -> std::tuple<multiple_object_tracking::CtrvState, multiple_object_tracking::CtrvStateCovariance>;
 ```
 
 ### Parameters

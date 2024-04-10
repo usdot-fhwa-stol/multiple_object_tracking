@@ -18,49 +18,62 @@
  * Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
  */
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <cooperative_perception/angle.hpp>
 #include <units.h>
+
 #include <boost/math/constants/constants.hpp>
+#include <multiple_object_tracking/angle.hpp>
+#include <multiple_object_tracking/units.hpp>
 
 using namespace units::literals;
 
-namespace cp = cooperative_perception;
+namespace mot = multiple_object_tracking;
 
 /**
- * Test CTRV nextState function against pure rotation
+ * Test CTRV get_next_state function against pure rotation
  */
 TEST(TestAngle, AngleArithmeticOperations)
 {
   // Define some known angles
-  const auto angle_pi{ cp::Angle{ 3.141592654_rad } };
-  const auto angle_pi_2{ cp::Angle{ 1.570796327_rad } };
-  const auto angle_pi_4{ cp::Angle{ 0.785398163_rad } };
-  const auto angle_pi_6{ cp::Angle{ 0.523598776_rad } };
+  const auto angle_pi{mot::Angle{3.141592654_rad}};
+  const auto angle_pi_2{mot::Angle{1.570796327_rad}};
+  const auto angle_pi_4{mot::Angle{0.785398163_rad}};
+  const auto angle_pi_6{mot::Angle{0.523598776_rad}};
 
   // Perform additive and scalar operations
-  auto res1 = angle_pi / 2.0;
-  auto res2 = angle_pi_4 * 2.0;
-  auto res3 = angle_pi + angle_pi_2;
-  auto res4 = angle_pi - angle_pi_4;
-  auto res5 = angle_pi * 2.2;
+  auto res1 = mot::remove_units((angle_pi / 2.0).get_angle());
+  auto res2 = mot::remove_units((angle_pi_4 * 2.0).get_angle());
+  auto res3 = mot::remove_units((angle_pi + angle_pi_2).get_angle());
+  auto res4 = mot::remove_units((angle_pi - angle_pi_4).get_angle());
+  auto res5 = mot::remove_units((angle_pi * 2.2).get_angle());
 
   // Set tolerance for these tests
   constexpr double tolerance = 1.e-8;
 
-  EXPECT_NEAR(units::unit_cast<double>(res1.get_angle()), boost::math::double_constants::half_pi, tolerance);
-  EXPECT_NEAR(units::unit_cast<double>(res2.get_angle()), boost::math::double_constants::half_pi, tolerance);
-  EXPECT_NEAR(units::unit_cast<double>(res3.get_angle()), 3 * boost::math::double_constants::half_pi, tolerance);
-  EXPECT_NEAR(units::unit_cast<double>(res4.get_angle()), (3.0 / 4.0) * boost::math::double_constants::pi, tolerance);
-  EXPECT_NEAR(units::unit_cast<double>(res5.get_angle()), 0.2 * boost::math::double_constants::pi, tolerance);
+  EXPECT_NEAR(res1, boost::math::double_constants::half_pi, tolerance);
+  EXPECT_NEAR(res2, boost::math::double_constants::half_pi, tolerance);
+  EXPECT_NEAR(res3, 3 * boost::math::double_constants::half_pi, tolerance);
+  EXPECT_NEAR(res4, (3.0 / 4.0) * boost::math::double_constants::pi, tolerance);
+  EXPECT_NEAR(res5, 0.2 * boost::math::double_constants::pi, tolerance);
 }
 
 TEST(TestAngle, AngleBooleanOperations)
 {
-  const auto angle_pi{ cp::Angle{ 3.141592654_rad } };
-  const auto angle_pi_2{ cp::Angle{ 1.570796327_rad } };
+  static constexpr double tolerance{1.e-8};
 
-  EXPECT_TRUE(cp::utils::almostEqual(angle_pi, angle_pi));
-  EXPECT_FALSE(cp::utils::almostEqual(angle_pi, angle_pi_2));
-  EXPECT_TRUE(cp::utils::almostEqual(angle_pi_2, angle_pi - angle_pi_2));
-}
+  const auto angle_pi{mot::Angle{3.141592654_rad}};
+  const auto angle_pi_2{mot::Angle{1.570796327_rad}};
+  const auto angle_difference{angle_pi - angle_pi_2};
+
+  const auto angle_pi_raw{mot::remove_units(angle_pi.get_angle())};
+  const auto angle_pi_2_raw{mot::remove_units(angle_pi_2.get_angle())};
+  const auto angle_difference_raw{mot::remove_units(angle_difference.get_angle())};
+
+  using ::testing::DoubleNear;
+  using ::testing::Not;
+
+  EXPECT_NEAR(angle_pi_raw, angle_pi_raw, tolerance);
+  EXPECT_THAT(angle_pi_raw, Not(DoubleNear(angle_pi_2_raw, tolerance)));
+  EXPECT_NEAR(angle_pi_2_raw, angle_difference_raw, tolerance);
+};

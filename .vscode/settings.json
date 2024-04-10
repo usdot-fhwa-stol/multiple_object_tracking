@@ -1,7 +1,10 @@
 {
     "cSpell.words": [
         "cpptools",
-        "Ctrv"
+        "Ctra",
+        "Ctrv",
+        "Eigen",
+        "tparam"
     ],
     "editor.formatOnSave": true,
     "files.insertFinalNewline": true,

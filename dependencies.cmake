@@ -1,4 +1,4 @@
-# Copyright 2022 Leidos
+# Copyright 2023 Leidos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-find_package(Boost REQUIRED COMPONENTS container)
-find_package(Eigen3 3.4 REQUIRED)
 find_package(units REQUIRED)
-
-if(cooperative_perception_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
+find_package(Eigen3 REQUIRED)
+find_package(dlib REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(Boost REQUIRED COMPONENTS container)
+if(multiple_object_tracking_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
   find_package(GTest REQUIRED)
 endif()

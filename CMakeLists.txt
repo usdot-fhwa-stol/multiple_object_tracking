@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
 # Developed by the Human and Vehicle Ensembles (HIVE) Lab at Virginia Commonwealth University (VCU)
 
 cmake_minimum_required(VERSION 3.16)
-project(cooperative_perception_core)
+project(multiple_object_tracking)
 enable_testing()
 
 # In CMake 3.21, PROJECT_IS_TOP_LEVEL is provided, so if block can be removed when the
@@ -26,10 +26,10 @@ else()
   set(PROJECT_IS_TOP_LEVEL FALSE CACHE INTERNAL "")
 endif()
 
-option(cooperative_perception_ENABLE_TESTING "Enable unit tests for cooperative_perception" ${PROJECT_IS_TOP_LEVEL})
-option(cooperative_perception_EXPORT_COMPILE_COMMANDS "Export compile commands" ON)
+option(multiple_object_tracking_ENABLE_TESTING "Enable unit tests for multiple_object_tracking" ${PROJECT_IS_TOP_LEVEL})
+option(multiple_object_tracking_EXPORT_COMPILE_COMMANDS "Export compile commands" ON)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ${cooperative_perception_EXPORT_COMPILE_COMMANDS})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ${multiple_object_tracking_EXPORT_COMPILE_COMMANDS})
 
 # Language standard is required for all project targets
 set(CMAKE_CXX_STANDARD 17)
@@ -41,6 +41,6 @@ include(dependencies.cmake)
 
 add_subdirectory(src)
 
-if(cooperative_perception_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
+if(multiple_object_tracking_ENABLE_TESTING OR PROJECT_IS_TOP_LEVEL)
   add_subdirectory(test)
 endif()
