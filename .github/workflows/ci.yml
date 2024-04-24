@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
 
     container:  # Use a Docker container as the execution environment
-      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:focal  # Docker image to use
+      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:carma-system-4.5.0-focal  # Docker image to use
       env:  # Define environment variables for the container
         BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm

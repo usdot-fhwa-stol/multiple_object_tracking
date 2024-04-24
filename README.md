@@ -1,5 +1,9 @@
 # Multiple object tracking
 
+This repository holds a multiple object tracking (MOT) library to support cooperative perception. This library is intended for tracking object level data from multiple sources where the input is abstracted as a standard cooperative perception object tracking interface. For example, object level data can come from multiple sources including J2334 Sensor Data Sharing Message, Basic Safety Message, or local perception. This enables the library to be deployed in different road actors such as C-ADS equipped vehicles or the infrastructure with the help of message adapters that are suited for respective middleware.  
+
+The library exposes multiple submodules and functionalities adopted from the architectural and algorithmic advancements made by the sensor fusion community. Example usage of this library to fully execute multiple object tracking pipeline is implemented in CARMA Platform [here]([url](https://github.com/usdot-fhwa-stol/carma-platform/tree/develop/carma_cooperative_perception)). More documentation for implementation detail can be found in the `docs` folder.
+
 | CI Build Status | Sonar Code Quality |
 |----------------------|---------------------|
 |[![CI](https://github.com/usdot-fhwa-stol/multiple_object_tracking/actions/workflows/ci.yml/badge.svg)](https://github.com/usdot-fhwa-stol/multiple_object_tracking/actions/workflows/ci.yml) | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_multiple-object-tracking&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=usdot-fhwa-stol_multiple-object-tracking) |
