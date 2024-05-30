@@ -1,6 +1,7 @@
 # Multiple-object tracking overview
 
-![Alt text]("Overall MOT.png")
+![Alt text](Overall_MOT.png)
+
 Pipelines designs vary depending on the application. The data flow we describe here is tailored to our needs but may
 suffice for others. We integrate this library into a cooperative perception (CP) system where several actors perceive
 the world and publish their detection information for others to use. Our pipeline comprises the following sequential
@@ -12,7 +13,7 @@ stages:
 4. track maintenance
 5. track update
 
-![Alt text]("MOT Detailed Pipeline.png")
+![Alt text](MOT_Detailed_Pipeline.png)
 
 !!! info "Terminology"
 
