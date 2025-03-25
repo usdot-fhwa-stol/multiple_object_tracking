@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [develop, master]
+    branches: [develop, master, sync_test_run]
   pull_request:
       types: [opened, synchronize, reopened]
 jobs:
