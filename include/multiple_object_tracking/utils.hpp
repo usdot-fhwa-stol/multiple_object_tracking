@@ -112,12 +112,12 @@ inline auto print_container(const EntityContainer & entities) -> void
   // First, use fmod to get angle in range (-2π, 2π)
   float normalized = std::fmod(angle, TWO_PI);
 
-  // Then shift to range [-π, π)
-  if (normalized >= 3.14159265359f) {
-      normalized -= TWO_PI;
-  } else if (normalized < -3.14159265359f) {
-      normalized += TWO_PI;
-  }
+  // // Then shift to range [-π, π)
+  // if (normalized >= 3.14159265359f) {
+  //     normalized -= TWO_PI;
+  // } else if (normalized < -3.14159265359f) {
+  //     normalized += TWO_PI;
+  // }
 
   return normalized;
 }
