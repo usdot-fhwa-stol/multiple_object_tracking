@@ -60,15 +60,18 @@ inline auto compute_covariance_intersection(
 
   // Use the angle indices (assuming only yaw at index 3 is an angle)
   std::vector<int> angle_indices = {3};
-  multiple_object_tracking::utils::normalize_angles_in_vector(mean1_copy, angle_indices);
-  multiple_object_tracking::utils::normalize_angles_in_vector(mean2_copy, angle_indices);
+  mean1_copy =
+    multiple_object_tracking::utils::normalize_angles_in_vector(mean1_copy, angle_indices);
+  mean2_copy =
+    multiple_object_tracking::utils::normalize_angles_in_vector(mean2_copy, angle_indices);
 
   const auto inverse_covariance_combined{
     weight * inverse_covariance1 + (1 - weight) * inverse_covariance2};
   const auto covariance_combined{inverse_covariance_combined.inverse()};
   const auto mean_combined{
     covariance_combined *
-    (weight * inverse_covariance1 * mean1_copy + (1 - weight) * inverse_covariance2 * mean2_copy)};
+    (weight * inverse_covariance1 * mean1_copy
+      + (1 - weight) * inverse_covariance2 * mean2_copy)};
   return {mean_combined, covariance_combined};
 }
 

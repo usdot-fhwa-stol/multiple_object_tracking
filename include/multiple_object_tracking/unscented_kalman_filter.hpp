@@ -86,9 +86,10 @@ inline auto unscented_kalman_filter_predict(
     compute_unscented_transform(m_sigma_points, Wm, Wc);
 
   // After computing the result state vector
-  multiple_object_tracking::utils::normalize_angles_in_vector(result_state_vector, angle_indices);
+  Eigen::VectorXf normalized_state_vector =
+    multiple_object_tracking::utils::normalize_angles_in_vector(result_state_vector, angle_indices);
 
-  const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
+  const auto result_state{StateType::from_eigen_vector(std::move(normalized_state_vector))};
   const CovarianceType result_covariance{std::move(result_covariance_matrix)};
   return {std::move(result_state), std::move(result_covariance)};
 }

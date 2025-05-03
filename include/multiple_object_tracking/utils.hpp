@@ -144,12 +144,15 @@ inline float angle_difference(float from, float to) {
 *
 * @param[in,out] vector The vector containing angles to normalize
 * @param[in] angle_indices Vector of indices where angles are located
+* @return The normalized vector
 */
-inline void normalize_angles_in_vector(Eigen::VectorXf& vector,
-                                    const std::vector<int>& angle_indices) {
-  for (auto idx : angle_indices) {
-      vector[idx] = normalize_angle(vector[idx]);
-  }
+inline Eigen::VectorXf normalize_angles_in_vector(const Eigen::VectorXf& vector,
+  const std::vector<int>& angle_indices) {
+Eigen::VectorXf normalized_vector = vector;
+for (auto idx : angle_indices) {
+normalized_vector[idx] = normalize_angle(normalized_vector[idx]);
+}
+return normalized_vector;
 }
 
 /**
