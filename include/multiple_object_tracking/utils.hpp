@@ -145,7 +145,7 @@ inline float angle_difference(float from, float to) {
 * @param[in,out] vector The vector containing angles to normalize
 * @param[in] angle_indices Vector of indices where angles are located
 */
-inline void multiple_object_tracking::utils::normalize_angles_in_vector(Eigen::VectorXf& vector,
+inline void normalize_angles_in_vector(Eigen::VectorXf& vector,
                                     const std::vector<int>& angle_indices) {
   for (auto idx : angle_indices) {
       vector[idx] = normalize_angle(vector[idx]);
@@ -160,7 +160,7 @@ inline void multiple_object_tracking::utils::normalize_angles_in_vector(Eigen::V
 * @param[in,out] matrix The matrix containing vectors with angles to normalize
 * @param[in] angle_indices Vector of indices where angles are located in each row
 */
-inline void multiple_object_tracking::utils::normalize_angles_in_matrix(Eigen::MatrixXf& matrix,
+inline void normalize_angles_in_matrix(Eigen::MatrixXf& matrix,
                                     const std::vector<int>& angle_indices) {
   for (int row = 0; row < matrix.rows(); ++row) {
       for (auto idx : angle_indices) {
