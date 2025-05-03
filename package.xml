@@ -24,7 +24,6 @@ limitations under the License.
   <license>Apache 2.0</license>
 
   <buildtool_depend>cmake</buildtool_depend>
-  <depend>rclcpp</depend>
 
   <export>
     <build_type>cmake</build_type>

@@ -26,7 +26,6 @@
 
 #include "multiple_object_tracking/track_matching.hpp"
 #include "multiple_object_tracking/uuid.hpp"
-#include <rclcpp/rclcpp.hpp>
 namespace multiple_object_tracking
 {
 template <typename Type, typename Tag>
@@ -65,26 +64,26 @@ public:
 
   auto update_track_lists(const AssociationMap & associations) -> void
   {
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Starting update_track_lists with " << occurrences_.size() << " tracked objects" );
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Promotion threshold: " << promotion_threshold_.value << ", Removal threshold: " << removal_threshold_.value );
+    std::cerr << "DEBUG: Starting update_track_lists with " << occurrences_.size() << " tracked objects" << std::endl;
+    std::cerr << "DEBUG: Promotion threshold: " << promotion_threshold_.value << ", Removal threshold: " << removal_threshold_.value << std::endl;
 
     // First loop: Update occurrences based on associations
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Starting first loop - updating occurrences" );
+    std::cerr << "DEBUG: Starting first loop - updating occurrences" << std::endl;
     for (auto & [uuid, occurrences] : occurrences_) {
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Processing UUID: " << uuid << " with current occurrences: " << occurrences );
+      std::cerr << "DEBUG: Processing UUID: " << uuid << " with current occurrences: " << occurrences << std::endl;
 
       if (associations.count(uuid) == 0) {
         --occurrences;
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: UUID " << uuid << " not found in associations, decremented to " << occurrences );
+        std::cerr << "DEBUG: UUID " << uuid << " not found in associations, decremented to " << occurrences << std::endl;
       } else {
         int old_occurrences = occurrences;
         occurrences = std::min(occurrences + 1, promotion_threshold_.value);
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: UUID " << uuid << " found in associations, updated from " << old_occurrences << " to " << occurrences );
+        std::cerr << "DEBUG: UUID " << uuid << " found in associations, updated from " << old_occurrences << " to " << occurrences << std::endl;
       }
     }
 
     // Second loop: Handle track statuses based on updated occurrences
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Starting second loop - processing tracks based on occurrences" );
+    std::cerr << "DEBUG: Starting second loop - processing tracks based on occurrences" << std::endl;
     int removed_count = 0;
     int promoted_count = 0;
 
@@ -92,31 +91,31 @@ public:
       const auto uuid{it->first};
       const auto occurrences{it->second};
 
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Evaluating UUID: " << uuid << " with occurrences: " << occurrences );
+      std::cerr << "DEBUG: Evaluating UUID: " << uuid << " with occurrences: " << occurrences << std::endl;
 
       if (occurrences <= removal_threshold_.value) {
-        RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Removing UUID " << uuid << " (occurrences: " << occurrences << " <= removal threshold: " << removal_threshold_.value << ")" );
+        std::cerr << "DEBUG: Removing UUID " << uuid << " (occurrences: " << occurrences << " <= removal threshold: " << removal_threshold_.value << ")" << std::endl;
 
         try {
           tracks_.erase(uuid);
-          RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Erased UUID " << uuid << " from tracks_" );
+          std::cerr << "DEBUG: Erased UUID " << uuid << " from tracks_" << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from tracks_: " << e.what() );
+          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from tracks_: " << e.what() << std::endl;
         }
 
         try {
           statuses_.erase(uuid);
-          RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Erased UUID " << uuid << " from statuses_" );
+          std::cerr << "DEBUG: Erased UUID " << uuid << " from statuses_" << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from statuses_: " << e.what() );
+          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from statuses_: " << e.what() << std::endl;
         }
 
         try {
           it = occurrences_.erase(it);
           ++removed_count;
-          RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Erased UUID " << uuid << " from occurrences_" );
+          std::cerr << "DEBUG: Erased UUID " << uuid << " from occurrences_" << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from occurrences_: " << e.what() );
+          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from occurrences_: " << e.what() << std::endl;
           ++it; // Still advance iterator to avoid infinite loop
         }
 
@@ -128,22 +127,22 @@ public:
           TrackStatus old_status = statuses_.at(uuid);
           statuses_.at(uuid) = TrackStatus::kConfirmed;
           ++promoted_count;
-          RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Promoted UUID " << uuid << " from status " << static_cast<int>(old_status)
-                    << " to " << static_cast<int>(TrackStatus::kConfirmed) );
+          std::cerr << "DEBUG: Promoted UUID " << uuid << " from status " << static_cast<int>(old_status)
+                    << " to " << static_cast<int>(TrackStatus::kConfirmed) << std::endl;
         } catch (const std::out_of_range& e) {
-          std::cerr << "ERROR: UUID " << uuid << " not found in statuses_ map: " << e.what() );
+          std::cerr << "ERROR: UUID " << uuid << " not found in statuses_ map: " << e.what() << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to update status for UUID " << uuid << ": " << e.what() );
+          std::cerr << "ERROR: Failed to update status for UUID " << uuid << ": " << e.what() << std::endl;
         }
       }
 
       ++it;
     }
 
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Finished update_track_lists: removed " << removed_count << " tracks, promoted "
-              << promoted_count << " tracks" );
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("err"), "DEBUG: Final counts - tracks: " << tracks_.size() << ", statuses: " << statuses_.size()
-              << ", occurrences: " << occurrences_.size() );
+    std::cerr << "DEBUG: Finished update_track_lists: removed " << removed_count << " tracks, promoted "
+              << promoted_count << " tracks" << std::endl;
+    std::cerr << "DEBUG: Final counts - tracks: " << tracks_.size() << ", statuses: " << statuses_.size()
+              << ", occurrences: " << occurrences_.size() << std::endl;
   }
 
   auto add_tentative_track(const Track & track) -> void
