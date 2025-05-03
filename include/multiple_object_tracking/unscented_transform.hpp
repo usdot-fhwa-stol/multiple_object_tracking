@@ -24,6 +24,7 @@
 #include <Eigen/Dense>
 #include <tuple>
 #include <vector>
+#include "multiple_object_tracking/utils.hpp"
 
 namespace multiple_object_tracking
 {
@@ -196,7 +197,7 @@ inline auto compute_unscented_transform(
     }
 
     // Compute circular mean
-    mean(idx) = utils::weighted_circular_mean(angles, weights);
+  mean(idx) = multiple_object_tracking::utils::weighted_circular_mean(angles, weights);
   }
 
   // Compute covariance, handling angular differences properly
