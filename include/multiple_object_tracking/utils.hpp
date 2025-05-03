@@ -98,6 +98,77 @@ inline auto print_container(const EntityContainer & entities) -> void
   }
 }
 
+/**
+ * @brief Normalize an angle to the range [-π, π)
+ *
+ * This function takes an angle in radians and normalizes it to the
+ * range [-π, π) by adding or subtracting 2π as needed.
+ *
+ * @param[in] angle The angle to normalize (in radians)
+ * @return The normalized angle in the range [-π, π)
+ */
+ inline float normalize_angle(float angle) {
+  constexpr float TWO_PI = 2.0f * 3.14159265359f;
+  // First, use fmod to get angle in range (-2π, 2π)
+  float normalized = std::fmod(angle, TWO_PI);
+
+  // Then shift to range [-π, π)
+  if (normalized >= 3.14159265359f) {
+      normalized -= TWO_PI;
+  } else if (normalized < -3.14159265359f) {
+      normalized += TWO_PI;
+  }
+
+  return normalized;
+}
+
+/**
+* @brief Compute the shortest angular difference between two angles
+*
+* This function computes the shortest angular difference between two angles,
+* accounting for the circular nature of angles.
+*
+* @param[in] from The starting angle (in radians)
+* @param[in] to The target angle (in radians)
+* @return The shortest angular difference in the range [-π, π)
+*/
+inline float angle_difference(float from, float to) {
+  float diff = normalize_angle(to - from);
+  return diff;
+}
+
+/**
+* @brief Normalize angles in an Eigen vector
+*
+* This function normalizes angles at specified indices in an Eigen vector.
+*
+* @param[in,out] vector The vector containing angles to normalize
+* @param[in] angle_indices Vector of indices where angles are located
+*/
+inline void normalize_angles_in_vector(Eigen::VectorXf& vector,
+                                    const std::vector<int>& angle_indices) {
+  for (auto idx : angle_indices) {
+      vector[idx] = normalize_angle(vector[idx]);
+  }
+}
+
+/**
+* @brief Normalize angles in a matrix of vectors (e.g., sigma points)
+*
+* This function normalizes angles at specified indices in each row of a matrix.
+*
+* @param[in,out] matrix The matrix containing vectors with angles to normalize
+* @param[in] angle_indices Vector of indices where angles are located in each row
+*/
+inline void normalize_angles_in_matrix(Eigen::MatrixXf& matrix,
+                                    const std::vector<int>& angle_indices) {
+  for (int row = 0; row < matrix.rows(); ++row) {
+      for (auto idx : angle_indices) {
+          matrix(row, idx) = normalize_angle(matrix(row, idx));
+      }
+  }
+}
+
 }  // namespace multiple_object_tracking::utils
 
 #endif  // MULTIPLE_OBJECT_TRACKING_UTILS_HPP

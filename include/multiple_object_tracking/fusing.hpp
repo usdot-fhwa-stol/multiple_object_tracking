@@ -29,6 +29,7 @@
 #include "multiple_object_tracking/dynamic_object.hpp"
 #include "multiple_object_tracking/uuid.hpp"
 #include "multiple_object_tracking/visitor.hpp"
+#include "multiple_object_tracking/utils.hpp"
 
 namespace multiple_object_tracking
 {
@@ -53,21 +54,14 @@ inline auto compute_covariance_intersection(
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
   // Yaw values (index 3) are circular, which cause issues when values cross the identification
-  // point. To (partially) avoid the issue, we "rotate" values to they are +/-pi, making the
-  // math work out for our current use case. This will need to be revisited in the future.
-  // https://github.com/usdot-fhwa-stol/multiple_object_tracking/issues/145
-  // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
-  // this assumption may not hold. We will have to redesign and reimplement in that scenario.
+  // point.
   Eigen::VectorXf mean1_copy = mean1;
   Eigen::VectorXf mean2_copy = mean2;
 
-  if (mean1_copy[3] > 3.14159265359) {
-    mean1_copy[3] -= 2 * 3.14159265359;
-  }
-
-  if (mean2_copy[3] > 3.14159265359) {
-    mean2_copy[3] -= 2 * 3.14159265359;
-  }
+  // Use the angle indices (assuming only yaw at index 3 is an angle)
+  std::vector<int> angle_indices = {3};
+  normalize_angles_in_vector(mean1_copy, angle_indices);
+  normalize_angles_in_vector(mean2_copy, angle_indices);
 
   const auto inverse_covariance_combined{
     weight * inverse_covariance1 + (1 - weight) * inverse_covariance2};

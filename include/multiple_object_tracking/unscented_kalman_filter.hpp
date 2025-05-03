@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "multiple_object_tracking/unscented_transform.hpp"
+#include "multiple_object_tracking/utils.hpp"
 
 namespace multiple_object_tracking
 {
@@ -76,21 +77,16 @@ inline auto unscented_kalman_filter_predict(
   // Convert mean and sigma points into Eigen::MatrixXf
   auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
-  // Yaw values (index 3) are circular, which cause issues when values cross the identification
-  // point. To (partially) avoid the issue, we "rotate" values to they are +/-pi, making the
-  // math work out for our current use case. This will need to be revisited in the future.
-  // https://github.com/usdot-fhwa-stol/multiple_object_tracking/issues/145
-  // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
-  // this assumption may not hold. We will have to redesign and reimplement in that scenario.
-  for (auto row{0}; row < m_sigma_points.rows(); ++row) {
-    if (m_sigma_points(row, 3) > 3.14159265359) {
-      m_sigma_points(row, 3) -= 2 * 3.14159265359;
-    }
-  }
+  // Normalize all angles in the sigma points matrix
+  std::vector<int> angle_indices = {3};
+  normalize_angles_in_matrix(m_sigma_points, angle_indices);
 
   // Compute UT based on the sigma points and weights
   const auto [result_state_vector, result_covariance_matrix] =
     compute_unscented_transform(m_sigma_points, Wm, Wc);
+
+  // After computing the result state vector
+  normalize_angles_in_vector(result_state_vector, angle_indices);
 
   const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
   const CovarianceType result_covariance{std::move(result_covariance_matrix)};
