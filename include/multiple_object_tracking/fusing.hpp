@@ -48,30 +48,38 @@ namespace multiple_object_tracking
  * @param[in] weight The weight (0 to 1) to combine the two inverse covariances.
  * @return A tuple containing the combined mean and covariance of the two Gaussian distributions.
  */
-inline auto compute_covariance_intersection(
+ inline auto compute_covariance_intersection(
   const Eigen::VectorXf & mean1, const Eigen::MatrixXf & inverse_covariance1,
   const Eigen::VectorXf & mean2, const Eigen::MatrixXf & inverse_covariance2, float weight)
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
-  // Yaw values (index 3) are circular, which cause issues when values cross the identification
-  // point.
-  Eigen::VectorXf mean1_copy = mean1;
-  Eigen::VectorXf mean2_copy = mean2;
+  // Define which indices are angular quantities (assuming index 3 is yaw)
+  const std::vector<int> angle_indices = {3};
 
-  // Use the angle indices (assuming only yaw at index 3 is an angle)
-  std::vector<int> angle_indices = {3};
-  mean1_copy =
-    multiple_object_tracking::utils::normalize_angles_in_vector(mean1_copy, angle_indices);
-  mean2_copy =
-    multiple_object_tracking::utils::normalize_angles_in_vector(mean2_copy, angle_indices);
+  // Normalize both input means
+  Eigen::VectorXf mean1_normalized = utils::normalize_angles_in_vector(mean1, angle_indices);
+  Eigen::VectorXf mean2_normalized = utils::normalize_angles_in_vector(mean2, angle_indices);
+
+  // For angular states, we need to ensure we're using the smallest angle difference
+  // This is important when the two angles are on opposite sides of the -π/π boundary
+  for (auto idx : angle_indices) {
+    // Adjust mean2 to be closest to mean1 in angular space
+    float diff = utils::angle_difference(mean1_normalized[idx], mean2_normalized[idx]);
+    mean2_normalized[idx] = mean1_normalized[idx] + diff;
+  }
 
   const auto inverse_covariance_combined{
     weight * inverse_covariance1 + (1 - weight) * inverse_covariance2};
   const auto covariance_combined{inverse_covariance_combined.inverse()};
-  const auto mean_combined{
-    covariance_combined *
-    (weight * inverse_covariance1 * mean1_copy
-      + (1 - weight) * inverse_covariance2 * mean2_copy)};
+
+  // Compute weighted mean, handling angles properly
+  Eigen::VectorXf mean_combined = covariance_combined *
+    (weight * inverse_covariance1 * mean1_normalized +
+     (1 - weight) * inverse_covariance2 * mean2_normalized);
+
+  // Normalize the resulting angles
+  mean_combined = utils::normalize_angles_in_vector(mean_combined, angle_indices);
+
   return {mean_combined, covariance_combined};
 }
 

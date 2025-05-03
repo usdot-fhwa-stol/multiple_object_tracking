@@ -58,41 +58,42 @@ namespace multiple_object_tracking
  *
  * @return Tuple containing the resulting state and covariance matrix after the prediction step.
  */
-template <typename StateType, typename CovarianceType>
-inline auto unscented_kalman_filter_predict(
-  const StateType & state, const CovarianceType & covariance, const units::time::second_t time_step,
-  const float alpha, const float beta, const float kappa) -> std::tuple<StateType, CovarianceType>
-{
-  // Generate sigma points and weights
-  const auto [sigma_points, Wm, Wc] =
-    generate_sigma_points_and_weights(state, covariance, alpha, beta, kappa);
+ template <typename StateType, typename CovarianceType>
+ inline auto unscented_kalman_filter_predict(
+   const StateType & state, const CovarianceType & covariance, const units::time::second_t time_step,
+   const float alpha, const float beta, const float kappa) -> std::tuple<StateType, CovarianceType>
+ {
+   // Define which indices are angular quantities (assuming index 3 is yaw)
+   const std::vector<int> angle_indices = {3};
 
-  // Advance mean and sigma points through the non-linear model
-  const auto predicted_mean{get_next_state(state, time_step)};
-  std::vector<StateType> predicted_sigma_points;
-  for (const auto & sigma_point : sigma_points) {
-    predicted_sigma_points.push_back(get_next_state(sigma_point, time_step));
-  }
+   // Generate sigma points and weights
+   const auto [sigma_points, Wm, Wc] =
+     generate_sigma_points_and_weights(state, covariance, alpha, beta, kappa);
 
-  // Convert mean and sigma points into Eigen::MatrixXf
-  auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
+   // Advance mean and sigma points through the non-linear model
+   const auto predicted_mean{get_next_state(state, time_step)};
+   std::vector<StateType> predicted_sigma_points;
+   for (const auto & sigma_point : sigma_points) {
+     predicted_sigma_points.push_back(get_next_state(sigma_point, time_step));
+   }
 
-  // Normalize all angles in the sigma points matrix
-  std::vector<int> angle_indices = {3};
-  multiple_object_tracking::utils::normalize_angles_in_matrix(m_sigma_points, angle_indices);
+   // Convert mean and sigma points into Eigen::MatrixXf
+   auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
-  // Compute UT based on the sigma points and weights
-  const auto [result_state_vector, result_covariance_matrix] =
-    compute_unscented_transform(m_sigma_points, Wm, Wc);
+   // Normalize angles in sigma points matrix
+   m_sigma_points = utils::normalize_angles_in_matrix(m_sigma_points, angle_indices);
 
-  // After computing the result state vector
-  Eigen::VectorXf normalized_state_vector =
-    multiple_object_tracking::utils::normalize_angles_in_vector(result_state_vector, angle_indices);
+   // Compute UT based on the sigma points and weights
+   auto [result_state_vector, result_covariance_matrix] =
+     compute_unscented_transform(m_sigma_points, Wm, Wc);
 
-  const auto result_state{StateType::from_eigen_vector(std::move(normalized_state_vector))};
-  const CovarianceType result_covariance{std::move(result_covariance_matrix)};
-  return {std::move(result_state), std::move(result_covariance)};
-}
+   // Normalize angles in the result state vector
+   result_state_vector = utils::normalize_angles_in_vector(result_state_vector, angle_indices);
+
+   const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
+   const CovarianceType result_covariance{std::move(result_covariance_matrix)};
+   return {std::move(result_state), std::move(result_covariance)};
+ }
 
 /**
  * @brief Visitor for performing prediction using Unscented Kalman Filter (UKF).

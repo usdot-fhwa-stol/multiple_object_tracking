@@ -108,16 +108,18 @@ inline auto print_container(const EntityContainer & entities) -> void
  * @return The normalized angle in the range [-π, π)
  */
  inline float normalize_angle(float angle) {
-  constexpr float TWO_PI = 2.0f * 3.14159265359f;
-  // First, use fmod to get angle in range (-2π, 2π)
+  constexpr float PI = 3.14159265359f;
+  constexpr float TWO_PI = 2.0f * PI;
+
+  // Use fmod to handle larger multiples of 2π
   float normalized = std::fmod(angle, TWO_PI);
 
-  // // Then shift to range [-π, π)
-  // if (normalized >= 3.14159265359f) {
-  //     normalized -= TWO_PI;
-  // } else if (normalized < -3.14159265359f) {
-  //     normalized += TWO_PI;
-  // }
+  // Shift to range [-π, π)
+  if (normalized >= PI) {
+      normalized -= TWO_PI;
+  } else if (normalized < -PI) {
+      normalized += TWO_PI;
+  }
 
   return normalized;
 }
@@ -133,45 +135,94 @@ inline auto print_container(const EntityContainer & entities) -> void
 * @return The shortest angular difference in the range [-π, π)
 */
 inline float angle_difference(float from, float to) {
-  float diff = normalize_angle(to - from);
-  return diff;
+  return normalize_angle(to - from);
 }
 
 /**
-* @brief Normalize angles in an Eigen vector
+* @brief Create a normalized copy of a vector with angles normalized
 *
-* This function normalizes angles at specified indices in an Eigen vector.
-*
-* @param[in,out] vector The vector containing angles to normalize
+* @param[in] vector The vector containing angles to normalize
 * @param[in] angle_indices Vector of indices where angles are located
-* @return The normalized vector
+* @return A new vector with normalized angles
 */
 inline Eigen::VectorXf normalize_angles_in_vector(const Eigen::VectorXf& vector,
-  const std::vector<int>& angle_indices) {
-Eigen::VectorXf normalized_vector = vector;
-for (auto idx : angle_indices) {
-normalized_vector[idx] = normalize_angle(normalized_vector[idx]);
-}
-return normalized_vector;
+                                             const std::vector<int>& angle_indices) {
+  Eigen::VectorXf result = vector;
+  for (auto idx : angle_indices) {
+      result[idx] = normalize_angle(result[idx]);
+  }
+  return result;
 }
 
 /**
-* @brief Normalize angles in a matrix of vectors (e.g., sigma points)
+* @brief Create a normalized copy of a matrix with angles normalized
 *
-* This function normalizes angles at specified indices in each row of a matrix.
-*
-* @param[in,out] matrix The matrix containing vectors with angles to normalize
+* @param[in] matrix The matrix containing vectors with angles to normalize
 * @param[in] angle_indices Vector of indices where angles are located in each row
+* @return A new matrix with normalized angles
 */
-inline void normalize_angles_in_matrix(Eigen::MatrixXf& matrix,
-                                    const std::vector<int>& angle_indices) {
-  for (int row = 0; row < matrix.rows(); ++row) {
+inline Eigen::MatrixXf normalize_angles_in_matrix(const Eigen::MatrixXf& matrix,
+                                             const std::vector<int>& angle_indices) {
+  Eigen::MatrixXf result = matrix;
+  for (int row = 0; row < result.rows(); ++row) {
       for (auto idx : angle_indices) {
-          matrix(row, idx) = normalize_angle(matrix(row, idx));
+          result(row, idx) = normalize_angle(result(row, idx));
       }
   }
+  return result;
 }
 
+/**
+* @brief Compute the weighted circular mean of angles
+*
+* This function computes the weighted circular mean of a set of angles.
+* It handles the circular nature of angles properly by converting to
+* unit vectors, averaging, and converting back to an angle.
+*
+* @param[in] angles Vector of angles (in radians)
+* @param[in] weights Vector of weights for each angle
+* @return The weighted circular mean angle in range [-π, π)
+*/
+inline float weighted_circular_mean(const std::vector<float>& angles,
+                                const std::vector<float>& weights) {
+  float sum_sin = 0.0f;
+  float sum_cos = 0.0f;
+  float sum_weights = 0.0f;
+
+  for (size_t i = 0; i < angles.size(); ++i) {
+      sum_sin += std::sin(angles[i]) * weights[i];
+      sum_cos += std::cos(angles[i]) * weights[i];
+      sum_weights += weights[i];
+  }
+
+  // Normalize by total weight
+  if (sum_weights > 0.0f) {
+      sum_sin /= sum_weights;
+      sum_cos /= sum_weights;
+  }
+
+  // Convert back to angle
+  return std::atan2(sum_sin, sum_cos);
+}
+
+/**
+* @brief Extract angles from sigma points for proper circular statistics
+*
+* @param[in] sigma_points Matrix of sigma points
+* @param[in] angle_index Index of the angle in each sigma point
+* @return Vector of angles extracted from sigma points
+*/
+inline std::vector<float> extract_angles_from_sigma_points(
+  const Eigen::MatrixXf& sigma_points, int angle_index) {
+  std::vector<float> angles;
+  angles.reserve(sigma_points.rows());
+
+  for (int i = 0; i < sigma_points.rows(); ++i) {
+      angles.push_back(sigma_points(i, angle_index));
+  }
+
+  return angles;
+}
 }  // namespace multiple_object_tracking::utils
 
 #endif  // MULTIPLE_OBJECT_TRACKING_UTILS_HPP
