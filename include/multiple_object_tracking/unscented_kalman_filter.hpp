@@ -79,14 +79,14 @@ inline auto unscented_kalman_filter_predict(
 
   // Normalize all angles in the sigma points matrix
   std::vector<int> angle_indices = {3};
-  normalize_angles_in_matrix(m_sigma_points, angle_indices);
+  multiple_object_tracking::utils::normalize_angles_in_matrix(m_sigma_points, angle_indices);
 
   // Compute UT based on the sigma points and weights
   const auto [result_state_vector, result_covariance_matrix] =
     compute_unscented_transform(m_sigma_points, Wm, Wc);
 
   // After computing the result state vector
-  normalize_angles_in_vector(result_state_vector, angle_indices);
+  multiple_object_tracking::utils::normalize_angles_in_vector(result_state_vector, angle_indices);
 
   const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
   const CovarianceType result_covariance{std::move(result_covariance_matrix)};
