@@ -77,7 +77,7 @@ public:
         std::cerr << "DEBUG: UUID " << uuid << " not found in associations, decremented to " << occurrences << std::endl;
       } else {
         int old_occurrences = occurrences;
-        occurrences = std::min(occurrences + 1, promotion_threshold_.value);
+        occurrences = std::min(occurrences + 1, 2 * promotion_threshold_.value);
         std::cerr << "DEBUG: UUID " << uuid << " found in associations, updated from " << old_occurrences << " to " << occurrences << std::endl;
       }
     }
