@@ -50,20 +50,23 @@ TEST(TestTrackManagement, Simple)
 
   track_manager.update_track_lists(association_map);
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); 
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); // counter is 6
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 5
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 4
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 3
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 2
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 1, demote to be destroyed
+
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); // confirmed tracks don't get demotes
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_all_tracks()), 0U);
+
   track_manager.update_track_lists(mot::AssociationMap{});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); //confirmed tracks don't get demoted to tentative
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); 
-  EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
-
-  track_manager.update_track_lists(mot::AssociationMap{});
-  track_manager.update_track_lists(mot::AssociationMap{});
-
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); 
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U); //confirmed tracks get destroyed after removal threshold is met
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 0U);
 }
@@ -88,35 +91,41 @@ TEST(TestTrackManagement, Setters)
   mot::AssociationMap association_map;
   association_map[mot::Uuid{"test_track"}].push_back(mot::Uuid{"test_detection"});
 
-  track_manager.add_tentative_track(track);
+  track_manager.add_tentative_track(track); // counter 1
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.update_track_lists(association_map);
+  track_manager.update_track_lists(association_map); //counter is 2
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.update_track_lists(association_map);
+  track_manager.update_track_lists(association_map); //counter is 3, but promoted so 3 * 2 = 6
 
   track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{1U});
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); //still confirmed because 6 > 1
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
   track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{10U});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U); //tentative because 6 < 10
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
   track_manager.set_removal_threshold_and_update(mot::RemovalThreshold{5U});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U); //counter still 6, so not removed
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
+
+  track_manager.update_track_lists({}); //counter is 5, so removed
+
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); //counter still 6, so not removed
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 0U);
 }

@@ -220,10 +220,15 @@ public:
   auto set_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
   {
     removal_threshold_ = threshold;
-
+    std::cerr << "DEBUG: Setting removal threshold to " << removal_threshold_.value << std::endl;
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
+      std::cerr << "DEBUG: Processing UUID: " << it->first << " with occurrences: " << it->second << std::endl;
+      std::cerr << "DEBUG: Checking if occurrences " << it->second << " <= removal threshold "
+                << removal_threshold_.value << std::endl;
       if (const auto occurrences{it->second}; occurrences <= removal_threshold_.value) {
         const auto uuid{it->first};
+        std::cerr << "DEBUG: Removing UUID " << uuid << " (occurrences: " << occurrences
+                  << " <= removal threshold: " << removal_threshold_.value << ")" << std::endl;
 
         tracks_.erase(uuid);
         statuses_.erase(uuid);

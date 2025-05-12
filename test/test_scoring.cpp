@@ -179,38 +179,39 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
   ASSERT_TRUE(tracks_file);
   const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
-  const std::vector<TrackVariant> tracks{
-    TestTrack{
-      .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
-      .covariance{mot::CtraStateCovariance{
-        {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
-        {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
-        {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
-        {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
-        {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
-        {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
-      }},
-      .uuid{mot::Uuid{"test_track1"}}},
-    TestTrack{
-      .state{mot::CtraState{8_m, 2_m, 3_mps, mot::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
-      .covariance{mot::CtraStateCovariance{
-        {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
-        {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
-        {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
-        {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
-        {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
-        {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
-      }},
-      .uuid{mot::Uuid{"test_track2"}}},
-    mot::Track<mot::CtrvState, mot::CtrvStateCovariance>{
-      .state{1_m, 1_m, 1_mps, mot::Angle(1_rad), 1_rad_per_s},
-      .covariance{mot::CtrvStateCovariance{
-        {0.0043, -0.0013, 0.0030, -0.0022, -0.0020},
-        {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060},
-        {0.0030, 0.0011, 0.0054, 0.0007, 0.0008},
-        {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100},
-        {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
-      .uuid{mot::Uuid{"test_track3"}}}};
+  // Uncomment the following lines to use hardcoded tracks instead of reading from a file
+  // const std::vector<TrackVariant> tracks{
+  //   TestTrack{
+  //     .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},
+  //     .covariance{mot::CtraStateCovariance{
+  //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
+  //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
+  //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
+  //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
+  //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
+  //       {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
+  //     }},
+  //     .uuid{mot::Uuid{"test_track1"}}},
+  //   TestTrack{
+  //     .state{mot::CtraState{8_m, 2_m, 3_mps, mot::Angle(1_rad), 12_rad_per_s, 11_mps_sq}},
+  //     .covariance{mot::CtraStateCovariance{
+  //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020, 0.5},
+  //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060, 0.123},
+  //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008, -0.34},
+  //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100, 0.009},
+  //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123, 0.0021},
+  //       {0.5, 0.123, -0.34, 0.009, 0.0021, -0.8701},
+  //     }},
+  //     .uuid{mot::Uuid{"test_track2"}}},
+  //   mot::Track<mot::CtrvState, mot::CtrvStateCovariance>{
+  //     .state{1_m, 1_m, 1_mps, mot::Angle(1_rad), 1_rad_per_s},
+  //     .covariance{mot::CtrvStateCovariance{
+  //       {0.0043, -0.0013, 0.0030, -0.0022, -0.0020},
+  //       {-0.0013, 0.0077, 0.0011, 0.0071, 0.0060},
+  //       {0.0030, 0.0011, 0.0054, 0.0007, 0.0008},
+  //       {-0.0022, 0.0071, 0.0007, 0.0098, 0.0100},
+  //       {-0.0020, 0.0060, 0.0008, 0.0100, 0.0123}}},
+  //     .uuid{mot::Uuid{"test_track3"}}}};
 
   const std::vector<DetectionVariant> detections{
     TestDetection{
