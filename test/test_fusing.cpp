@@ -64,141 +64,141 @@ TEST(TestFusing, GenerateWeight)
 /**
  * Test the compute_covariance_intersection function using purely Eigen matrices and vectors
  */
-// TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
-// {
-//   // Declaring initial means and covariances
-//   Eigen::Vector3f mean1(1, 2, 3);
-//   Eigen::Matrix3f covariance1;
-//   covariance1 << 4, 0, 0, 0, 5, 0, 0, 0, 6;
+TEST(TestFusing, ComputeCovarianceIntersectionPureEigen)
+{
+  // Declaring initial means and covariances
+  Eigen::Vector3f mean1(1, 2, 3);
+  Eigen::Matrix3f covariance1;
+  covariance1 << 4, 0, 0, 0, 5, 0, 0, 0, 6;
 
-//   Eigen::Vector3f mean2(4, 5, 6);
-//   Eigen::Matrix3f covariance2;
-//   covariance2 << 7, 0, 0, 0, 8, 0, 0, 0, 9;
+  Eigen::Vector3f mean2(4, 5, 6);
+  Eigen::Matrix3f covariance2;
+  covariance2 << 7, 0, 0, 0, 8, 0, 0, 0, 9;
 
-//   // Expected values
-//   Eigen::Vector3f expected_mean(1.85392169, 2.90970142, 3.95112071);
-//   Eigen::Matrix3f expected_covariance;
-//   expected_covariance << 4.85392169, 0, 0, 0, 5.90970142, 0, 0, 0, 6.95112071;
+  // Expected values
+  Eigen::Vector3f expected_mean(1.85392169, 2.90970142, 3.95112071);
+  Eigen::Matrix3f expected_covariance;
+  expected_covariance << 4.85392169, 0, 0, 0, 5.90970142, 0, 0, 0, 6.95112071;
 
-//   // Compute inverse of the covariances
-//   const auto inverse_covariance1{covariance1.inverse()};
-//   const auto inverse_covariance2{covariance2.inverse()};
+  // Compute inverse of the covariances
+  const auto inverse_covariance1{covariance1.inverse()};
+  const auto inverse_covariance2{covariance2.inverse()};
 
-//   // Generate weight for CI function
-//   const auto weight{mot::generate_weight(inverse_covariance1, inverse_covariance2)};
+  // Generate weight for CI function
+  const auto weight{mot::generate_weight(inverse_covariance1, inverse_covariance2)};
 
-//   // Call the function under test
-//   const auto [result_mean, result_covariance]{mot::compute_covariance_intersection(
-//     mean1, inverse_covariance1, mean2, inverse_covariance2, weight)};
+  // Call the function under test
+  const auto [result_mean, result_covariance]{mot::compute_covariance_intersection(
+    mean1, inverse_covariance1, mean2, inverse_covariance2, weight)};
 
-//   static constexpr double tolerance{1.e-6};
+  static constexpr double tolerance{1.e-6};
 
-//   EXPECT_THAT(result_mean, EigenMatrixNear(expected_mean, tolerance));
-//   EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, tolerance));
-// }
+  EXPECT_THAT(result_mean, EigenMatrixNear(expected_mean, tolerance));
+  EXPECT_THAT(result_covariance, EigenMatrixNear(expected_covariance, tolerance));
+}
 
 /**
  * Test fusing CTRV tracks and detections
  */
-// TEST(TestFusing, CtrvTracksAndDetections)
-// {
-//   using namespace units::literals;
+TEST(TestFusing, CtrvTracksAndDetections)
+{
+  using namespace units::literals;
 
-//   const mot::AssociationMap associations{
-//     {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
-//     {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
-//     {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
+  const mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
-//   std::ifstream tracks_file{"data/test_fusing_ctrv_tracks_and_detections_tracks.json"};
-//   ASSERT_TRUE(tracks_file);
-//   const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
+  std::ifstream tracks_file{"data/test_fusing_ctrv_tracks_and_detections_tracks.json"};
+  ASSERT_TRUE(tracks_file);
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
-//   std::ifstream detections_file{"data/test_fusing_ctrv_tracks_and_detections_detections.json"};
-//   ASSERT_TRUE(detections_file);
-//   const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
+  std::ifstream detections_file{"data/test_fusing_ctrv_tracks_and_detections_detections.json"};
+  ASSERT_TRUE(detections_file);
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
-//   std::ifstream expected_tracks_file{
-//     "data/test_fusing_ctrv_tracks_and_detections_expected_tracks.json"};
-//   ASSERT_TRUE(expected_tracks_file);
-//   const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  std::ifstream expected_tracks_file{
+    "data/test_fusing_ctrv_tracks_and_detections_expected_tracks.json"};
+  ASSERT_TRUE(expected_tracks_file);
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-//   const auto result_tracks{
-//     mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
+  const auto result_tracks{
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
-//   ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
+  ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
 
-//   using ::testing::Pointwise;
+  using ::testing::Pointwise;
 
-//   EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
-// }
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
+}
 
 /**
  * Test fusing CTRA tracks and detections
  */
-// TEST(TestFusing, CtraTracksAndDetections)
-// {
-//   using namespace units::literals;
+TEST(TestFusing, CtraTracksAndDetections)
+{
+  using namespace units::literals;
 
-//   mot::AssociationMap associations{
-//     {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
-//     {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
-//     {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
+  mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
-//   std::ifstream tracks_file{"data/test_fusing_ctra_tracks_and_detections_tracks.json"};
-//   ASSERT_TRUE(tracks_file);
-//   const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
+  std::ifstream tracks_file{"data/test_fusing_ctra_tracks_and_detections_tracks.json"};
+  ASSERT_TRUE(tracks_file);
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
-//   std::ifstream detections_file{"data/test_fusing_ctra_tracks_and_detections_detections.json"};
-//   ASSERT_TRUE(detections_file);
-//   const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
+  std::ifstream detections_file{"data/test_fusing_ctra_tracks_and_detections_detections.json"};
+  ASSERT_TRUE(detections_file);
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
-//   std::ifstream expected_tracks_file{
-//     "data/test_fusing_ctra_tracks_and_detections_expected_tracks.json"};
-//   ASSERT_TRUE(expected_tracks_file);
-//   const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  std::ifstream expected_tracks_file{
+    "data/test_fusing_ctra_tracks_and_detections_expected_tracks.json"};
+  ASSERT_TRUE(expected_tracks_file);
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-//   const auto result_tracks{
-//     mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
+  const auto result_tracks{
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
-//   ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
+  ASSERT_EQ(std::size(result_tracks), std::size(expected_tracks));
 
-//   using ::testing::Pointwise;
+  using ::testing::Pointwise;
 
-//   EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
-// }
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
+}
 
 /**
  * Test fusing a mixed vector of CTRV and CTRA tracks and detections
  */
-// TEST(TestFusing, MixedTracksAndDetections)
-// {
-//   using namespace units::literals;
+TEST(TestFusing, MixedTracksAndDetections)
+{
+  using namespace units::literals;
 
-//   mot::AssociationMap associations{
-//     {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
-//     {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
-//     {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
+  mot::AssociationMap associations{
+    {mot::Uuid{"track1"}, {mot::Uuid{"detection3"}}},
+    {mot::Uuid{"track2"}, {mot::Uuid{"detection2"}}},
+    {mot::Uuid{"track3"}, {mot::Uuid{"detection1"}}}};
 
-//   std::ifstream tracks_file{"data/test_fusing_mixed_tracks_and_detections_tracks.json"};
-//   ASSERT_TRUE(tracks_file);
-//   const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
+  std::ifstream tracks_file{"data/test_fusing_mixed_tracks_and_detections_tracks.json"};
+  ASSERT_TRUE(tracks_file);
+  const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
-//   std::ifstream detections_file{"data/test_fusing_mixed_tracks_and_detections_detections.json"};
-//   ASSERT_TRUE(detections_file);
-//   const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
+  std::ifstream detections_file{"data/test_fusing_mixed_tracks_and_detections_detections.json"};
+  ASSERT_TRUE(detections_file);
+  const auto detections{mot::detections_from_json_file<DetectionVariant>(detections_file)};
 
-//   std::ifstream expected_tracks_file{
-//     "data/test_fusing_mixed_tracks_and_detections_expected_tracks.json"};
-//   ASSERT_TRUE(expected_tracks_file);
-//   const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
+  std::ifstream expected_tracks_file{
+    "data/test_fusing_mixed_tracks_and_detections_expected_tracks.json"};
+  ASSERT_TRUE(expected_tracks_file);
+  const auto expected_tracks{mot::tracks_from_json_file<TrackVariant>(expected_tracks_file)};
 
-//   const auto result_tracks{
-//     mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
+  const auto result_tracks{
+    mot::fuse_associations(associations, tracks, detections, mot::covariance_intersection_visitor)};
 
-//   using ::testing::Pointwise;
+  using ::testing::Pointwise;
 
-//   EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
-// }
+  EXPECT_THAT(result_tracks, Pointwise(PointwiseTrackNear(1e-4), expected_tracks));
+}
 
 /**
  * Test fusing when no matching uuids are found
