@@ -34,12 +34,15 @@
 namespace multiple_object_tracking
 {
 /**
- * @brief Compute the covariance intersection of two multivariate Gaussian distributions.
+ * @brief Compute the covariance intersection of two multivariate Gaussian distributions
+ *        with special handling for angular states.
  *
- * This function takes the mean and inverse covariance of two Gaussian distributions and computes their covariance
- * intersection. The covariance intersection is a weighted combination of the two inverse covariances, and the weight
- * determines the influence of each distribution in the resulting covariance. The resulting mean and covariance are
- * returned as a tuple.
+ * This function takes the mean and inverse covariance of two Gaussian distributions and computes
+ * their covariance intersection. The covariance intersection is a weighted combination of the two
+ * inverse covariances, and the weight determines the influence of each distribution in the
+ * resulting covariance. The function specifically handles angular quantities (like yaw) at index 3
+ * by ensuring proper normalization and using the smallest angle difference when computing the
+ * weighted combination.
  *
  * @param[in] mean1 The mean of the first Gaussian distribution.
  * @param[in] inverse_covariance1 The inverse covariance of the first Gaussian distribution.
@@ -47,8 +50,10 @@ namespace multiple_object_tracking
  * @param[in] inverse_covariance2 The inverse covariance of the second Gaussian distribution.
  * @param[in] weight The weight (0 to 1) to combine the two inverse covariances.
  * @return A tuple containing the combined mean and covariance of the two Gaussian distributions.
+ * NOTE: The function assumes that angular quantities (e.g., yaw) are at index 3 of the state vector.
+ *       Angular values are normalized and their differences are computed using the shortest arc.
  */
- inline auto compute_covariance_intersection(
+inline auto compute_covariance_intersection(
   const Eigen::VectorXf & mean1, const Eigen::MatrixXf & inverse_covariance1,
   const Eigen::VectorXf & mean2, const Eigen::MatrixXf & inverse_covariance2, float weight)
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
@@ -56,7 +61,7 @@ namespace multiple_object_tracking
   // Define which indices are angular quantities (assuming index 3 is yaw)
   const std::vector<int> angle_indices = {3};
 
-  // Normalize both input means
+  // Normalize angles of both input means to [-π, π)
   Eigen::VectorXf mean1_normalized = utils::normalize_angles_in_vector(mean1, angle_indices);
   Eigen::VectorXf mean2_normalized = utils::normalize_angles_in_vector(mean2, angle_indices);
 

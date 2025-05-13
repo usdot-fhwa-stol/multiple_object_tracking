@@ -40,60 +40,73 @@ namespace multiple_object_tracking
  */
 
 /**
- * This function performs the prediction step of the Unscented Kalman Filter by computing the unscented transform
- * for a given state and state covariance matrix. It generates sigma points and weights, and uses them to compute the
- * mean and covariance of the transformed sigma points through a non-linear model. The function advances the current
- * state of the system through the non-linear model using the specified time step. The Unscented Kalman Filter
- * prediction parameters (alpha, beta, kappa) are provided to generate the sigma points and weights. The get_next_state()
- * function is used to advance the state and sigma points through the non-linear model. The computed mean and sigma
- * points are converted to an Eigen::MatrixXf and used to compute the unscented transform, which returns the predicted
- * state and covariance.
+ * @brief Performs the prediction step of the Unscented Kalman Filter with special handling for
+ * angular states.
  *
+ * This function performs the prediction step of the Unscented Kalman Filter by computing the
+ * unscented transform for a given state and state covariance matrix. It generates sigma points
+ * and weights, and uses them to compute the mean and covariance of the transformed sigma points
+ * through a non-linear model. The function:
+ *
+ * 1. Generates sigma points and weights using the provided UKF parameters (alpha, beta, kappa)
+ * 2. Advances the state and sigma points through the non-linear model using get_next_state()
+ * 3. Converts the predicted mean and sigma points to an Eigen::MatrixXf format
+ * 4. Normalizes angular quantities (yaw at index 3) in the sigma points matrix
+ * 5. Computes the unscented transform to get the predicted state and covariance
+ * 6. Normalizes angular quantities in the result state vector
+ * 7. Converts the results back to the original types
+ *
+ * @tparam StateType The type of the state vector.
+ * @tparam CovarianceType The type of the covariance matrix.
  * @param[in] state The initial state of the system.
  * @param[in] covariance The covariance matrix of the system.
  * @param[in] time_step The time step to advance the system forward.
  * @param[in] alpha The scaling parameter for sigma points in the unscented transform.
  * @param[in] beta The secondary scaling parameter for sigma points in the unscented transform.
- * @param[in] kappa The secondary scaling parameter for sigma points in the unscented transform.
+ * @param[in] kappa The tertiary scaling parameter for sigma points in the unscented transform.
  *
  * @return Tuple containing the resulting state and covariance matrix after the prediction step.
+ *
+ * @note The function assumes that angular quantities (yaw) are at index 3 of the state vector.
+ *       Angular values are normalized during processing to ensure proper handling of their
+ *       circular nature.
  */
- template <typename StateType, typename CovarianceType>
- inline auto unscented_kalman_filter_predict(
-   const StateType & state, const CovarianceType & covariance, const units::time::second_t time_step,
-   const float alpha, const float beta, const float kappa) -> std::tuple<StateType, CovarianceType>
+template <typename StateType, typename CovarianceType>
+inline auto unscented_kalman_filter_predict(
+  const StateType & state, const CovarianceType & covariance, const units::time::second_t time_step,
+  const float alpha, const float beta, const float kappa) -> std::tuple<StateType, CovarianceType>
  {
-   // Define which indices are angular quantities (assuming index 3 is yaw)
-   const std::vector<int> angle_indices = {3};
+  // Define which indices are angular quantities (assuming index 3 is yaw)
+  const std::vector<int> angle_indices = {3};
 
-   // Generate sigma points and weights
-   const auto [sigma_points, Wm, Wc] =
-     generate_sigma_points_and_weights(state, covariance, alpha, beta, kappa);
+  // Generate sigma points and weights
+  const auto [sigma_points, Wm, Wc] =
+    generate_sigma_points_and_weights(state, covariance, alpha, beta, kappa);
 
-   // Advance mean and sigma points through the non-linear model
-   const auto predicted_mean{get_next_state(state, time_step)};
-   std::vector<StateType> predicted_sigma_points;
-   for (const auto & sigma_point : sigma_points) {
-     predicted_sigma_points.push_back(get_next_state(sigma_point, time_step));
-   }
+  // Advance mean and sigma points through the non-linear model
+  const auto predicted_mean{get_next_state(state, time_step)};
+  std::vector<StateType> predicted_sigma_points;
+  for (const auto & sigma_point : sigma_points) {
+    predicted_sigma_points.push_back(get_next_state(sigma_point, time_step));
+  }
 
-   // Convert mean and sigma points into Eigen::MatrixXf
-   auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
+  // Convert mean and sigma points into Eigen::MatrixXf
+  auto m_sigma_points{mean_and_sigma_points_to_matrix_xf(predicted_mean, predicted_sigma_points)};
 
-   // Normalize angles in sigma points matrix
-   m_sigma_points = utils::normalize_angles_in_matrix(m_sigma_points, angle_indices);
+  // Normalize angles in sigma points matrix
+  m_sigma_points = utils::normalize_angles_in_matrix(m_sigma_points, angle_indices);
 
-   // Compute UT based on the sigma points and weights
-   auto [result_state_vector, result_covariance_matrix] =
-     compute_unscented_transform(m_sigma_points, Wm, Wc);
+  // Compute UT based on the sigma points and weights
+  auto [result_state_vector, result_covariance_matrix] =
+    compute_unscented_transform(m_sigma_points, Wm, Wc);
 
-   // Normalize angles in the result state vector
-   result_state_vector = utils::normalize_angles_in_vector(result_state_vector, angle_indices);
+  // Normalize angles in the result state vector
+  result_state_vector = utils::normalize_angles_in_vector(result_state_vector, angle_indices);
 
-   const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
-   const CovarianceType result_covariance{std::move(result_covariance_matrix)};
-   return {std::move(result_state), std::move(result_covariance)};
- }
+  const auto result_state{StateType::from_eigen_vector(std::move(result_state_vector))};
+  const CovarianceType result_covariance{std::move(result_covariance_matrix)};
+  return {std::move(result_state), std::move(result_covariance)};
+}
 
 /**
  * @brief Visitor for performing prediction using Unscented Kalman Filter (UKF).
