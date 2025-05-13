@@ -67,6 +67,12 @@ inline auto compute_covariance_intersection(
 
   // For angular states, we need to ensure we're using the smallest angle difference
   // This is important when the two angles are on opposite sides of the -π/π boundary
+  // For example:
+  // If mean1 has an angle of 3.0 radians (near π) and mean2 has an angle of -3.0 radians (near -π)
+  // Their normalized values might be mean1 = 3.0 and mean2 = -3.0
+  // The smallest angle difference is not 6.0 but rather 0.28 radians (on circle, they're close)
+  // So we adjust mean2 to be 3.0 + 0.28 = 3.28 radians here
+
   for (auto idx : angle_indices) {
     // Adjust mean2 to be closest to mean1 in angular space
     float diff = utils::angle_difference(mean1_normalized[idx], mean2_normalized[idx]);
@@ -82,7 +88,7 @@ inline auto compute_covariance_intersection(
     (weight * inverse_covariance1 * mean1_normalized +
      (1 - weight) * inverse_covariance2 * mean2_normalized);
 
-  // Normalize the resulting angles
+  // Normalize the resulting angles to [-π, π)
   mean_combined = utils::normalize_angles_in_vector(mean_combined, angle_indices);
 
   return {mean_combined, covariance_combined};
