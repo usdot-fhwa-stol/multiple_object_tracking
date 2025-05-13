@@ -124,9 +124,11 @@ public:
           statuses_.at(uuid) = TrackStatus::kConfirmed;
           ++promoted_count;
         } catch (const std::out_of_range& e) {
-          std::cerr << "ERROR: UUID " << uuid << " not found in statuses_ map: " << e.what() << std::endl;
+          std::cerr << "ERROR: UUID "
+            << uuid << " not found in statuses_ map: " << e.what() << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to update status for UUID " << uuid << ": " << e.what() << std::endl;
+          std::cerr << "ERROR: Failed to update status for UUID "
+            << uuid << ": " << e.what() << std::endl;
         }
       }
 
