@@ -77,9 +77,11 @@ public:
         std::cerr << "DEBUG: UUID " << uuid << " not found in associations, decremented to " << occurrences << std::endl;
       } else {
         int old_occurrences = occurrences;
-        occurrences += 1;
-        if (occurrences >= promotion_threshold_.value) {
-          occurrences = 2 * promotion_threshold_.value;
+        // Max at promotion value
+        occurrences = std::min(occurrences + 1, promotion_threshold_.value);
+        // If this was a previously confirmed track, force it to be promotion occurrence
+        if (statuses_.at(uuid) == TrackStatus::kConfirmed) {
+          occurrences = promotion_threshold_.value;
           std::cerr << "DEBUG: UUID " << uuid << " found in associations, updated to promotion worthy!" << std::endl;
         }
         std::cerr << "DEBUG: UUID " << uuid << " found in associations, updated from " << old_occurrences << " to " << occurrences << std::endl;
