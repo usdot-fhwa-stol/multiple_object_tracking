@@ -151,12 +151,28 @@ inline auto mean_and_sigma_points_to_matrix_xf(
 }
 
 /**
- *@brief This function performs the unscented transform on a matrix of sigma points. It computes the weighted mean and
- * covariance of the given sigma points.
- *@param[in] sigmas Matrix of sigma points. The first row of sigmas should correspond to the mean of the distribution.
- *@param[in] Wm Vector of weights used to compute the weighted mean of the sigma points.
- *@param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points.
- *@return A tuple containing the weighted mean and weighted covariance of the sigma points.
+ * @brief Performs the unscented transform on sigma points with special handling for angular states.
+ *
+ * This function computes the weighted mean and covariance of a set of sigma points, with specific
+ * considerations for angular quantities (like yaw at index 3). The process follows these steps:
+ *
+ * 1. Computes the weighted mean for non-angular states using standard weighted average
+ * 2. Handles angular states separately using circular statistics to compute a proper circular mean
+ * 3. Computes the covariance matrix with special handling for angular differences:
+ *    - For non-angular states, standard differences are used
+ *    - For angular states, angle_difference() is used to find the shortest arc between angles
+ *
+ * @param[in] sigma_points Matrix of sigma points where each row is a sigma point and each column
+ *            is a state dimension
+ * @param[in] Wm Vector of weights used to compute the weighted mean of the sigma points
+ * @param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points
+ *
+ * @return A tuple containing the weighted mean vector and weighted covariance matrix of the sigma
+ *         points
+ *
+ * @note The function assumes that angular quantities (e.g., yaw) are at index 3 of the state vector
+ *       Angular values require special handling due to their circular nature, and this function
+ *       implements circular statistics to properly compute means and covariances for such values.
  */
 inline auto compute_unscented_transform(
   const Eigen::MatrixXf & sigma_points, const Eigen::VectorXf & Wm, const Eigen::VectorXf & Wc)
