@@ -95,11 +95,15 @@ public:
         try {
           tracks_.erase(uuid);
         } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from tracks_: " << e.what() << ", continuing" << std::endl;
         }
 
         try {
           statuses_.erase(uuid);
         } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from statuses_: " << e.what() << ", continuing" << std::endl;
         }
 
         try {
@@ -107,6 +111,8 @@ public:
           ++removed_count;
         } catch (const std::exception& e) {
           ++it; // Still advance iterator to avoid infinite loop
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from occurrences_: " << e.what() << ", continuing" << std::endl;
         }
 
         continue;
@@ -118,7 +124,9 @@ public:
           statuses_.at(uuid) = TrackStatus::kConfirmed;
           ++promoted_count;
         } catch (const std::out_of_range& e) {
+          std::cerr << "ERROR: UUID " << uuid << " not found in statuses_ map: " << e.what() << std::endl;
         } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to update status for UUID " << uuid << ": " << e.what() << std::endl;
         }
       }
 
