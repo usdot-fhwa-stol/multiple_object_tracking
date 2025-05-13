@@ -71,7 +71,6 @@ public:
       if (associations.count(uuid) == 0) {
         --occurrences;
       } else {
-        int old_occurrences = occurrences;
         // Max at promotion value
         occurrences = std::min(occurrences + 1, promotion_threshold_.value);
         // If this was a previously confirmed track, force it to be promotion occurrence
@@ -82,9 +81,6 @@ public:
     }
 
     // Second loop: Handle track statuses based on updated occurrences
-    int removed_count = 0;
-    int promoted_count = 0;
-
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
       const auto uuid{it->first};
       const auto occurrences{it->second};
@@ -108,7 +104,6 @@ public:
 
         try {
           it = occurrences_.erase(it);
-          ++removed_count;
         } catch (const std::exception& e) {
           ++it; // Still advance iterator to avoid infinite loop
           std::cerr << "ERROR: Failed to erase UUID "
@@ -122,7 +117,6 @@ public:
         try {
           TrackStatus old_status = statuses_.at(uuid);
           statuses_.at(uuid) = TrackStatus::kConfirmed;
-          ++promoted_count;
         } catch (const std::out_of_range& e) {
           std::cerr << "ERROR: UUID "
             << uuid << " not found in statuses_ map: " << e.what() << std::endl;
