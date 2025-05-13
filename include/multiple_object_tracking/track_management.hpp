@@ -64,17 +64,12 @@ public:
 
   auto update_track_lists(const AssociationMap & associations) -> void
   {
-    std::cerr << "DEBUG: Starting update_track_lists with " << occurrences_.size() << " tracked objects" << std::endl;
-    std::cerr << "DEBUG: Promotion threshold: " << promotion_threshold_.value << ", Removal threshold: " << removal_threshold_.value << std::endl;
 
     // First loop: Update occurrences based on associations
-    std::cerr << "DEBUG: Starting first loop - updating occurrences" << std::endl;
     for (auto & [uuid, occurrences] : occurrences_) {
-      std::cerr << "DEBUG: Processing UUID: " << uuid << " with current occurrences: " << occurrences << std::endl;
 
       if (associations.count(uuid) == 0) {
         --occurrences;
-        std::cerr << "DEBUG: UUID " << uuid << " not found in associations, decremented to " << occurrences << std::endl;
       } else {
         int old_occurrences = occurrences;
         // Max at promotion value
@@ -82,14 +77,11 @@ public:
         // If this was a previously confirmed track, force it to be promotion occurrence
         if (statuses_.at(uuid) == TrackStatus::kConfirmed) {
           occurrences = promotion_threshold_.value;
-          std::cerr << "DEBUG: UUID " << uuid << " found in associations, updated to promotion worthy!" << std::endl;
         }
-        std::cerr << "DEBUG: UUID " << uuid << " found in associations, updated from " << old_occurrences << " to " << occurrences << std::endl;
       }
     }
 
     // Second loop: Handle track statuses based on updated occurrences
-    std::cerr << "DEBUG: Starting second loop - processing tracks based on occurrences" << std::endl;
     int removed_count = 0;
     int promoted_count = 0;
 
@@ -97,31 +89,23 @@ public:
       const auto uuid{it->first};
       const auto occurrences{it->second};
 
-      std::cerr << "DEBUG: Evaluating UUID: " << uuid << " with occurrences: " << occurrences << std::endl;
 
       if (occurrences <= removal_threshold_.value) {
-        std::cerr << "DEBUG: Removing UUID " << uuid << " (occurrences: " << occurrences << " <= removal threshold: " << removal_threshold_.value << ")" << std::endl;
 
         try {
           tracks_.erase(uuid);
-          std::cerr << "DEBUG: Erased UUID " << uuid << " from tracks_" << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from tracks_: " << e.what() << std::endl;
         }
 
         try {
           statuses_.erase(uuid);
-          std::cerr << "DEBUG: Erased UUID " << uuid << " from statuses_" << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from statuses_: " << e.what() << std::endl;
         }
 
         try {
           it = occurrences_.erase(it);
           ++removed_count;
-          std::cerr << "DEBUG: Erased UUID " << uuid << " from occurrences_" << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to erase UUID " << uuid << " from occurrences_: " << e.what() << std::endl;
           ++it; // Still advance iterator to avoid infinite loop
         }
 
@@ -133,22 +117,13 @@ public:
           TrackStatus old_status = statuses_.at(uuid);
           statuses_.at(uuid) = TrackStatus::kConfirmed;
           ++promoted_count;
-          std::cerr << "DEBUG: Promoted UUID " << uuid << " from status " << static_cast<int>(old_status)
-                    << " to " << static_cast<int>(TrackStatus::kConfirmed) << std::endl;
         } catch (const std::out_of_range& e) {
-          std::cerr << "ERROR: UUID " << uuid << " not found in statuses_ map: " << e.what() << std::endl;
         } catch (const std::exception& e) {
-          std::cerr << "ERROR: Failed to update status for UUID " << uuid << ": " << e.what() << std::endl;
         }
       }
 
       ++it;
     }
-
-    std::cerr << "DEBUG: Finished update_track_lists: removed " << removed_count << " tracks, promoted "
-              << promoted_count << " tracks" << std::endl;
-    std::cerr << "DEBUG: Final counts - tracks: " << tracks_.size() << ", statuses: " << statuses_.size()
-              << ", occurrences: " << occurrences_.size() << std::endl;
   }
 
   auto add_tentative_track(const Track & track) -> void
@@ -222,16 +197,9 @@ public:
   auto set_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
   {
     removal_threshold_ = threshold;
-    std::cerr << "DEBUG: Setting removal threshold to " << removal_threshold_.value << std::endl;
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
-      std::cerr << "DEBUG: Processing UUID: " << it->first << " with occurrences: " << it->second << std::endl;
-      std::cerr << "DEBUG: Checking if occurrences " << it->second << " <= removal threshold "
-                << removal_threshold_.value << std::endl;
       if (const auto occurrences{it->second}; occurrences <= removal_threshold_.value) {
         const auto uuid{it->first};
-        std::cerr << "DEBUG: Removing UUID " << uuid << " (occurrences: " << occurrences
-                  << " <= removal threshold: " << removal_threshold_.value << ")" << std::endl;
-
         tracks_.erase(uuid);
         statuses_.erase(uuid);
         it = occurrences_.erase(it);
