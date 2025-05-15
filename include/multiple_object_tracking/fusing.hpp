@@ -29,16 +29,20 @@
 #include "multiple_object_tracking/dynamic_object.hpp"
 #include "multiple_object_tracking/uuid.hpp"
 #include "multiple_object_tracking/visitor.hpp"
+#include "multiple_object_tracking/utils.hpp"
 
 namespace multiple_object_tracking
 {
 /**
- * @brief Compute the covariance intersection of two multivariate Gaussian distributions.
+ * @brief Compute the covariance intersection of two multivariate Gaussian distributions
+ *        with special handling for angular states.
  *
- * This function takes the mean and inverse covariance of two Gaussian distributions and computes their covariance
- * intersection. The covariance intersection is a weighted combination of the two inverse covariances, and the weight
- * determines the influence of each distribution in the resulting covariance. The resulting mean and covariance are
- * returned as a tuple.
+ * This function takes the mean and inverse covariance of two Gaussian distributions and computes
+ * their covariance intersection. The covariance intersection is a weighted combination of the two
+ * inverse covariances, and the weight determines the influence of each distribution in the
+ * resulting covariance. The function specifically handles angular quantities (like yaw) at index 3
+ * by ensuring proper normalization and using the smallest angle difference when computing the
+ * weighted combination.
  *
  * @param[in] mean1 The mean of the first Gaussian distribution.
  * @param[in] inverse_covariance1 The inverse covariance of the first Gaussian distribution.
@@ -46,35 +50,47 @@ namespace multiple_object_tracking
  * @param[in] inverse_covariance2 The inverse covariance of the second Gaussian distribution.
  * @param[in] weight The weight (0 to 1) to combine the two inverse covariances.
  * @return A tuple containing the combined mean and covariance of the two Gaussian distributions.
+ * NOTE: The function assumes that angular quantities (e.g., yaw) are at index 3 of the state vector.
+ *       Angular values are normalized and their differences are computed using the shortest arc.
  */
 inline auto compute_covariance_intersection(
   const Eigen::VectorXf & mean1, const Eigen::MatrixXf & inverse_covariance1,
   const Eigen::VectorXf & mean2, const Eigen::MatrixXf & inverse_covariance2, float weight)
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
-  // Yaw values (index 3) are circular, which cause issues when values cross the identification
-  // point. To (partially) avoid the issue, we "rotate" values to they are +/-pi, making the
-  // math work out for our current use case. This will need to be revisited in the future.
-  // https://github.com/usdot-fhwa-stol/multiple_object_tracking/issues/145
-  // Note: This implementation assumes the yaw value is index 3. If we have other motion models,
-  // this assumption may not hold. We will have to redesign and reimplement in that scenario.
-  Eigen::VectorXf mean1_copy = mean1;
-  Eigen::VectorXf mean2_copy = mean2;
+  // Define which indices are angular quantities (assuming index 3 is yaw)
+  const std::vector<int> angle_indices = {3};
 
-  if (mean1_copy[3] > 3.14159265359) {
-    mean1_copy[3] -= 2 * 3.14159265359;
-  }
+  // Normalize angles of both input means to [-π, π)
+  Eigen::VectorXf mean1_normalized = utils::normalize_angles_in_vector(mean1, angle_indices);
+  Eigen::VectorXf mean2_normalized = utils::normalize_angles_in_vector(mean2, angle_indices);
 
-  if (mean2_copy[3] > 3.14159265359) {
-    mean2_copy[3] -= 2 * 3.14159265359;
+  // For angular states, we need to ensure we're using the smallest angle difference
+  // This is important when the two angles are on opposite sides of the -π/π boundary
+  // For example:
+  // If mean1 has an angle of 3.0 radians (near π) and mean2 has an angle of -3.0 radians (near -π)
+  // Their normalized values might be mean1 = 3.0 and mean2 = -3.0
+  // The smallest angle difference is not 6.0 but rather 0.28 radians (on circle, they're close)
+  // So we adjust mean2 to be 3.0 + 0.28 = 3.28 radians here
+
+  for (auto idx : angle_indices) {
+    // Adjust mean2 to be closest to mean1 in angular space
+    float diff = utils::angle_difference(mean1_normalized[idx], mean2_normalized[idx]);
+    mean2_normalized[idx] = mean1_normalized[idx] + diff;
   }
 
   const auto inverse_covariance_combined{
     weight * inverse_covariance1 + (1 - weight) * inverse_covariance2};
   const auto covariance_combined{inverse_covariance_combined.inverse()};
-  const auto mean_combined{
-    covariance_combined *
-    (weight * inverse_covariance1 * mean1_copy + (1 - weight) * inverse_covariance2 * mean2_copy)};
+
+  // Compute weighted mean, handling angles properly
+  Eigen::VectorXf mean_combined = covariance_combined *
+    (weight * inverse_covariance1 * mean1_normalized +
+     (1 - weight) * inverse_covariance2 * mean2_normalized);
+
+  // Normalize the resulting angles to [-π, π)
+  mean_combined = utils::normalize_angles_in_vector(mean_combined, angle_indices);
+
   return {mean_combined, covariance_combined};
 }
 

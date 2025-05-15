@@ -179,6 +179,7 @@ TEST(TestScoring, TrackToDetectionScoringMahalanobis)
   ASSERT_TRUE(tracks_file);
   const auto tracks{mot::tracks_from_json_file<TrackVariant>(tracks_file)};
 
+  // Uncomment the following lines to use hardcoded tracks instead of reading from a file
   // const std::vector<TrackVariant> tracks{
   //   TestTrack{
   //     .state{mot::CtraState{6_m, 7_m, 8_mps, mot::Angle(3_rad), 10_rad_per_s, 12_mps_sq}},

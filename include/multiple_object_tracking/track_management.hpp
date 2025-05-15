@@ -26,7 +26,6 @@
 
 #include "multiple_object_tracking/track_matching.hpp"
 #include "multiple_object_tracking/uuid.hpp"
-
 namespace multiple_object_tracking
 {
 template <typename Type, typename Tag>
@@ -65,27 +64,66 @@ public:
 
   auto update_track_lists(const AssociationMap & associations) -> void
   {
+
+    // First loop: Update occurrences based on associations
     for (auto & [uuid, occurrences] : occurrences_) {
+
       if (associations.count(uuid) == 0) {
         --occurrences;
       } else {
+        // Max at promotion value
         occurrences = std::min(occurrences + 1, promotion_threshold_.value);
+        // If this was a previously confirmed track, force it to be promotion occurrence
+        if (statuses_.at(uuid) == TrackStatus::kConfirmed) {
+          occurrences = promotion_threshold_.value;
+        }
       }
     }
 
+    // Second loop: Handle track statuses based on updated occurrences
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
       const auto uuid{it->first};
       const auto occurrences{it->second};
 
+
       if (occurrences <= removal_threshold_.value) {
-        tracks_.erase(uuid);
-        statuses_.erase(uuid);
-        it = occurrences_.erase(it);
+
+        try {
+          tracks_.erase(uuid);
+        } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from tracks_: " << e.what() << ", continuing" << std::endl;
+        }
+
+        try {
+          statuses_.erase(uuid);
+        } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from statuses_: " << e.what() << ", continuing" << std::endl;
+        }
+
+        try {
+          it = occurrences_.erase(it);
+        } catch (const std::exception& e) {
+          ++it; // Still advance iterator to avoid infinite loop
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from occurrences_: " << e.what() << ", continuing" << std::endl;
+        }
+
         continue;
       }
 
       if (occurrences >= promotion_threshold_.value) {
-        statuses_.at(uuid) = TrackStatus::kConfirmed;
+        try {
+          TrackStatus old_status = statuses_.at(uuid);
+          statuses_.at(uuid) = TrackStatus::kConfirmed;
+        } catch (const std::out_of_range& e) {
+          std::cerr << "ERROR: UUID "
+            << uuid << " not found in statuses_ map: " << e.what() << std::endl;
+        } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to update status for UUID "
+            << uuid << ": " << e.what() << std::endl;
+        }
       }
 
       ++it;
@@ -163,11 +201,9 @@ public:
   auto set_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
   {
     removal_threshold_ = threshold;
-
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
       if (const auto occurrences{it->second}; occurrences <= removal_threshold_.value) {
         const auto uuid{it->first};
-
         tracks_.erase(uuid);
         statuses_.erase(uuid);
         it = occurrences_.erase(it);

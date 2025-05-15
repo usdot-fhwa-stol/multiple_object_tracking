@@ -24,6 +24,7 @@
 #include <Eigen/Dense>
 #include <tuple>
 #include <vector>
+#include "multiple_object_tracking/utils.hpp"
 
 namespace multiple_object_tracking
 {
@@ -150,21 +151,134 @@ inline auto mean_and_sigma_points_to_matrix_xf(
 }
 
 /**
- *@brief This function performs the unscented transform on a matrix of sigma points. It computes the weighted mean and
- * covariance of the given sigma points.
- *@param[in] sigmas Matrix of sigma points. The first row of sigmas should correspond to the mean of the distribution.
- *@param[in] Wm Vector of weights used to compute the weighted mean of the sigma points.
- *@param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points.
- *@return A tuple containing the weighted mean and weighted covariance of the sigma points.
+ * @brief Performs the unscented transform on sigma points with special handling for angular states.
+ *
+ * This function computes the weighted mean and covariance of a set of sigma points, with specific
+ * considerations for angular quantities (like yaw at index 3). The process follows these steps:
+ *
+ * 1. Computes the weighted mean for non-angular states using standard weighted average
+ * 2. Handles angular states separately using circular statistics to compute a proper circular mean
+ * 3. Computes the covariance matrix with special handling for angular differences:
+ *    - For non-angular states, standard differences are used
+ *    - For angular states, angle_difference() is used to find the shortest arc between angles
+ *
+ * @param[in] sigma_points Matrix of sigma points where each row is a sigma point and each column
+ *            is a state dimension
+ * @param[in] Wm Vector of weights used to compute the weighted mean of the sigma points
+ * @param[in] Wc Vector of weights used to compute the weighted covariance of the sigma points
+ *
+ * @return A tuple containing the weighted mean vector and weighted covariance matrix of the sigma
+ *         points
+ *
+ * @note The function assumes that angular quantities (e.g., yaw) are at index 3 of the state vector
+ *       Angular values require special handling due to their circular nature, and this function
+ *       implements circular statistics to properly compute means and covariances for such values.
  */
 inline auto compute_unscented_transform(
   const Eigen::MatrixXf & sigma_points, const Eigen::VectorXf & Wm, const Eigen::VectorXf & Wc)
   -> std::tuple<Eigen::VectorXf, Eigen::MatrixXf>
 {
-  Eigen::VectorXf x = Wm.transpose() * sigma_points;
-  Eigen::MatrixXf y = sigma_points - stack_vector_into_matrix(x, sigma_points.rows());
-  Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
-  return {x, P};
+  /*
+  * UNSCENTED TRANSFORM
+  * -------------------
+  * Mathematical formulation:
+  * Given a set of sigma points (χ) and weights (Wm, Wc), compute:
+  *
+  * 1. Mean calculation:
+  *    x = Σ(Wm_i * χ_i)                        for i = 0...2n
+  *
+  * 2. Covariance calculation:
+  *    P = Σ(Wc_i * (χ_i - x) * (χ_i - x)^T)    for i = 0...2n
+  *
+  * These equations are directly implemented in the vectorized version as:
+  *    x = Wm.transpose() * sigma_points;
+  *    y = sigma_points - stack_vector_into_matrix(x, sigma_points.rows());
+  *    P = y.transpose() * (Wc.asDiagonal() * y);
+  * However, following code handles the special case of angular quantities.
+  */
+
+  // Define which indices are angular quantities (assuming index 3 is yaw)
+  const std::vector<int> angle_indices = {3};
+
+  // Get dimensions
+  const auto n_sigma_points{sigma_points.rows()};
+  const auto n_dim{sigma_points.cols()};
+
+  // Preallocate mean vector
+  Eigen::VectorXf mean = Eigen::VectorXf::Zero(n_dim);
+
+  /*
+   * EXPLANATION: WHY SPECIAL HANDLING FOR ANGLES IS NEEDED
+   * -------------------------------------------------------
+   * The following code replaces the simple vectorized operation:
+   *    Eigen::VectorXf x = Wm.transpose() * sigma_points;
+   *
+   * The simple operation works fine for linear quantities (position, velocity),
+   * but fails for angular quantities due to their circular nature.
+   *
+   * Problem: When averaging angles near the -π/π boundary, naive averaging produces
+   * incorrect results. For example, averaging angles [-π+0.1] and [π-0.1] should give π,
+   * but a naive average would give 0, which points in the completely opposite direction.
+   */
+
+  // First compute the mean for non-angular states using weighted average
+  for (auto i = 0; i < n_dim; ++i) {
+    // Skip angular states, handle them separately
+    if (std::find(angle_indices.begin(), angle_indices.end(), i) != angle_indices.end()) {
+      continue;
+    }
+    // Standard weighted mean for non-angular states
+    for (auto j = 0; j < n_sigma_points; ++j) {
+      mean(i) += Wm(j) * sigma_points(j, i);
+    }
+  }
+
+  // Now handle angular states using circular statistics
+  for (auto idx : angle_indices) {
+    // Extract angles from all sigma points
+    std::vector<float> angles;
+    std::vector<float> weights;
+    for (auto j = 0; j < n_sigma_points; ++j) {
+      angles.push_back(sigma_points(j, idx));
+      weights.push_back(Wm(j));
+    }
+    // Compute circular mean
+    mean(idx) = utils::weighted_circular_mean(angles, weights);
+    // Note: weighted_circular_mean converts angles to unit vectors,
+    // averages in Cartesian space, then converts back to angle using atan2
+  }
+
+  /*
+   * EXPLANATION: COVARIANCE CALCULATION WITH ANGLE WRAPPING
+   * ------------------------------------------------------
+   * The following code replaces the simple vectorized operations:
+   *    Eigen::MatrixXf y = sigma_points - stack_vector_into_matrix(x, sigma_points.rows());
+   *    Eigen::MatrixXf P = y.transpose() * (Wc.asDiagonal() * y);
+   *
+   * For covariance calculation, we need to compute differences between angles.
+   * The simple subtraction fails for angles because 359° and 1° have a difference
+   * of 2° (not 358°). We need to find the shortest angular distance.
+   */
+
+  // Compute covariance
+  Eigen::MatrixXf covariance = Eigen::MatrixXf::Zero(n_dim, n_dim);
+  for (auto i = 0; i < n_sigma_points; ++i) {
+    // Create residual vector (equivalent to one row of matrix 'y' in the simple version)
+    Eigen::VectorXf residual = Eigen::VectorXf::Zero(n_dim);
+    for (auto j = 0; j < n_dim; ++j) {
+      if (std::find(angle_indices.begin(), angle_indices.end(), j) != angle_indices.end()) {
+        // Angular states, use special handling
+        residual(j) = utils::angle_difference(mean(j), sigma_points(i, j));
+      } else {
+        // Non-angular states, use standard difference
+        residual(j) = sigma_points(i, j) - mean(j);
+      }
+    }
+    // Update covariance (equivalent to accumulating the weighted outer product)
+    covariance += Wc(i) * residual * residual.transpose();
+  }
+
+  return {mean, covariance};
 }
 
 /**
