@@ -268,7 +268,7 @@ inline auto compute_unscented_transform(
     for (auto j = 0; j < n_dim; ++j) {
       if (std::find(angle_indices.begin(), angle_indices.end(), j) != angle_indices.end()) {
         // Angular states, use special handling
-        residual(j) = utils::angle_difference(sigma_points(i, j), mean(j));
+        residual(j) = utils::angle_difference(mean(j), sigma_points(i, j));
       } else {
         // Non-angular states, use standard difference
         residual(j) = sigma_points(i, j) - mean(j);
