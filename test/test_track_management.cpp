@@ -28,7 +28,7 @@ namespace mot = multiple_object_tracking;
 TEST(TestTrackManagement, Simple)
 {
   mot::FixedThresholdTrackManager<mot::CtrvTrack> track_manager{
-    mot::PromotionThreshold{4}, mot::RemovalThreshold{1}};
+    mot::PromotionThreshold{4}, mot::RemovalThreshold{3}};
 
   mot::CtrvTrack track;
   track.uuid = mot::Uuid{"test_track"};
@@ -59,15 +59,14 @@ TEST(TestTrackManagement, Simple)
   track_manager.update_track_lists(mot::AssociationMap{}); // counter is 2
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
 
-  // counter is back up to 4 as it was previously confirmed
+  // counter is back up to 3 as it was previously confirmed
   track_manager.update_track_lists(association_map);
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); // counter is 4
-
-  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 3
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); // counter is 3
   track_manager.update_track_lists(mot::AssociationMap{}); // counter is 2
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
-  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 1, demoted to be destroyed
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 1
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U);
+  track_manager.update_track_lists(mot::AssociationMap{}); // counter is 0, demoted to be destroyed
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); // track is destroyed
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
@@ -86,7 +85,7 @@ TEST(TestTrackManagement, Getters)
 TEST(TestTrackManagement, Setters)
 {
   mot::FixedThresholdTrackManager<mot::CtrvTrack> track_manager{
-    mot::PromotionThreshold{3}, mot::RemovalThreshold{1}};
+    mot::PromotionThreshold{3}, mot::RemovalThreshold{4}};
 
   mot::CtrvTrack track;
   track.uuid = mot::Uuid{"test_track"};
@@ -108,21 +107,29 @@ TEST(TestTrackManagement, Setters)
 
   track_manager.update_track_lists(association_map); //counter is 3
 
-  track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{1U});
+  track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{1U}); //counter 3-> 4
 
   EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
-  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); //still confirmed because 3 > 1
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 1U); //still confirmed because 4 > 1
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
   track_manager.set_promotion_threshold_and_update(mot::PromotionThreshold{10U});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U); //tentative because 3 < 10
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U); //tentative because 4 < 10
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
 
-  track_manager.set_removal_threshold_and_update(mot::RemovalThreshold{5U});
+  track_manager.set_confirmed_to_removal_threshold_and_update(mot::RemovalThreshold{5U});
 
-  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U); //counter was 3, so removed
+  //counter was 4, so we need 4 non-occurrences to remove from tentative tracks
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 1U);
+  EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
+  EXPECT_EQ(std::size(track_manager.get_all_tracks()), 1U);
+  track_manager.update_track_lists(mot::AssociationMap{}); //counter is 3
+  track_manager.update_track_lists(mot::AssociationMap{}); //counter is 2
+  track_manager.update_track_lists(mot::AssociationMap{}); //counter is 1
+  track_manager.update_track_lists(mot::AssociationMap{}); //counter is 0, removed
+  EXPECT_EQ(std::size(track_manager.get_tentative_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_confirmed_tracks()), 0U);
   EXPECT_EQ(std::size(track_manager.get_all_tracks()), 0U);
 

@@ -48,8 +48,8 @@ class FixedThresholdTrackManager
 
 public:
   explicit FixedThresholdTrackManager(
-    PromotionThreshold promotion_threshold, RemovalThreshold removal_threshold)
-  : promotion_threshold_{promotion_threshold}, removal_threshold_{removal_threshold}
+    PromotionThreshold promotion_threshold, RemovalThreshold confirmed_to_removal_threshold)
+  : promotion_threshold_{promotion_threshold}, confirmed_to_removal_threshold_{confirmed_to_removal_threshold}
   {
   }
 
@@ -71,11 +71,13 @@ public:
       if (associations.count(uuid) == 0) {
         --occurrences;
       } else {
-        // Max at promotion value
+        // Max until promotion_threshold unless it is a confirmed track
         occurrences = std::min(occurrences + 1, promotion_threshold_.value);
-        // If this was a previously confirmed track, force it to be promotion occurrence
+        // If this was a previously confirmed track, force it to be the
+        // confirmed_to_removal_threshold, so that that number of consecutive nonoccurrences
+        // will remove the confirmed track
         if (statuses_.at(uuid) == TrackStatus::kConfirmed) {
-          occurrences = promotion_threshold_.value;
+          occurrences = confirmed_to_removal_threshold_.value;
         }
       }
     }
@@ -86,7 +88,7 @@ public:
       const auto occurrences{it->second};
 
 
-      if (occurrences <= removal_threshold_.value) {
+      if (occurrences <= 0) {
 
         try {
           tracks_.erase(uuid);
@@ -187,6 +189,7 @@ public:
     for (auto & [uuid, track] : tracks_) {
       if (occurrences_[uuid] >= promotion_threshold_.value) {
         statuses_[uuid] = TrackStatus::kConfirmed;
+        occurrences_[uuid] = confirmed_to_removal_threshold_.value;
       } else if (occurrences_[uuid] < promotion_threshold_.value) {
         statuses_[uuid] = TrackStatus::kTentative;
       }
@@ -198,11 +201,18 @@ public:
     return promotion_threshold_;
   }
 
-  auto set_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
+  auto set_confirmed_to_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
   {
-    removal_threshold_ = threshold;
+    confirmed_to_removal_threshold_ = threshold;
+    for (auto & [uuid, track] : tracks_) {
+      if (statuses_[uuid] == TrackStatus::kConfirmed)
+      {
+        occurrences_[uuid] = confirmed_to_removal_threshold_.value;
+      }
+    }
+
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
-      if (const auto occurrences{it->second}; occurrences <= removal_threshold_.value) {
+      if (const auto occurrences{it->second}; occurrences <= 0) {
         const auto uuid{it->first};
         tracks_.erase(uuid);
         statuses_.erase(uuid);
@@ -215,7 +225,7 @@ public:
 
   [[nodiscard]] auto get_removal_threshold() const noexcept -> RemovalThreshold
   {
-    return removal_threshold_;
+    return confirmed_to_removal_threshold_;
   }
 
   template <typename State, typename StateCovariance>
@@ -239,7 +249,7 @@ public:
 
 private:
   PromotionThreshold promotion_threshold_;
-  RemovalThreshold removal_threshold_;
+  RemovalThreshold confirmed_to_removal_threshold_;
   std::unordered_map<Uuid, Track> tracks_;
   std::unordered_map<Uuid, TrackStatus> statuses_;
   std::unordered_map<Uuid, std::size_t> occurrences_;
