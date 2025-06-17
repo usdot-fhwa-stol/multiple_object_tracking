@@ -21,7 +21,7 @@ cmake -B build \
 cmake --build build
 cmake --install build
 cd /
-rm -rf /tmp/dlib
+#rm -rf /tmp/dlib
 
 # Install units library
 git clone --depth 1 --branch v2.3.3 https://github.com/nholthaus/units.git /tmp/units
@@ -30,7 +30,7 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DBUILD_DOCS=OFF
 cmake --build build
 cmake --install build
 cd /
-rm -rf /tmp/units
+#rm -rf /tmp/units
 
 # Install JSON library
 git clone --depth 1 --branch v3.11.2 https://github.com/nlohmann/json.git /tmp/json
@@ -44,7 +44,7 @@ cmake -B build  \
 cmake --build build
 cmake --install build
 cd /
-rm -rf /tmp/json
+#rm -rf /tmp/json
 
 apt update
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends libboost-container-dev libeigen3-dev
