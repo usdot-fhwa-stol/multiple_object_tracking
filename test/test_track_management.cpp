@@ -79,7 +79,7 @@ TEST(TestTrackManagement, Getters)
     mot::PromotionThreshold{3}, mot::RemovalThreshold{1}};
 
   EXPECT_EQ(track_manager.get_promotion_threshold().value, mot::PromotionThreshold{3U}.value);
-  EXPECT_EQ(track_manager.get_removal_threshold().value, mot::RemovalThreshold{1U}.value);
+  EXPECT_EQ(track_manager.get_confirmed_to_removal_threshold().value, mot::RemovalThreshold{1U}.value);
 }
 
 TEST(TestTrackManagement, Setters)

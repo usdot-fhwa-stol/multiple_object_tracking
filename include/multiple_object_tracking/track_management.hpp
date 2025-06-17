@@ -223,7 +223,7 @@ public:
     }
   }
 
-  [[nodiscard]] auto get_removal_threshold() const noexcept -> RemovalThreshold
+  [[nodiscard]] auto get_confirmed_to_removal_threshold() const noexcept -> RemovalThreshold
   {
     return confirmed_to_removal_threshold_;
   }
