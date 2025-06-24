@@ -1,0 +1,40 @@
+site_name: Multiple object tracking
+repo_url: https://github.com/usdot-fwha-stol/multiple_object_tracking
+repo_name: usdot-fwha-stol/multiple_object_tracking
+
+plugins:
+  - search
+
+theme:
+  features:
+    - navigation.indexes
+    - navigation.path
+  icon:
+    repo: fontawesome/brands/github
+  name: material
+  palette:
+    - scheme: default
+      primary: amber
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Multiple object tracking: "index.md"
+  - API reference:
+    - Dynamic objects: "api_reference/dynamic_objects/dynamic_object.md"
+    - Gating: "api_reference/gating/prune_track_and_detection_scores_if.md"
+    - Scoring: "api_reference/scoring/euclidean_distance_score.md"
+    - Temporal alignment: "api_reference/temporal_alignment/propagate_to_time.md"
