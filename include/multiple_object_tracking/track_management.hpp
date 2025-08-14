@@ -26,7 +26,6 @@
 
 #include "multiple_object_tracking/track_matching.hpp"
 #include "multiple_object_tracking/uuid.hpp"
-
 namespace multiple_object_tracking
 {
 template <typename Type, typename Tag>
@@ -49,8 +48,8 @@ class FixedThresholdTrackManager
 
 public:
   explicit FixedThresholdTrackManager(
-    PromotionThreshold promotion_threshold, RemovalThreshold removal_threshold)
-  : promotion_threshold_{promotion_threshold}, removal_threshold_{removal_threshold}
+    PromotionThreshold promotion_threshold, RemovalThreshold confirmed_to_removal_threshold)
+  : promotion_threshold_{promotion_threshold}, confirmed_to_removal_threshold_{confirmed_to_removal_threshold}
   {
   }
 
@@ -65,27 +64,68 @@ public:
 
   auto update_track_lists(const AssociationMap & associations) -> void
   {
+
+    // First loop: Update occurrences based on associations
     for (auto & [uuid, occurrences] : occurrences_) {
+
       if (associations.count(uuid) == 0) {
         --occurrences;
       } else {
+        // Max until promotion_threshold unless it is a confirmed track
         occurrences = std::min(occurrences + 1, promotion_threshold_.value);
+        // If this was a previously confirmed track, force it to be the
+        // confirmed_to_removal_threshold, so that that number of consecutive nonoccurrences
+        // will remove the confirmed track
+        if (statuses_.at(uuid) == TrackStatus::kConfirmed) {
+          occurrences = confirmed_to_removal_threshold_.value;
+        }
       }
     }
 
+    // Second loop: Handle track statuses based on updated occurrences
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
       const auto uuid{it->first};
       const auto occurrences{it->second};
 
-      if (occurrences <= removal_threshold_.value) {
-        tracks_.erase(uuid);
-        statuses_.erase(uuid);
-        it = occurrences_.erase(it);
+
+      if (occurrences <= 0) {
+
+        try {
+          tracks_.erase(uuid);
+        } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from tracks_: " << e.what() << ", continuing" << std::endl;
+        }
+
+        try {
+          statuses_.erase(uuid);
+        } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from statuses_: " << e.what() << ", continuing" << std::endl;
+        }
+
+        try {
+          it = occurrences_.erase(it);
+        } catch (const std::exception& e) {
+          ++it; // Still advance iterator to avoid infinite loop
+          std::cerr << "ERROR: Failed to erase UUID "
+            << uuid << " from occurrences_: " << e.what() << ", continuing" << std::endl;
+        }
+
         continue;
       }
 
       if (occurrences >= promotion_threshold_.value) {
-        statuses_.at(uuid) = TrackStatus::kConfirmed;
+        try {
+          TrackStatus old_status = statuses_.at(uuid);
+          statuses_.at(uuid) = TrackStatus::kConfirmed;
+        } catch (const std::out_of_range& e) {
+          std::cerr << "ERROR: UUID "
+            << uuid << " not found in statuses_ map: " << e.what() << std::endl;
+        } catch (const std::exception& e) {
+          std::cerr << "ERROR: Failed to update status for UUID "
+            << uuid << ": " << e.what() << std::endl;
+        }
       }
 
       ++it;
@@ -149,6 +189,7 @@ public:
     for (auto & [uuid, track] : tracks_) {
       if (occurrences_[uuid] >= promotion_threshold_.value) {
         statuses_[uuid] = TrackStatus::kConfirmed;
+        occurrences_[uuid] = confirmed_to_removal_threshold_.value;
       } else if (occurrences_[uuid] < promotion_threshold_.value) {
         statuses_[uuid] = TrackStatus::kTentative;
       }
@@ -160,14 +201,19 @@ public:
     return promotion_threshold_;
   }
 
-  auto set_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
+  auto set_confirmed_to_removal_threshold_and_update(const RemovalThreshold & threshold) noexcept -> void
   {
-    removal_threshold_ = threshold;
+    confirmed_to_removal_threshold_ = threshold;
+    for (auto & [uuid, track] : tracks_) {
+      if (statuses_[uuid] == TrackStatus::kConfirmed)
+      {
+        occurrences_[uuid] = confirmed_to_removal_threshold_.value;
+      }
+    }
 
     for (auto it{std::begin(occurrences_)}; it != std::end(occurrences_);) {
-      if (const auto occurrences{it->second}; occurrences <= removal_threshold_.value) {
+      if (const auto occurrences{it->second}; occurrences <= 0) {
         const auto uuid{it->first};
-
         tracks_.erase(uuid);
         statuses_.erase(uuid);
         it = occurrences_.erase(it);
@@ -177,9 +223,9 @@ public:
     }
   }
 
-  [[nodiscard]] auto get_removal_threshold() const noexcept -> RemovalThreshold
+  [[nodiscard]] auto get_confirmed_to_removal_threshold() const noexcept -> RemovalThreshold
   {
-    return removal_threshold_;
+    return confirmed_to_removal_threshold_;
   }
 
   template <typename State, typename StateCovariance>
@@ -203,7 +249,7 @@ public:
 
 private:
   PromotionThreshold promotion_threshold_;
-  RemovalThreshold removal_threshold_;
+  RemovalThreshold confirmed_to_removal_threshold_;
   std::unordered_map<Uuid, Track> tracks_;
   std::unordered_map<Uuid, TrackStatus> statuses_;
   std::unordered_map<Uuid, std::size_t> occurrences_;

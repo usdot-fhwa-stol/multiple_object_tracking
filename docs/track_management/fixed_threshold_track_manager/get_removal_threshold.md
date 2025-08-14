@@ -1,11 +1,11 @@
-# `multiple_object_tracking::FixedThresholdTrackManager<Track>::get_removal_threshold`
+# `multiple_object_tracking::FixedThresholdTrackManager<Track>::get_confirmed_to_removal_threshold`
 
 ```cpp
 [[nodiscard]]
-auto get_removal_threshold() const noexcept -> RemovalThreshold;
+auto get_confirmed_to_removal_threshold() const noexcept -> RemovalThreshold;
 ```
 
-Gets the track manager's current removal threshold.
+Gets the track manager's current confirmed track's removal threshold.
 
 ## Parameters
 
@@ -13,4 +13,4 @@ Gets the track manager's current removal threshold.
 
 ## Return value
 
-The current removal threshold.
+The current confirmed track's removal threshold.

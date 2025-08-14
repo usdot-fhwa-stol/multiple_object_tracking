@@ -9,6 +9,7 @@ Sets the promotion threshold to a new value and updates the managed tracks' stat
 ## Parameters
 
 - `threshold` - occurrence threshold at or above which a detection will be promoted to _confirmed_
+    NOTE: New detection for a confirmed track will force the occurrence to be at the threshold
 
 ## Return value
 
