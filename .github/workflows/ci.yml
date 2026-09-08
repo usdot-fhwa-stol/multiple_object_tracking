@@ -1,9 +1,13 @@
 name: CI
 on:
-  push:
-    branches: [develop, master]
+  workflow_dispatch:
   pull_request:
-      types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - develop
+      - master
+      - "release/*"
 jobs:
   build:  # Define a job named 'build'
     defaults:  # Set default values for the job
@@ -13,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
 
     container:  # Use a Docker container as the execution environment
-      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:carma-system-4.5.0-focal  # Docker image to use
+      image: ghcr.io/usdot-fhwa-stol/carma-builds-x64:jammy # Docker image to use
       env:  # Define environment variables for the container
         BUILD_WRAPPER_OUT_DIR: "/opt/carma/src/multiple_object_tracking/build/bw-output"
         TERM: xterm
@@ -21,7 +25,7 @@ jobs:
 
     steps:  # Define a series of steps to execute in the job
     - name: Checkout ${{ github.event.repository.name }}  # Checkout the repository
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
         path: src/${{ github.event.repository.name }}  # Specify the destination path
@@ -37,13 +41,13 @@ jobs:
         python3 -m pip install gcovr==5.0
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
+      uses: actions/setup-java@v5 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
         java-version: 17
         distribution: "temurin"
 
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
-      uses: SonarSource/sonarcloud-github-c-cpp@v2
+      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v7.2.1
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
