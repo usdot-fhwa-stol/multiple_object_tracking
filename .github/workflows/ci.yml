@@ -1,9 +1,13 @@
 name: CI
 on:
-  push:
-    branches: [develop, master]
+  workflow_dispatch:
   pull_request:
-      types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - develop
+      - master
+      - "release/*"
 jobs:
   build:  # Define a job named 'build'
     defaults:  # Set default values for the job
@@ -21,7 +25,7 @@ jobs:
 
     steps:  # Define a series of steps to execute in the job
     - name: Checkout ${{ github.event.repository.name }}  # Checkout the repository
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0  # Disable shallow clones for better analysis relevance
         path: src/${{ github.event.repository.name }}  # Specify the destination path
@@ -43,7 +47,7 @@ jobs:
         distribution: "temurin"
 
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
-      uses: SonarSource/sonarcloud-github-c-cpp@v2
+      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
