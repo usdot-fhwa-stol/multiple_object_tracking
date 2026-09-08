@@ -41,13 +41,13 @@ jobs:
         python3 -m pip install gcovr==5.0
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
+      uses: actions/setup-java@v5 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
       with:
         java-version: 17
         distribution: "temurin"
 
     - name: Install sonar-scanner and build-wrapper  # Install SonarScanner and build-wrapper
-      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
+      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v7.2.1
 
     - name: Build & Run Tests  # Build and run tests for multiple_object_tracking package and run gcovr before sonar scan.
       run: |
